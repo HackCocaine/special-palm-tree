@@ -3,5 +3,5 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   site: 'https://www.hackfluency.com',
-  base: '/hackfluency.com',
+  base: '/',
 });
