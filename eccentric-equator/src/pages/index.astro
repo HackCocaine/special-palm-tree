@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
+const base = import.meta.env.BASE_URL;
+
 const services = [
   {
     icon: "🛡️",
@@ -69,8 +71,8 @@ const values = [
   <!-- Navigation -->
   <nav class="nav">
     <div class="nav-container">
-      <a href="/" class="logo">
-        <img src="/HFNeon.png" alt="Hackfluency" class="logo-img" />
+      <a href={base} class="logo">
+        <img src={`${base}HFNeon.png`} alt="Hackfluency" class="logo-img" />
         <span class="logo-text"><span class="logo-hack">Hack</span><span class="logo-fluency">fluency</span></span>
       </a>
       <div class="nav-links">
@@ -96,7 +98,7 @@ const values = [
     </div>
     <div class="hero-content container">
       <div class="hero-logo">
-        <img src="/HFNeon.png" alt="Hackfluency" class="hero-logo-img" />
+        <img src={`${base}HFNeon.png`} alt="Hackfluency" class="hero-logo-img" />
       </div>
       <div class="hero-badge">
         <span class="badge-dot"></span>
@@ -309,8 +311,8 @@ const values = [
     <div class="container">
       <div class="footer-content">
         <div class="footer-brand">
-          <a href="/" class="logo footer-logo">
-            <img src="/HFNeon.png" alt="Hackfluency" class="footer-logo-img" />
+          <a href={base} class="logo footer-logo">
+            <img src={`${base}HFNeon.png`} alt="Hackfluency" class="footer-logo-img" />
             <span class="logo-text"><span class="logo-hack">Hack</span><span class="logo-fluency">fluency</span></span>
           </a>
           <p class="footer-tagline">
