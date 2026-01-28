@@ -90,16 +90,24 @@ jobs:
           sleep 5
           
           # Run Lighthouse collect (without strict assertions)
-          lhci collect --url=http://localhost:8080/special-palm-tree/ --numberOfRuns=3 --settings.output=json --settings.outputPath=.lighthouseci
+          lhci collect --url=http://localhost:8080/special-palm-tree/ --numberOfRuns=3
+          
+          # Debug: List lighthouse output directory
+          echo "📂 Listing .lighthouseci directory:"
+          ls -la .lighthouseci/ || echo "Directory not found"
           
           # Parse scores from lighthouse results using absolute path
-          REPORT_JSON=$(find "$(pwd)/.lighthouseci" -name "lhr-*.json" -type f | head -1)
+          REPORT_JSON=$(find "$(pwd)/.lighthouseci" -name "lhr-*.json" -type f | sort | tail -1)
           
-          if [ -f "$REPORT_JSON" ]; then
+          echo "📄 Found report: $REPORT_JSON"
+          
+          if [ -n "$REPORT_JSON" ] && [ -f "$REPORT_JSON" ]; then
             # Use node with fs.readFileSync for proper JSON parsing
             SEO_SCORE=$(node -e "const data = JSON.parse(require('fs').readFileSync('$REPORT_JSON', 'utf8')); console.log(Math.round(data.categories.seo.score * 100))")
             PERF_SCORE=$(node -e "const data = JSON.parse(require('fs').readFileSync('$REPORT_JSON', 'utf8')); console.log(Math.round(data.categories.performance.score * 100))")
             A11Y_SCORE=$(node -e "const data = JSON.parse(require('fs').readFileSync('$REPORT_JSON', 'utf8')); console.log(Math.round(data.categories.accessibility.score * 100))")
+            
+            echo "📊 Scores - SEO: $SEO_SCORE, Performance: $PERF_SCORE, Accessibility: $A11Y_SCORE"
             
             echo "seo_score=$SEO_SCORE" >> $GITHUB_OUTPUT
             echo "perf_score=$PERF_SCORE" >> $GITHUB_OUTPUT
@@ -146,7 +154,9 @@ jobs:
               exit 1
             fi
           else
-            echo "❌ Could not find Lighthouse report"
+            echo "❌ Could not find Lighthouse report at: $REPORT_JSON"
+            echo "## ❌ Lighthouse CI Error" >> $GITHUB_STEP_SUMMARY
+            echo "Could not find or parse Lighthouse report" >> $GITHUB_STEP_SUMMARY
             kill $SERVER_PID 2>/dev/null || true
             exit 1
           fi
