@@ -241,17 +241,15 @@
   position: absolute;
   top: 0;
   left: 0;
+  right: 0;
   bottom: 0;
   display: flex;
   pointer-events: none;
   z-index: 5;
-  min-width: 1200px;
 }
 
 .quarter-column {
-  flex: 0 0 300px;
-  width: 300px;
-  min-width: 300px;
+  flex: 1;
   border-right: 2px solid rgba(255, 255, 255, 0.12);
   position: relative;
   box-sizing: border-box;

@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo, useRef } from 'react';
+import React, { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -13,7 +13,6 @@ import {
   type Node,
   type NodeTypes,
   type NodeChange,
-  applyNodeChanges,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './styles.css';
@@ -24,129 +23,30 @@ import { CATEGORY_CONFIG, STATUS_CONFIG, PRIORITY_CONFIG, QUARTER_CONFIG } from 
 import { saveDashboard, publishDashboard, type SavedDashboard } from './dashboardStorage';
 import { exportDashboardToPDF } from './pdfExport';
 
-// Fixed quarter layout - using fixed pixel widths for consistent positioning
+// --- FLEXIBLE LAYOUT REFACTOR ---
+// 1. Constants are adjusted for a dynamic layout.
+// 2. Positioning helpers are moved inside the component and memoized.
+// 3. Initial node positions are now calculated dynamically in a useEffect.
+// 4. The QuarterColumns component is simplified.
+
 const QUARTERS: Quarter[] = ['q1', 'q2', 'q3', 'q4'];
-const QUARTER_WIDTH = 300; // Fixed width per quarter in pixels
-const CANVAS_WIDTH = QUARTER_WIDTH * 4; // Total canvas width
 const NODE_WIDTH = 200; // Approximate node width
 const QUARTER_PADDING = 20; // Padding from quarter edges
 
-// Get quarter boundaries (fixed positions, independent of canvas size)
-const getQuarterBounds = (quarter: Quarter) => {
-  const quarterIndex = QUARTERS.indexOf(quarter);
-  const minX = quarterIndex * QUARTER_WIDTH + QUARTER_PADDING;
-  const maxX = (quarterIndex + 1) * QUARTER_WIDTH - NODE_WIDTH - QUARTER_PADDING;
-  return { minX, maxX, quarterIndex };
-};
-
-// Get quarter from x position
-const getQuarterFromPosition = (x: number): Quarter => {
-  const centerX = x + NODE_WIDTH / 2;
-  const quarterIndex = Math.min(3, Math.max(0, Math.floor(centerX / QUARTER_WIDTH)));
-  return QUARTERS[quarterIndex];
-};
-
-// Constrain node position to its assigned quarter
-const constrainToQuarter = (x: number, quarter: Quarter): number => {
-  const { minX, maxX } = getQuarterBounds(quarter);
-  return Math.min(maxX, Math.max(minX, x));
-};
-
-// Get initial x position for a quarter (centered)
-const getQuarterCenterX = (quarter: Quarter): number => {
-  const { minX, maxX } = getQuarterBounds(quarter);
-  return minX + (maxX - minX) / 2;
-};
-
-// Register custom node types
-const nodeTypes: NodeTypes = {
-  strategy: StrategyNode,
-};
-
-// Helper to create node position within quarter
-const createNodePosition = (quarter: Quarter, yOffset: number) => ({
-  x: getQuarterBounds(quarter).minX + 30,
-  y: 80 + yOffset,
-});
-
-// Initial example data with fixed quarter positions
-const initialNodes: Node<StrategyNodeData>[] = [
-  // Q1 (x: 20 to 280)
-  {
-    id: '1',
-    type: 'strategy',
-    position: createNodePosition('q1', 0),
-    data: { category: 'objective', quarter: 'q1', title: 'Security Assessment', description: 'Complete baseline security evaluation', status: 'done', priority: 'critical' },
-  },
-  {
-    id: '2',
-    type: 'strategy',
-    position: createNodePosition('q1', 160),
-    data: { category: 'initiative', quarter: 'q1', title: 'Asset Inventory', description: 'Catalog all digital assets', status: 'done', priority: 'high' },
-  },
-  {
-    id: '3',
-    type: 'strategy',
-    position: createNodePosition('q1', 320),
-    data: { category: 'risk', quarter: 'q1', title: 'Legacy Systems', description: 'Outdated systems lacking patches', status: 'active', priority: 'critical' },
-  },
-  // Q2 (x: 320 to 580)
-  {
-    id: '4',
-    type: 'strategy',
-    position: createNodePosition('q2', 0),
-    data: { category: 'initiative', quarter: 'q2', title: 'Zero Trust Architecture', description: 'Implement ZTA framework', status: 'active', priority: 'critical' },
-  },
-  {
-    id: '5',
-    type: 'strategy',
-    position: createNodePosition('q2', 160),
-    data: { category: 'control', quarter: 'q2', title: 'MFA Deployment', description: 'Multi-factor auth for all users', status: 'active', priority: 'high' },
-  },
-  {
-    id: '6',
-    type: 'strategy',
-    position: createNodePosition('q2', 320),
-    data: { category: 'milestone', quarter: 'q2', title: 'SOC 2 Prep', description: 'Prepare audit documentation', status: 'planned', priority: 'high' },
-  },
-  // Q3 (x: 620 to 880)
-  {
-    id: '7',
-    type: 'strategy',
-    position: createNodePosition('q3', 0),
-    data: { category: 'initiative', quarter: 'q3', title: 'SIEM Enhancement', description: 'Upgrade threat detection', status: 'planned', priority: 'high' },
-  },
-  {
-    id: '8',
-    type: 'strategy',
-    position: createNodePosition('q3', 160),
-    data: { category: 'control', quarter: 'q3', title: 'Incident Response', description: 'Automated IR playbooks', status: 'planned', priority: 'medium' },
-  },
-  {
-    id: '9',
-    type: 'strategy',
-    position: createNodePosition('q3', 320),
-    data: { category: 'metric', quarter: 'q3', title: 'MTTD', description: 'Mean time to detect', status: 'planned', priority: 'medium', value: '< 4h' },
-  },
-  // Q4 (x: 920 to 1180)
-  {
-    id: '10',
-    type: 'strategy',
-    position: createNodePosition('q4', 0),
-    data: { category: 'objective', quarter: 'q4', title: 'SOC 2 Certification', description: 'Achieve compliance', status: 'planned', priority: 'critical' },
-  },
-  {
-    id: '11',
-    type: 'strategy',
-    position: createNodePosition('q4', 160),
-    data: { category: 'milestone', quarter: 'q4', title: 'Annual Review', description: 'Strategy effectiveness review', status: 'planned', priority: 'high' },
-  },
-  {
-    id: '12',
-    type: 'strategy',
-    position: createNodePosition('q4', 320),
-    data: { category: 'metric', quarter: 'q4', title: 'Security Score', description: 'Overall security rating', status: 'planned', priority: 'high', value: '85%' },
-  },
+// Node data is separated from position, which is now dynamic.
+const initialNodeDetails = [
+  { id: '1', data: { category: 'objective', quarter: 'q1', title: 'Security Assessment', description: 'Complete baseline security evaluation', status: 'done', priority: 'critical' } },
+  { id: '2', data: { category: 'initiative', quarter: 'q1', title: 'Asset Inventory', description: 'Catalog all digital assets', status: 'done', priority: 'high' } },
+  { id: '3', data: { category: 'risk', quarter: 'q1', title: 'Legacy Systems', description: 'Outdated systems lacking patches', status: 'active', priority: 'critical' } },
+  { id: '4', data: { category: 'initiative', quarter: 'q2', title: 'Zero Trust Architecture', description: 'Implement ZTA framework', status: 'active', priority: 'critical' } },
+  { id: '5', data: { category: 'control', quarter: 'q2', title: 'MFA Deployment', description: 'Multi-factor auth for all users', status: 'active', priority: 'high' } },
+  { id: '6', data: { category: 'milestone', quarter: 'q2', title: 'SOC 2 Prep', description: 'Prepare audit documentation', status: 'planned', priority: 'high' } },
+  { id: '7', data: { category: 'initiative', quarter: 'q3', title: 'SIEM Enhancement', description: 'Upgrade threat detection', status: 'planned', priority: 'high' } },
+  { id: '8', data: { category: 'control', quarter: 'q3', title: 'Incident Response', description: 'Automated IR playbooks', status: 'planned', priority: 'medium' } },
+  { id: '9', data: { category: 'metric', quarter: 'q3', title: 'MTTD', description: 'Mean time to detect', status: 'planned', priority: 'medium', value: '< 4h' } },
+  { id: '10', data: { category: 'objective', quarter: 'q4', title: 'SOC 2 Certification', description: 'Achieve compliance', status: 'planned', priority: 'critical' } },
+  { id: '11', data: { category: 'milestone', quarter: 'q4', title: 'Annual Review', description: 'Strategy effectiveness review', status: 'planned', priority: 'high' } },
+  { id: '12', data: { category: 'metric', quarter: 'q4', title: 'Security Score', description: 'Overall security rating', status: 'planned', priority: 'high', value: '85%' } },
 ];
 
 const initialEdges: Edge[] = [
@@ -161,6 +61,10 @@ const initialEdges: Edge[] = [
   { id: 'e10-11', source: '10', target: '11' },
   { id: 'e11-12', source: '11', target: '12' },
 ];
+
+const nodeTypes: NodeTypes = {
+  strategy: StrategyNode,
+};
 
 // Sidebar palette item component
 const PaletteItem: React.FC<{
@@ -191,14 +95,13 @@ const PaletteItem: React.FC<{
   );
 };
 
-// Quarter column overlay - fixed width columns
+// Quarter column overlay - now fully flexible, with no inline styles.
 const QuarterColumns: React.FC = () => (
-  <div className="quarter-columns" style={{ width: `${CANVAS_WIDTH}px` }}>
+  <div className="quarter-columns">
     {(['q1', 'q2', 'q3', 'q4'] as Quarter[]).map((q) => (
       <div 
         key={q} 
         className="quarter-column"
-        style={{ width: `${QUARTER_WIDTH}px`, minWidth: `${QUARTER_WIDTH}px` }}
       >
         <div className="quarter-label">
           <span className={`quarter-badge ${q}`}>{QUARTER_CONFIG[q].label}</span>
@@ -443,45 +346,115 @@ const SuccessToast: React.FC<{
 
 // Main Dashboard Builder Component
 const DashboardBuilder: React.FC = () => {
-  const [nodes, setNodes] = useNodesState(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [publishedDashboard, setPublishedDashboard] = useState<SavedDashboard | null>(null);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const [canvasWidth, setCanvasWidth] = useState(0);
 
+  // --- DYNAMIC LAYOUT LOGIC ---
+
+  // 1. Observe canvas size and update state
+  useEffect(() => {
+    const canvasElement = canvasRef.current;
+    if (!canvasElement) return;
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        setCanvasWidth(entry.contentRect.width);
+      }
+    });
+
+    observer.observe(canvasElement);
+    // Set initial width
+    setCanvasWidth(canvasElement.offsetWidth);
+
+    return () => observer.disconnect();
+  }, []);
+
+  // 2. Memoize positioning functions based on canvas width
+  const { getQuarterBounds, getQuarterFromPosition, constrainToQuarter, getQuarterCenterX } = useMemo(() => {
+    if (canvasWidth === 0) {
+      // Return dummy functions until width is known
+      const dummy = () => ({ minX: 0, maxX: 0, quarterIndex: 0 });
+      return { getQuarterBounds: dummy, getQuarterFromPosition: () => 'q1' as Quarter, constrainToQuarter: (x: number) => x, getQuarterCenterX: () => 0 };
+    }
+
+    const quarterWidth = canvasWidth / 4;
+
+    const getQuarterBounds = (quarter: Quarter) => {
+      const quarterIndex = QUARTERS.indexOf(quarter);
+      const minX = quarterIndex * quarterWidth + QUARTER_PADDING;
+      const maxX = (quarterIndex + 1) * quarterWidth - NODE_WIDTH - QUARTER_PADDING;
+      return { minX, maxX, quarterIndex };
+    };
+
+    const getQuarterFromPosition = (x: number): Quarter => {
+      const centerX = x + NODE_WIDTH / 2;
+      const quarterIndex = Math.min(3, Math.max(0, Math.floor(centerX / quarterWidth)));
+      return QUARTERS[quarterIndex];
+    };
+
+    const constrainToQuarter = (x: number, quarter: Quarter): number => {
+      const { minX, maxX } = getQuarterBounds(quarter);
+      return Math.min(maxX, Math.max(minX, x));
+    };
+
+    const getQuarterCenterX = (quarter: Quarter): number => {
+      const { minX, maxX } = getQuarterBounds(quarter);
+      return minX + (maxX - minX) / 2;
+    };
+
+    return { getQuarterBounds, getQuarterFromPosition, constrainToQuarter, getQuarterCenterX };
+  }, [canvasWidth]);
+
+  // 3. Dynamically position initial nodes once canvas is measured
+  useEffect(() => {
+    if (canvasWidth > 0 && nodes.length === 0) {
+      const yOffsets: Record<Quarter, number> = { q1: 0, q2: 0, q3: 0, q4: 0 };
+      const Y_SPACING = 160;
+
+      const positionedNodes = initialNodeDetails.map(detail => {
+        const quarter = detail.data.quarter;
+        const yPos = 80 + yOffsets[quarter];
+        yOffsets[quarter] += Y_SPACING;
+
+        return {
+          id: detail.id,
+          type: 'strategy',
+          position: {
+            x: getQuarterCenterX(quarter),
+            y: yPos,
+          },
+          data: detail.data,
+        };
+      });
+      setNodes(positionedNodes);
+    }
+  }, [canvasWidth, getQuarterCenterX, nodes.length, setNodes]);
+  
   // Custom onNodesChange that enforces quarter boundaries
-  const onNodesChange = useCallback(
-    (changes: NodeChange<Node<StrategyNodeData>>[]) => {
-      // Process changes and enforce quarter constraints
+  const onNodesChangeCustom = useCallback(
+    (changes: NodeChange[]) => {
       const constrainedChanges = changes.map((change) => {
-        if (change.type === 'position' && change.position) {
+        if (change.type === 'position' && change.position && change.dragging) {
           const node = nodes.find((n) => n.id === change.id);
           if (node) {
-            const nodeData = node.data as StrategyNodeData;
-            const currentQuarter = nodeData.quarter;
-            
-            // Constrain x position to current quarter (fixed widths)
-            const constrainedX = constrainToQuarter(change.position.x, currentQuarter);
-            // Constrain y to stay within canvas (min 50px from top)
-            const constrainedY = Math.max(50, change.position.y);
-            
-            return {
-              ...change,
-              position: {
-                x: constrainedX,
-                y: constrainedY,
-              },
-            };
+            const { quarter } = node.data as StrategyNodeData;
+            change.position.x = constrainToQuarter(change.position.x, quarter);
+            change.position.y = Math.max(50, change.position.y);
           }
         }
         return change;
       });
 
-      setNodes((nds) => applyNodeChanges(constrainedChanges, nds));
+      onNodesChange(constrainedChanges);
     },
-    [nodes, setNodes]
+    [nodes, constrainToQuarter, onNodesChange]
   );
 
   const selectedNode = useMemo(
@@ -521,17 +494,13 @@ const DashboardBuilder: React.FC = () => {
       const category = event.dataTransfer.getData('application/reactflow-category') as NodeCategory;
       if (!category) return;
 
-      const bounds = (event.target as HTMLElement).closest('.react-flow')?.getBoundingClientRect();
-      if (!bounds) return;
+      const reactFlowBounds = canvasRef.current?.getBoundingClientRect();
+      if (!reactFlowBounds) return;
 
-      // Calculate position relative to the canvas
-      let positionX = event.clientX - bounds.left - 100;
-      const positionY = Math.max(80, event.clientY - bounds.top - 50);
+      let positionX = event.clientX - reactFlowBounds.left;
+      const positionY = Math.max(80, event.clientY - reactFlowBounds.top - 50);
 
-      // Determine quarter based on x position (using fixed widths)
       const quarter = getQuarterFromPosition(positionX);
-      
-      // Constrain position to quarter boundaries
       positionX = constrainToQuarter(positionX, quarter);
 
       const config = CATEGORY_CONFIG[category];
@@ -553,38 +522,29 @@ const DashboardBuilder: React.FC = () => {
       setNodes((nds) => [...nds, newNode]);
       setSelectedNodeId(newNode.id);
     },
-    [setNodes]
+    [setNodes, getQuarterFromPosition, constrainToQuarter]
   );
 
   const updateSelectedNode = useCallback(
     (updates: Partial<StrategyNodeData>) => {
       if (!selectedNodeId) return;
+
       setNodes((nds) =>
-        nds.map((node) =>
-          node.id === selectedNodeId
-            ? { ...node, data: { ...node.data, ...updates } }
-            : node
-        )
-      );
-      
-      // If quarter changed, move node to the new quarter (centered)
-      if (updates.quarter && selectedNodeId) {
-        setNodes((nds) =>
-          nds.map((node) => {
-            if (node.id === selectedNodeId) {
-              const newQuarter = updates.quarter as Quarter;
-              const newX = getQuarterCenterX(newQuarter);
-              return {
-                ...node,
-                position: { ...node.position, x: newX },
-              };
+        nds.map((node) => {
+          if (node.id === selectedNodeId) {
+            const updatedNode = { ...node, data: { ...node.data, ...updates } };
+
+            if (updates.quarter && updates.quarter !== node.data.quarter) {
+              updatedNode.position.x = getQuarterCenterX(updates.quarter);
             }
-            return node;
-          })
-        );
-      }
+            
+            return updatedNode;
+          }
+          return node;
+        })
+      );
     },
-    [selectedNodeId, setNodes]
+    [selectedNodeId, setNodes, getQuarterCenterX]
   );
 
   const deleteSelectedNode = useCallback(() => {
@@ -629,10 +589,8 @@ const DashboardBuilder: React.FC = () => {
   }, [isExportingPDF]);
 
   const handlePublish = useCallback((name: string, description: string, publishImmediately: boolean) => {
-    // Save the dashboard
     const saved = saveDashboard(name, description, nodes, edges);
     
-    // Optionally publish immediately
     if (publishImmediately) {
       const published = publishDashboard(saved.id);
       setPublishedDashboard(published);
@@ -642,7 +600,6 @@ const DashboardBuilder: React.FC = () => {
     
     setShowPublishModal(false);
     
-    // Auto-hide toast after 5 seconds
     setTimeout(() => setPublishedDashboard(null), 5000);
   }, [nodes, edges]);
 
@@ -704,22 +661,18 @@ const DashboardBuilder: React.FC = () => {
         </div>
       </nav>
 
-      {/* Publish Modal */}
       <PublishModal
         isOpen={showPublishModal}
         onClose={() => setShowPublishModal(false)}
         onPublish={handlePublish}
       />
 
-      {/* Success Toast */}
       <SuccessToast
         dashboard={publishedDashboard}
         onClose={() => setPublishedDashboard(null)}
       />
 
-      {/* Main Content */}
       <div className="builder-content">
-        {/* Sidebar */}
         <aside className="builder-sidebar">
           <div className="sidebar-section">
             <div className="sidebar-title">Elements</div>
@@ -741,20 +694,19 @@ const DashboardBuilder: React.FC = () => {
           </div>
         </aside>
 
-        {/* Canvas */}
         <div className="builder-canvas" ref={canvasRef} onDragOver={onDragOver} onDrop={onDrop}>
           <QuarterColumns />
           <ReactFlow
             nodes={nodes}
             edges={edges}
-            onNodesChange={onNodesChange}
+            onNodesChange={onNodesChangeCustom}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
             onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
             fitView
-            fitViewOptions={{ padding: 0.1, minZoom: 0.8, maxZoom: 1.2 }}
+            fitViewOptions={{ padding: 0.2, minZoom: 0.8, maxZoom: 1.2 }}
             snapToGrid
             snapGrid={[10, 10]}
             minZoom={0.5}
@@ -770,7 +722,6 @@ const DashboardBuilder: React.FC = () => {
           </ReactFlow>
         </div>
 
-        {/* Properties Panel */}
         <PropertiesPanel
           selectedNode={selectedNode as Node<StrategyNodeData> | null}
           onUpdate={updateSelectedNode}
