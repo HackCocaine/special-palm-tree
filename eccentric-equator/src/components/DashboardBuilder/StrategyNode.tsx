@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Handle, Position } from '@xyflow/react';
+import { Handle, Position, NodeResizer } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
 import type { StrategyNodeData, NodeCategory } from './types';
 import { CATEGORY_CONFIG, STATUS_CONFIG, PRIORITY_CONFIG } from './types';
@@ -53,6 +53,15 @@ const StrategyNode: React.FC<StrategyNodeProps> = ({ data, selected }) => {
       className={`strategy-node ${selected ? 'selected' : ''}`}
       style={{ '--node-color': config.color } as React.CSSProperties}
     >
+      <NodeResizer
+        isVisible={selected}
+        minWidth={180}
+        maxWidth={500}
+        minHeight={120}
+        handleStyle={{ width: '8px', height: '8px', backgroundColor: 'white', border: '2px solid #00D26A' }}
+        lineStyle={{ borderColor: '#00D26A' }}
+      />
+
       {/* Connection Handles */}
       <Handle type="target" position={Position.Top} className="node-handle" />
       <Handle type="target" position={Position.Left} className="node-handle" />

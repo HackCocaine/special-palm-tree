@@ -377,40 +377,31 @@ const DashboardBuilder: React.FC = () => {
   }, []);
 
   // 2. Memoize positioning functions based on canvas width
-  const { getQuarterBounds, getQuarterFromPosition, constrainToQuarter, getQuarterCenterX } = useMemo(() => {
-    if (canvasWidth === 0) {
-      // Return dummy functions until width is known
-      const dummy = () => ({ minX: 0, maxX: 0, quarterIndex: 0 });
-      return { getQuarterBounds: dummy, getQuarterFromPosition: () => 'q1' as Quarter, constrainToQuarter: (x: number) => x, getQuarterCenterX: () => 0 };
-    }
+  const quarterWidth = canvasWidth / 4;
 
-    const quarterWidth = canvasWidth / 4;
+  const getQuarterBounds = useCallback((quarter: Quarter, nodeWidth: number = NODE_WIDTH) => {
+    const quarterIndex = QUARTERS.indexOf(quarter);
+    const minX = quarterIndex * quarterWidth + QUARTER_PADDING;
+    const maxX = (quarterIndex + 1) * quarterWidth - nodeWidth - QUARTER_PADDING;
+    return { minX, maxX, quarterIndex };
+  }, [quarterWidth]);
 
-    const getQuarterBounds = (quarter: Quarter) => {
-      const quarterIndex = QUARTERS.indexOf(quarter);
-      const minX = quarterIndex * quarterWidth + QUARTER_PADDING;
-      const maxX = (quarterIndex + 1) * quarterWidth - NODE_WIDTH - QUARTER_PADDING;
-      return { minX, maxX, quarterIndex };
-    };
+  const getQuarterFromPosition = useCallback((x: number): Quarter => {
+    const centerX = x + NODE_WIDTH / 2;
+    const quarterIndex = Math.min(3, Math.max(0, Math.floor(centerX / quarterWidth)));
+    return QUARTERS[quarterIndex];
+  }, [quarterWidth]);
 
-    const getQuarterFromPosition = (x: number): Quarter => {
-      const centerX = x + NODE_WIDTH / 2;
-      const quarterIndex = Math.min(3, Math.max(0, Math.floor(centerX / quarterWidth)));
-      return QUARTERS[quarterIndex];
-    };
+  const constrainToQuarter = useCallback((x: number, quarter: Quarter, nodeWidth?: number): number => {
+    const { minX, maxX } = getQuarterBounds(quarter, nodeWidth);
+    return Math.min(maxX, Math.max(minX, x));
+  }, [getQuarterBounds]);
 
-    const constrainToQuarter = (x: number, quarter: Quarter): number => {
-      const { minX, maxX } = getQuarterBounds(quarter);
-      return Math.min(maxX, Math.max(minX, x));
-    };
+  const getQuarterCenterX = useCallback((quarter: Quarter, nodeWidth?: number): number => {
+    const { minX, maxX } = getQuarterBounds(quarter, nodeWidth);
+    return minX + (maxX - minX) / 2;
+  }, [getQuarterBounds]);
 
-    const getQuarterCenterX = (quarter: Quarter): number => {
-      const { minX, maxX } = getQuarterBounds(quarter);
-      return minX + (maxX - minX) / 2;
-    };
-
-    return { getQuarterBounds, getQuarterFromPosition, constrainToQuarter, getQuarterCenterX };
-  }, [canvasWidth]);
 
   // 3. Dynamically position initial nodes once canvas is measured
   useEffect(() => {
@@ -445,7 +436,7 @@ const DashboardBuilder: React.FC = () => {
           const node = nodes.find((n) => n.id === change.id);
           if (node) {
             const { quarter } = node.data as StrategyNodeData;
-            change.position.x = constrainToQuarter(change.position.x, quarter);
+            change.position.x = constrainToQuarter(change.position.x, quarter, node.width);
             change.position.y = Math.max(50, change.position.y);
           }
         }
@@ -535,7 +526,7 @@ const DashboardBuilder: React.FC = () => {
             const updatedNode = { ...node, data: { ...node.data, ...updates } };
 
             if (updates.quarter && updates.quarter !== node.data.quarter) {
-              updatedNode.position.x = getQuarterCenterX(updates.quarter);
+              updatedNode.position.x = getQuarterCenterX(updates.quarter, node.width);
             }
             
             return updatedNode;
@@ -706,15 +697,19 @@ const DashboardBuilder: React.FC = () => {
             onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
             fitView
-            fitViewOptions={{ padding: 0.2, minZoom: 0.8, maxZoom: 1.2 }}
+            fitViewOptions={{ padding: 0.1, minZoom: 0.9, maxZoom: 1.3 }}
             snapToGrid
             snapGrid={[10, 10]}
-            minZoom={0.5}
-            maxZoom={1.5}
+            minZoom={0.9}
+            maxZoom={1.3}
+            panOnDrag={false}
+            zoomOnScroll={false}
+            zoomOnPinch={false}
+            zoomOnDoubleClick={false}
+            autoPanOnNodeDrag={false}
             defaultEdgeOptions={{ animated: true, style: { stroke: '#00D26A', strokeWidth: 2 } }}
           >
             <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="rgba(255,255,255,0.03)" />
-            <Controls showInteractive={false} />
             <MiniMap
               nodeColor={(n) => CATEGORY_CONFIG[(n.data as StrategyNodeData).category]?.color || '#00D26A'}
               maskColor="rgba(0, 210, 106, 0.1)"

@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from 'react';
+import React, { useMemo, useCallback, useState, useRef, useEffect } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -27,18 +27,13 @@ interface DashboardViewerProps {
   dashboard: SavedDashboard;
 }
 
-// Fixed quarter layout constants (must match builder)
-const QUARTER_WIDTH = 300;
-const CANVAS_WIDTH = QUARTER_WIDTH * 4;
-
-// Quarter column overlay for viewer (matches builder layout)
+// Quarter column overlay for viewer - now fully flexible
 const QuarterColumnsViewer: React.FC = () => (
-  <div className="viewer-quarter-columns" style={{ width: `${CANVAS_WIDTH}px` }}>
+  <div className="viewer-quarter-columns">
     {(['q1', 'q2', 'q3', 'q4'] as Quarter[]).map((q) => (
       <div 
         key={q} 
         className="viewer-quarter-column"
-        style={{ width: `${QUARTER_WIDTH}px`, minWidth: `${QUARTER_WIDTH}px` }}
       >
         <div className="viewer-quarter-label">
           <span className={`viewer-quarter-badge ${q}`}>{QUARTER_CONFIG[q].label}</span>
@@ -94,23 +89,59 @@ const DashboardStats: React.FC<{ nodes: Node<StrategyNodeData>[] }> = ({ nodes }
 };
 
 const DashboardViewer: React.FC<DashboardViewerProps> = ({ dashboard }) => {
-  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [canvasWidth, setCanvasWidth] = useState(0);
+
+  // --- DYNAMIC LAYOUT LOGIC ---
+  const BASE_CANVAS_WIDTH = 1200; // The width the saved node positions were based on
+
+  // 1. Observe canvas size and update state
+  useEffect(() => {
+    const canvasElement = canvasRef.current;
+    if (!canvasElement) return;
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        setCanvasWidth(entry.contentRect.width);
+      }
+    });
+
+    observer.observe(canvasElement);
+    setCanvasWidth(canvasElement.offsetWidth); // Set initial width
+
+    return () => observer.disconnect();
+  }, []);
   
+  // 2. Scale node positions and widths based on current canvas size
+  const scaledNodes = useMemo(() => {
+    if (!canvasWidth || canvasWidth === BASE_CANVAS_WIDTH) {
+      return dashboard.nodes;
+    }
+    const scale = canvasWidth / BASE_CANVAS_WIDTH;
+    return dashboard.nodes.map(node => ({
+      ...node,
+      position: {
+        x: node.position.x * scale,
+        y: node.position.y, // y position remains the same
+      },
+      width: node.width ? node.width * scale : undefined,
+    }));
+  }, [dashboard.nodes, canvasWidth]);
+
+  // Handle React Flow initialization
+  const onInit = useCallback((instance: ReactFlowInstance) => {
+    setTimeout(() => {
+      instance.fitView({ padding: 0.1, duration: 200 });
+    }, 100);
+  }, []);
+
   const formattedDate = new Date(dashboard.publishedAt || dashboard.updatedAt).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
-
-  // Handle React Flow initialization
-  const onInit = useCallback((instance: ReactFlowInstance) => {
-    setReactFlowInstance(instance);
-    // Delay fitView to ensure container is properly sized
-    setTimeout(() => {
-      instance.fitView({ padding: 0.2, includeHiddenNodes: true });
-    }, 100);
-  }, []);
 
   // Handle PDF export
   const handleExportPDF = useCallback(async () => {
@@ -228,40 +259,35 @@ const DashboardViewer: React.FC<DashboardViewerProps> = ({ dashboard }) => {
       </header>
 
       {/* Canvas */}
-      <div className="viewer-canvas">
+      <div className="viewer-canvas" ref={canvasRef}>
         <QuarterColumnsViewer />
         <div className="react-flow-wrapper">
           <ReactFlow
-            nodes={dashboard.nodes}
+            nodes={scaledNodes}
             edges={dashboard.edges}
             nodeTypes={nodeTypes}
             onInit={onInit}
             fitView
-            fitViewOptions={{ padding: 0.2 }}
-            // Disable all node interactions for read-only view
+            fitViewOptions={{ padding: 0.1 }}
+            // Disable all interactions for read-only view
             nodesDraggable={false}
             nodesConnectable={false}
             nodesFocusable={false}
             edgesFocusable={false}
             elementsSelectable={false}
-            // Allow navigation only
-            panOnDrag
-            zoomOnScroll
-            zoomOnPinch
+            panOnDrag={false}
+            zoomOnScroll={false}
+            zoomOnPinch={false}
+            zoomOnDoubleClick={false}
             panOnScroll={false}
             preventScrolling
             // Zoom limits
-            minZoom={0.3}
-            maxZoom={1.5}
+            minZoom={0.8}
+            maxZoom={1.2}
             // Edge styling
             defaultEdgeOptions={{ style: { stroke: '#00D26A', strokeWidth: 2 } }}
           >
             <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="rgba(255,255,255,0.03)" />
-            <Controls showInteractive={false} />
-            <MiniMap
-              nodeColor={(n) => CATEGORY_CONFIG[(n.data as StrategyNodeData).category]?.color || '#00D26A'}
-              maskColor="rgba(0, 210, 106, 0.1)"
-            />
           </ReactFlow>
         </div>
       </div>
@@ -270,3 +296,4 @@ const DashboardViewer: React.FC<DashboardViewerProps> = ({ dashboard }) => {
 };
 
 export default DashboardViewer;
+
