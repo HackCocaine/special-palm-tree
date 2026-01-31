@@ -46,3 +46,122 @@ export const PRIORITY_CONFIG: Record<Priority, { label: string; color: string }>
   high: { label: 'High', color: '#f59e0b' },
   critical: { label: 'Critical', color: '#ef4444' },
 };
+
+// Edge Types and Configuration
+export type EdgeType = 'dependency' | 'supports' | 'implements' | 'mitigates' | 'mitigated-by' | 'measures';
+
+export type AnimationType = 'flow' | 'pulse' | 'blink' | 'steady';
+
+export interface EdgeTypeConfig {
+  label: string;
+  color: string;
+  description: string;
+  dashArray: string;
+  animationDuration: string;
+  animationType: AnimationType;
+  selectedGlow: boolean;
+}
+
+export const EDGE_TYPE_CONFIG: Record<EdgeType, EdgeTypeConfig> = {
+  dependency: {
+    label: 'Dependency',
+    color: '#00D26A',
+    description: 'Critical security dependency - blocks downstream work',
+    dashArray: 'none',
+    animationDuration: '2s',
+    animationType: 'pulse',
+    selectedGlow: true,
+  },
+  supports: {
+    label: 'Supports',
+    color: '#3b82f6',
+    description: 'Security initiative provides foundational support',
+    dashArray: '8 4',
+    animationDuration: '1s',
+    animationType: 'flow',
+    selectedGlow: true,
+  },
+  implements: {
+    label: 'Implements',
+    color: '#8b5cf6',
+    description: 'Milestone implements security objective',
+    dashArray: '2 4',
+    animationDuration: '3s',
+    animationType: 'pulse',
+    selectedGlow: true,
+  },
+  mitigates: {
+    label: 'Mitigates',
+    color: '#f59e0b',
+    description: 'URGENT: Control mitigates critical security risk',
+    dashArray: '6 3 2 3',
+    animationDuration: '0.8s',
+    animationType: 'blink',
+    selectedGlow: true,
+  },
+  'mitigated-by': {
+    label: 'Mitigated By',
+    color: '#14b8a6',
+    description: 'Risk is covered by implemented control',
+    dashArray: '12 6',
+    animationDuration: '2.5s',
+    animationType: 'steady',
+    selectedGlow: true,
+  },
+  measures: {
+    label: 'Measures',
+    color: '#eab308',
+    description: 'Security metric tracks KPI performance',
+    dashArray: '4 4',
+    animationDuration: '0.6s',
+    animationType: 'flow',
+    selectedGlow: true,
+  },
+};
+
+// Default edge type based on source node category
+export const CATEGORY_EDGE_DEFAULTS: Record<NodeCategory, EdgeType> = {
+  objective: 'dependency',
+  initiative: 'supports',
+  milestone: 'implements',
+  risk: 'mitigates',
+  control: 'mitigated-by',
+  metric: 'measures',
+};
+
+// Helper function to resolve edge color
+export function resolveEdgeColor(
+  edgeType: EdgeType | undefined,
+  sourceCategory: NodeCategory | undefined
+): string {
+  // Priority 1: Explicit user selection
+  if (edgeType && EDGE_TYPE_CONFIG[edgeType]) {
+    return EDGE_TYPE_CONFIG[edgeType].color;
+  }
+
+  // Priority 2: Inherited from source node category
+  if (sourceCategory && CATEGORY_EDGE_DEFAULTS[sourceCategory]) {
+    const inheritedType = CATEGORY_EDGE_DEFAULTS[sourceCategory];
+    return EDGE_TYPE_CONFIG[inheritedType].color;
+  }
+
+  // Priority 3: Ultimate fallback
+  return '#00D26A';
+}
+
+// Helper function to get edge type label
+export function getEdgeTypeLabel(
+  edgeType: EdgeType | undefined,
+  sourceCategory: NodeCategory | undefined
+): string {
+  if (edgeType && EDGE_TYPE_CONFIG[edgeType]) {
+    return EDGE_TYPE_CONFIG[edgeType].label;
+  }
+
+  if (sourceCategory && CATEGORY_EDGE_DEFAULTS[sourceCategory]) {
+    const inheritedType = CATEGORY_EDGE_DEFAULTS[sourceCategory];
+    return `${EDGE_TYPE_CONFIG[inheritedType].label} (from ${CATEGORY_CONFIG[sourceCategory].label})`;
+  }
+
+  return 'Dependency (Default)';
+}

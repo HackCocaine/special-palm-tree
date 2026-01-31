@@ -13,13 +13,15 @@ import {
   type Node,
   type NodeTypes,
   type NodeChange,
+  type EdgeTypes,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './styles.css';
 
 import StrategyNode from './StrategyNode';
-import type { StrategyNodeData, NodeCategory, Quarter, Status, Priority } from './types';
-import { CATEGORY_CONFIG, STATUS_CONFIG, PRIORITY_CONFIG, QUARTER_CONFIG } from './types';
+import StrategyEdge from './StrategyEdge';
+import type { StrategyNodeData, NodeCategory, Quarter, Status, Priority, EdgeType } from './types';
+import { CATEGORY_CONFIG, STATUS_CONFIG, PRIORITY_CONFIG, QUARTER_CONFIG, EDGE_TYPE_CONFIG, CATEGORY_EDGE_DEFAULTS } from './types';
 import { saveDashboard, publishDashboard, type SavedDashboard } from './dashboardStorage';
 import { exportDashboardToPDF } from './pdfExport';
 
@@ -50,20 +52,24 @@ const initialNodeDetails = [
 ];
 
 const initialEdges: Edge[] = [
-  { id: 'e1-2', source: '1', target: '2', animated: true },
-  { id: 'e2-4', source: '2', target: '4', animated: true },
-  { id: 'e3-5', source: '3', target: '5', style: { stroke: '#f59e0b' } },
-  { id: 'e4-7', source: '4', target: '7', animated: true },
-  { id: 'e5-6', source: '5', target: '6' },
-  { id: 'e6-10', source: '6', target: '10', animated: true },
-  { id: 'e7-8', source: '7', target: '8' },
-  { id: 'e8-9', source: '8', target: '9' },
-  { id: 'e10-11', source: '10', target: '11' },
-  { id: 'e11-12', source: '11', target: '12' },
+  { id: 'e1-2', source: '1', target: '2', type: 'strategy', data: {} }, // objective -> initiative (inherits green)
+  { id: 'e2-4', source: '2', target: '4', type: 'strategy', data: {} }, // initiative -> initiative (inherits blue)
+  { id: 'e3-5', source: '3', target: '5', type: 'strategy', data: { type: 'mitigates' } }, // risk -> control (explicit orange)
+  { id: 'e4-7', source: '4', target: '7', type: 'strategy', data: {} }, // initiative -> initiative (inherits blue)
+  { id: 'e5-6', source: '5', target: '6', type: 'strategy', data: {} }, // control -> milestone (inherits teal)
+  { id: 'e6-10', source: '6', target: '10', type: 'strategy', data: {} }, // milestone -> objective (inherits purple)
+  { id: 'e7-8', source: '7', target: '8', type: 'strategy', data: {} }, // initiative -> control (inherits blue)
+  { id: 'e8-9', source: '8', target: '9', type: 'strategy', data: {} }, // control -> metric (inherits teal)
+  { id: 'e10-11', source: '10', target: '11', type: 'strategy', data: {} }, // objective -> milestone (inherits green)
+  { id: 'e11-12', source: '11', target: '12', type: 'strategy', data: {} }, // milestone -> metric (inherits purple)
 ];
 
 const nodeTypes: NodeTypes = {
   strategy: StrategyNode,
+};
+
+const edgeTypes: EdgeTypes = {
+  strategy: StrategyEdge,
 };
 
 // Sidebar palette item component
@@ -111,6 +117,115 @@ const QuarterColumns: React.FC = () => (
     ))}
   </div>
 );
+
+// Edge Properties Panel
+const EdgePropertiesPanel: React.FC<{
+  selectedEdge: Edge | null;
+  nodes: Node<StrategyNodeData>[];
+  onUpdate: (type: EdgeType | undefined) => void;
+  onReset: () => void;
+  onDelete: () => void;
+}> = ({ selectedEdge, nodes, onUpdate, onReset, onDelete }) => {
+  if (!selectedEdge) {
+    return (
+      <div className="builder-panel">
+        <div className="panel-empty">
+          <div className="panel-empty-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <p>Select a connection</p>
+          <small>Click on a line to edit its properties</small>
+        </div>
+      </div>
+    );
+  }
+
+  const sourceNode = nodes.find((n) => n.id === selectedEdge.source);
+  const sourceCategory = sourceNode?.data?.category as NodeCategory | undefined;
+  const currentType = selectedEdge.data?.type as EdgeType | undefined;
+  const isInherited = !currentType;
+
+  // Get inherited type for display
+  const inheritedType = sourceCategory ? CATEGORY_EDGE_DEFAULTS[sourceCategory] : 'dependency';
+  const inheritedConfig = EDGE_TYPE_CONFIG[inheritedType];
+  const inheritedLabel = sourceCategory
+    ? `${inheritedConfig.label} (from ${CATEGORY_CONFIG[sourceCategory].label})`
+    : inheritedConfig.label;
+
+  return (
+    <div className="builder-panel">
+      <div className="panel-header">
+        <span
+          className="panel-type"
+          style={{
+            background: isInherited ? `${inheritedConfig.color}15` : `${EDGE_TYPE_CONFIG[currentType].color}15`,
+            color: isInherited ? inheritedConfig.color : EDGE_TYPE_CONFIG[currentType].color,
+          }}
+        >
+          {isInherited ? `Auto: ${inheritedConfig.label}` : EDGE_TYPE_CONFIG[currentType].label}
+        </span>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            className="panel-delete"
+            onClick={onReset}
+            title="Reset to inherited color (Delete key)"
+            style={{
+              background: 'rgba(59, 130, 246, 0.1)',
+              color: '#3b82f6',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
+            </svg>
+          </button>
+          <button className="panel-delete" onClick={onDelete} title="Delete connection line">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label>Connection Type</label>
+        <select
+          value={currentType || ''}
+          onChange={(e) => {
+            const value = e.target.value;
+            onUpdate(value ? (value as EdgeType) : undefined);
+          }}
+        >
+          <option value="">{inheritedLabel} (Inherited)</option>
+          {Object.entries(EDGE_TYPE_CONFIG).map(([key, config]) => (
+            <option key={key} value={key}>
+              {config.label} - {config.description}
+            </option>
+          ))}
+        </select>
+        {isInherited && (
+          <small style={{ color: '#6a6a6a', display: 'block', marginTop: '4px' }}>
+            Color inherited from {sourceCategory ? CATEGORY_CONFIG[sourceCategory].label : 'default'} node
+          </small>
+        )}
+      </div>
+
+      <div className="form-group">
+        <label>Connection Info</label>
+        <div style={{ fontSize: '0.75rem', color: '#8a8a8a', lineHeight: 1.6 }}>
+          <p>From: {sourceNode?.data?.title || selectedEdge.source}</p>
+          <p>To: {nodes.find((n) => n.id === selectedEdge.target)?.data?.title || selectedEdge.target}</p>
+        </div>
+      </div>
+
+      <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(0, 210, 106, 0.05)', borderRadius: '8px', fontSize: '0.75rem', color: '#8a8a8a' }}>
+        <strong style={{ color: '#00D26A' }}>Tip:</strong> Press <kbd style={{ background: '#1a1a1a', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace' }}>Delete</kbd> to reset styling to inherited color
+      </div>
+    </div>
+  );
+};
 
 // Properties Panel
 const PropertiesPanel: React.FC<{
@@ -349,6 +464,7 @@ const DashboardBuilder: React.FC = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [publishedDashboard, setPublishedDashboard] = useState<SavedDashboard | null>(null);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
@@ -453,19 +569,40 @@ const DashboardBuilder: React.FC = () => {
     [nodes, selectedNodeId]
   );
 
+  const selectedEdge = useMemo(
+    () => edges.find((e) => e.id === selectedEdgeId) || null,
+    [edges, selectedEdgeId]
+  );
+
   const onConnect = useCallback(
     (connection: Connection) => {
-      setEdges((eds) => addEdge({ ...connection, animated: true }, eds));
+      setEdges((eds) =>
+        addEdge(
+          {
+            ...connection,
+            type: 'strategy',
+            data: {}, // No explicit type - will inherit from source node
+          },
+          eds
+        )
+      );
     },
     [setEdges]
   );
 
+  const onEdgeClick = useCallback((_: React.MouseEvent, edge: Edge) => {
+    setSelectedEdgeId(edge.id);
+    setSelectedNodeId(null); // Clear node selection
+  }, []);
+
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
     setSelectedNodeId(node.id);
+    setSelectedEdgeId(null); // Clear edge selection
   }, []);
 
   const onPaneClick = useCallback(() => {
     setSelectedNodeId(null);
+    setSelectedEdgeId(null);
   }, []);
 
   const onDragStart = (event: React.DragEvent, category: NodeCategory) => {
@@ -544,6 +681,55 @@ const DashboardBuilder: React.FC = () => {
     setEdges((eds) => eds.filter((e) => e.source !== selectedNodeId && e.target !== selectedNodeId));
     setSelectedNodeId(null);
   }, [selectedNodeId, setNodes, setEdges]);
+
+  // Edge management functions
+  const updateSelectedEdge = useCallback(
+    (type: EdgeType | undefined) => {
+      if (!selectedEdgeId) return;
+
+      setEdges((eds) =>
+        eds.map((edge) => {
+          if (edge.id === selectedEdgeId) {
+            return {
+              ...edge,
+              data: {
+                ...edge.data,
+                type, // undefined = inherit from source node
+              },
+            };
+          }
+          return edge;
+        })
+      );
+    },
+    [selectedEdgeId, setEdges]
+  );
+
+  const resetSelectedEdgeToInherited = useCallback(() => {
+    updateSelectedEdge(undefined);
+  }, [updateSelectedEdge]);
+
+  const deleteSelectedEdge = useCallback(() => {
+    if (!selectedEdgeId) return;
+    setEdges((eds) => eds.filter((e) => e.id !== selectedEdgeId));
+    setSelectedEdgeId(null);
+  }, [selectedEdgeId, setEdges]);
+
+  // Keyboard handler for Delete key
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        // If edge is selected, reset to inherited (soft delete of styling)
+        if (selectedEdgeId) {
+          event.preventDefault();
+          resetSelectedEdgeToInherited();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedEdgeId, resetSelectedEdgeToInherited]);
 
   const clearAll = useCallback(() => {
     if (confirm('Clear all nodes and connections?')) {
@@ -694,8 +880,10 @@ const DashboardBuilder: React.FC = () => {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            onEdgeClick={onEdgeClick}
             onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             fitView
             fitViewOptions={{ padding: 0.1, minZoom: 0.9, maxZoom: 1.3 }}
             snapToGrid
@@ -707,7 +895,6 @@ const DashboardBuilder: React.FC = () => {
             zoomOnPinch={false}
             zoomOnDoubleClick={false}
             autoPanOnNodeDrag={false}
-            defaultEdgeOptions={{ animated: true, style: { stroke: '#00D26A', strokeWidth: 2 } }}
           >
             <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="rgba(255,255,255,0.03)" />
             <MiniMap
@@ -717,11 +904,21 @@ const DashboardBuilder: React.FC = () => {
           </ReactFlow>
         </div>
 
-        <PropertiesPanel
-          selectedNode={selectedNode as Node<StrategyNodeData> | null}
-          onUpdate={updateSelectedNode}
-          onDelete={deleteSelectedNode}
-        />
+        {selectedEdge ? (
+          <EdgePropertiesPanel
+            selectedEdge={selectedEdge}
+            nodes={nodes as Node<StrategyNodeData>[]}
+            onUpdate={updateSelectedEdge}
+            onReset={resetSelectedEdgeToInherited}
+            onDelete={deleteSelectedEdge}
+          />
+        ) : (
+          <PropertiesPanel
+            selectedNode={selectedNode as Node<StrategyNodeData> | null}
+            onUpdate={updateSelectedNode}
+            onDelete={deleteSelectedNode}
+          />
+        )}
       </div>
     </div>
   );

@@ -433,19 +433,93 @@
   text-transform: uppercase;
 }
 
-/* Edges */
-.react-flow__edge-path {
-  stroke: #00D26A !important;
-  stroke-width: 2 !important;
+/* Edges - Styles handled by StrategyEdge component dynamically */
+.react-flow__edge {
+  cursor: pointer;
 }
 
-.react-flow__edge.selected .react-flow__edge-path {
-  stroke-width: 3 !important;
+.react-flow__edge.selected {
+  z-index: 1000;
 }
 
-.react-flow__edge-path.dependency { stroke: #00D26A !important; }
-.react-flow__edge-path.supports { stroke: #3b82f6 !important; stroke-dasharray: 5 3; }
-.react-flow__edge-path.mitigates { stroke: #f59e0b !important; stroke-dasharray: 3 3; }
+/* Edge type styles - kept for backwards compatibility but handled dynamically in StrategyEdge */
+.react-flow__edge-path.dependency { stroke: #00D26A; }
+.react-flow__edge-path.supports { stroke: #3b82f6; stroke-dasharray: 5 3; }
+.react-flow__edge-path.implements { stroke: #8b5cf6; }
+.react-flow__edge-path.mitigates { stroke: #f59e0b; stroke-dasharray: 3 3; }
+.react-flow__edge-path.mitigated-by { stroke: #14b8a6; stroke-dasharray: 4 2; }
+.react-flow__edge-path.measures { stroke: #eab308; }
+
+/* Edge Animations - Flowing/Marching Ants Effect */
+@keyframes edgeFlow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+/* Pulse animation for dependency and implements */
+@keyframes edgePulse {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 1px currentColor);
+  }
+  50% {
+    opacity: 0.75;
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+}
+
+/* Blink animation for mitigates (urgent/risk attention) */
+@keyframes edgeBlink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Enhanced Glow animation for selected edges */
+@keyframes edgeGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px currentColor);
+  }
+  50% {
+    filter: drop-shadow(0 0 8px currentColor);
+  }
+}
+
+/* PDF Export Mode - Disable animations and ensure visibility */
+.pdf-export-mode .react-flow__edge path {
+  animation: none !important;
+  stroke-opacity: 1 !important;
+  opacity: 1 !important;
+}
+
+/* Thicker edges for better PDF visibility */
+.pdf-export-mode .react-flow__edge path {
+  stroke-width: 2.5px !important;
+}
+
+/* Selected edges in export mode */
+.pdf-export-mode .react-flow__edge.selected path {
+  stroke-width: 3.5px !important;
+}
+
+/* Ensure edge labels are hidden in export mode */
+.pdf-export-mode .react-flow__edge .react-flow__edge-label {
+  display: none !important;
+}
+
+/* Hide controls in export mode */
+.pdf-export-mode .react-flow__controls,
+.pdf-export-mode .react-flow__minimap,
+.pdf-export-mode .react-flow__attribution {
+  display: none !important;
+}
 
 /* Properties Panel */
 .builder-panel {

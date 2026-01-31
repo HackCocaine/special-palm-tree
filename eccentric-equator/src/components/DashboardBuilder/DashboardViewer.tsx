@@ -14,13 +14,18 @@ import '@xyflow/react/dist/style.css';
 import './viewer-styles.css';
 
 import StrategyNode from './StrategyNode';
-import type { StrategyNodeData, Quarter } from './types';
+import StrategyEdge from './StrategyEdge';
+import type { StrategyNodeData, Quarter, EdgeTypes } from './types';
 import { CATEGORY_CONFIG, QUARTER_CONFIG } from './types';
 import type { SavedDashboard } from './dashboardStorage';
 import { exportDashboardToPDF } from './pdfExport';
 
 const nodeTypes: NodeTypes = {
   strategy: StrategyNode,
+};
+
+const edgeTypes: EdgeTypes = {
+  strategy: StrategyEdge,
 };
 
 interface DashboardViewerProps {
@@ -284,8 +289,8 @@ const DashboardViewer: React.FC<DashboardViewerProps> = ({ dashboard }) => {
             // Zoom limits
             minZoom={0.8}
             maxZoom={1.2}
-            // Edge styling
-            defaultEdgeOptions={{ style: { stroke: '#00D26A', strokeWidth: 2 } }}
+            // Edge types for animated connections
+            edgeTypes={edgeTypes}
           >
             <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="rgba(255,255,255,0.03)" />
           </ReactFlow>

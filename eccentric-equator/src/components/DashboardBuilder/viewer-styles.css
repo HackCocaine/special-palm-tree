@@ -348,21 +348,80 @@
   pointer-events: none;
 }
 
-/* Edge path styles for viewer */
+/* Edge path styles for viewer - handled dynamically by StrategyEdge */
 .viewer-canvas .react-flow__edge-path {
-  stroke: #00D26A !important;
-  stroke-width: 2 !important;
+  stroke-width: 2;
 }
 
-.viewer-canvas .react-flow__edge.animated path {
-  stroke-dasharray: 5;
-  animation: dashdraw 0.5s linear infinite;
-}
-
-@keyframes dashdraw {
+/* Edge Animations - Flowing/Marching Ants Effect */
+@keyframes edgeFlow {
   from {
-    stroke-dashoffset: 10;
+    stroke-dashoffset: 0;
   }
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+/* Pulse animation for dependency and implements */
+@keyframes edgePulse {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 1px currentColor);
+  }
+  50% {
+    opacity: 0.75;
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+}
+
+/* Blink animation for mitigates (urgent/risk attention) */
+@keyframes edgeBlink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Enhanced Glow animation for important edges */
+@keyframes edgeGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px currentColor);
+  }
+  50% {
+    filter: drop-shadow(0 0 8px currentColor);
+  }
+}
+
+/* PDF Export Mode - Disable animations and ensure visibility */
+.pdf-export-mode .react-flow__edge path {
+  animation: none !important;
+  stroke-opacity: 1 !important;
+  opacity: 1 !important;
+}
+
+/* Thicker edges for better PDF visibility */
+.pdf-export-mode .react-flow__edge path {
+  stroke-width: 2.5px !important;
+}
+
+/* Selected edges in export mode */
+.pdf-export-mode .react-flow__edge.selected path {
+  stroke-width: 3.5px !important;
+}
+
+/* Ensure edge labels are hidden in export mode */
+.pdf-export-mode .react-flow__edge .react-flow__edge-label {
+  display: none !important;
+}
+
+/* Hide controls in export mode */
+.pdf-export-mode .react-flow__controls,
+.pdf-export-mode .react-flow__minimap,
+.pdf-export-mode .react-flow__attribution {
+  display: none !important;
 }
 
 .viewer-canvas .react-flow__pane {

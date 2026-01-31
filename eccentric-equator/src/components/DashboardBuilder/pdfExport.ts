@@ -9,6 +9,23 @@ interface ExportOptions {
 }
 
 /**
+ * Prepare edges for PDF export by disabling animations and applying static styles
+ * Returns a cleanup function to restore original state
+ */
+function prepareEdgesForExport(canvasElement: HTMLElement): () => void {
+  // Add export mode class to disable animations
+  canvasElement.classList.add('pdf-export-mode');
+  
+  // Force a reflow to ensure styles are applied
+  canvasElement.offsetHeight;
+  
+  // Return cleanup function
+  return () => {
+    canvasElement.classList.remove('pdf-export-mode');
+  };
+}
+
+/**
  * Export a dashboard canvas to high-quality PDF
  * Full landscape layout optimized for client presentations
  */
@@ -69,9 +86,12 @@ export async function exportDashboardToPDF(
   `;
   document.body.appendChild(loadingOverlay);
 
+  // Prepare edges for export (disable animations)
+  const cleanupExportMode = prepareEdgesForExport(canvasElement);
+
   try {
-    // Wait a frame for overlay to render
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // Wait for React to re-render with export mode styles
+    await new Promise(resolve => setTimeout(resolve, 150));
 
     // Capture the canvas at high resolution
     const canvas = await html2canvas(canvasElement, {
@@ -85,6 +105,9 @@ export async function exportDashboardToPDF(
       onclone: (clonedDoc) => {
         const clonedCanvas = clonedDoc.querySelector(canvasSelector) as HTMLElement;
         if (clonedCanvas) {
+          // Apply export mode to cloned document as well
+          clonedCanvas.classList.add('pdf-export-mode');
+          
           // Hide controls, minimap, and attribution in export
           const controls = clonedCanvas.querySelector('.react-flow__controls');
           const minimap = clonedCanvas.querySelector('.react-flow__minimap');
@@ -99,6 +122,14 @@ export async function exportDashboardToPDF(
           if (quarterOverlay) {
             (quarterOverlay as HTMLElement).style.opacity = '1';
           }
+          
+          // Ensure all edges are visible in the cloned document
+          const edges = clonedCanvas.querySelectorAll('.react-flow__edge path');
+          edges.forEach((edge) => {
+            const edgeEl = edge as SVGPathElement;
+            edgeEl.style.strokeOpacity = '1';
+            edgeEl.style.opacity = '1';
+          });
         }
       }
     });
@@ -217,6 +248,8 @@ export async function exportDashboardToPDF(
     console.error('Error generating PDF:', error);
     alert('Failed to generate PDF. Please try again.');
   } finally {
+    // Restore original edge animations and styles
+    cleanupExportMode();
     // Remove loading overlay
     loadingOverlay.remove();
   }
