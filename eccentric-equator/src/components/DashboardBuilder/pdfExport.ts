@@ -1,4 +1,4 @@
-import html2canvas from 'html2canvas';
+import { toPng, toBlob } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 
 interface ExportOptions {
@@ -6,23 +6,6 @@ interface ExportOptions {
   filename?: string;
   includeHeader?: boolean;
   description?: string;
-}
-
-/**
- * Prepare edges for PDF export by disabling animations and applying static styles
- * Returns a cleanup function to restore original state
- */
-function prepareEdgesForExport(canvasElement: HTMLElement): () => void {
-  // Add export mode class to disable animations
-  canvasElement.classList.add('pdf-export-mode');
-  
-  // Force a reflow to ensure styles are applied
-  canvasElement.offsetHeight;
-  
-  // Return cleanup function
-  return () => {
-    canvasElement.classList.remove('pdf-export-mode');
-  };
 }
 
 /**
@@ -86,52 +69,94 @@ export async function exportDashboardToPDF(
   `;
   document.body.appendChild(loadingOverlay);
 
-  // Prepare edges for export (disable animations)
-  const cleanupExportMode = prepareEdgesForExport(canvasElement);
+  // Add export mode class to prepare for capture
+  canvasElement.classList.add('pdf-export-mode');
+  
+  // Force layout recalculation
+  canvasElement.offsetHeight;
 
   try {
-    // Wait for React to re-render with export mode styles
-    await new Promise(resolve => setTimeout(resolve, 150));
-
-    // Capture the canvas at high resolution
-    const canvas = await html2canvas(canvasElement, {
-      backgroundColor: '#0a0a0a',
-      scale: 3, // High resolution for crisp output
-      useCORS: true,
-      allowTaint: true,
-      logging: false,
-      windowWidth: canvasElement.scrollWidth,
-      windowHeight: canvasElement.scrollHeight,
-      onclone: (clonedDoc) => {
-        const clonedCanvas = clonedDoc.querySelector(canvasSelector) as HTMLElement;
-        if (clonedCanvas) {
-          // Apply export mode to cloned document as well
-          clonedCanvas.classList.add('pdf-export-mode');
+    // Wait for React to re-render with export mode styles and SVG to be ready
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Find the react-flow wrapper to ensure we capture the correct bounds
+    const reactFlowWrapper = canvasElement.querySelector('.react-flow') as HTMLElement;
+    const targetElement = reactFlowWrapper || canvasElement;
+    
+    // Get the actual bounds of the content including edges
+    const edgesContainer = canvasElement.querySelector('.react-flow__edges') as HTMLElement;
+    const nodesContainer = canvasElement.querySelector('.react-flow__nodes') as HTMLElement;
+    
+    // Temporarily ensure edges are visible at the SVG level
+    if (edgesContainer) {
+      const svg = edgesContainer.querySelector('svg');
+      if (svg) {
+        svg.style.overflow = 'visible';
+        svg.setAttribute('overflow', 'visible');
+        
+        // Ensure all path elements have explicit attributes for capture
+        const paths = svg.querySelectorAll('path');
+        paths.forEach((path, index) => {
+          // Get current computed styles
+          const computedStyle = window.getComputedStyle(path);
+          const stroke = computedStyle.stroke;
+          const strokeWidth = computedStyle.strokeWidth;
+          const strokeDasharray = computedStyle.strokeDasharray;
           
-          // Hide controls, minimap, and attribution in export
-          const controls = clonedCanvas.querySelector('.react-flow__controls');
-          const minimap = clonedCanvas.querySelector('.react-flow__minimap');
-          const attribution = clonedCanvas.querySelector('.react-flow__attribution');
-          const quarterOverlay = clonedCanvas.querySelector('.viewer-quarter-columns, .quarter-columns');
-          
-          if (controls) (controls as HTMLElement).style.display = 'none';
-          if (minimap) (minimap as HTMLElement).style.display = 'none';
-          if (attribution) (attribution as HTMLElement).style.display = 'none';
-          
-          // Make quarter columns more visible for export
-          if (quarterOverlay) {
-            (quarterOverlay as HTMLElement).style.opacity = '1';
+          // Set explicit SVG attributes (these serialize better than CSS)
+          if (stroke && stroke !== 'none') {
+            path.setAttribute('stroke', stroke);
+          }
+          if (strokeWidth && strokeWidth !== '0px') {
+            path.setAttribute('stroke-width', strokeWidth);
+          }
+          if (strokeDasharray && strokeDasharray !== 'none') {
+            path.setAttribute('stroke-dasharray', strokeDasharray);
           }
           
-          // Ensure all edges are visible in the cloned document
-          const edges = clonedCanvas.querySelectorAll('.react-flow__edge path');
-          edges.forEach((edge) => {
-            const edgeEl = edge as SVGPathElement;
-            edgeEl.style.strokeOpacity = '1';
-            edgeEl.style.opacity = '1';
-          });
-        }
+          // Ensure fill is none for edge paths
+          path.setAttribute('fill', 'none');
+          
+          // Remove any opacity animations
+          path.style.opacity = '1';
+          path.style.strokeOpacity = '1';
+          path.style.animation = 'none';
+          
+          // Add debug logging for first few edges
+          if (index < 3) {
+            console.log(`Edge ${index}: stroke=${stroke}, width=${strokeWidth}, dash=${strokeDasharray}`);
+          }
+        });
       }
+    }
+    
+    // Also ensure nodes are visible
+    if (nodesContainer) {
+      nodesContainer.style.opacity = '1';
+      nodesContainer.style.visibility = 'visible';
+    }
+    
+    // Wait a bit more for SVG changes to apply
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Capture using html-to-image (much better SVG support than html2canvas)
+    const dataUrl = await toPng(targetElement, {
+      backgroundColor: '#0a0a0a',
+      pixelRatio: 2, // High resolution for crisp output
+      cacheBust: true,
+      skipFonts: false,
+      includeQueryParams: true,
+      filter: (node) => {
+        // Filter out controls and other UI elements we don't want in the PDF
+        if (node.classList) {
+          if (node.classList.contains('react-flow__controls') ||
+              node.classList.contains('react-flow__minimap') ||
+              node.classList.contains('react-flow__attribution')) {
+            return false;
+          }
+        }
+        return true;
+      },
     });
 
     // Use larger page format for better quality
@@ -191,10 +216,17 @@ export async function exportDashboardToPDF(
     }
 
     // Calculate image dimensions to fit page while maintaining aspect ratio
+    const img = new Image();
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = dataUrl;
+    });
+    
     const availableWidth = pageWidth - 30; // margins
     const availableHeight = pageHeight - yOffset - 25; // header + footer margins
     
-    const imgAspectRatio = canvas.width / canvas.height;
+    const imgAspectRatio = img.width / img.height;
     const pageAspectRatio = availableWidth / availableHeight;
     
     let imgWidth, imgHeight;
@@ -212,9 +244,9 @@ export async function exportDashboardToPDF(
     // Center the image horizontally
     const xOffset = (pageWidth - imgWidth) / 2;
     
-    // Add the high-quality canvas image
+    // Add the high-quality image
     pdf.addImage(
-      canvas.toDataURL('image/png', 1.0),
+      dataUrl,
       'PNG',
       xOffset,
       yOffset,
@@ -248,10 +280,9 @@ export async function exportDashboardToPDF(
     console.error('Error generating PDF:', error);
     alert('Failed to generate PDF. Please try again.');
   } finally {
-    // Restore original edge animations and styles
-    cleanupExportMode();
+    // Restore original state
+    canvasElement.classList.remove('pdf-export-mode');
     // Remove loading overlay
     loadingOverlay.remove();
   }
 }
-

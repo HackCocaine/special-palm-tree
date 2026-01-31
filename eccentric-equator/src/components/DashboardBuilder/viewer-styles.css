@@ -400,6 +400,7 @@
   animation: none !important;
   stroke-opacity: 1 !important;
   opacity: 1 !important;
+  fill: none !important;
 }
 
 /* Thicker edges for better PDF visibility */
@@ -410,6 +411,60 @@
 /* Selected edges in export mode */
 .pdf-export-mode .react-flow__edge.selected path {
   stroke-width: 3.5px !important;
+}
+
+/* Ensure SVG edges container is fully visible */
+.pdf-export-mode .react-flow__edges {
+  overflow: visible !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Ensure edge wrapper elements are visible */
+.pdf-export-mode .react-flow__edge {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Make all SVG elements visible during export */
+.pdf-export-mode svg {
+  overflow: visible !important;
+}
+
+/* Preserve dash arrays for different edge types in PDF export */
+.pdf-export-mode .react-flow__edge path[style*="strokeDasharray"],
+.pdf-export-mode .react-flow__edge path[stroke-dasharray] {
+  vector-effect: non-scaling-stroke !important;
+}
+
+/* Explicit dash array styles for PDF export by edge type */
+.pdf-export-mode .react-flow__edge [data-edge-type="supports"] path,
+.pdf-export-mode .react-flow__edge path[style*="8 4"] {
+  stroke-dasharray: 8 4 !important;
+}
+
+.pdf-export-mode .react-flow__edge [data-edge-type="implements"] path,
+.pdf-export-mode .react-flow__edge path[style*="2 4"] {
+  stroke-dasharray: 2 4 !important;
+}
+
+.pdf-export-mode .react-flow__edge [data-edge-type="mitigates"] path,
+.pdf-export-mode .react-flow__edge path[style*="6 3 2 3"] {
+  stroke-dasharray: 6 3 2 3 !important;
+}
+
+.pdf-export-mode .react-flow__edge [data-edge-type="mitigated-by"] path,
+.pdf-export-mode .react-flow__edge path[style*="12 6"] {
+  stroke-dasharray: 12 6 !important;
+}
+
+.pdf-export-mode .react-flow__edge [data-edge-type="measures"] path,
+.pdf-export-mode .react-flow__edge path[style*="4 4"] {
+  stroke-dasharray: 4 4 !important;
+}
+
+.pdf-export-mode .react-flow__edge [data-edge-type="dependency"] path {
+  stroke-dasharray: none !important;
 }
 
 /* Ensure edge labels are hidden in export mode */

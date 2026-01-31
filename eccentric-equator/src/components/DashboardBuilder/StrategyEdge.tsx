@@ -35,13 +35,21 @@ const StrategyEdge: React.FC<EdgeProps<StrategyEdgeData>> = ({
   const [isExportMode, setIsExportMode] = useState(false);
   const observerRef = useRef<MutationObserver | null>(null);
 
+  // Force re-render counter for export mode sync
+  const [renderKey, setRenderKey] = useState(0);
+
   // Detect export mode by checking for pdf-export-mode class on canvas
   useEffect(() => {
     const checkExportMode = () => {
       // Look for canvas container with export mode class
       const canvas = document.querySelector('.builder-canvas, .viewer-canvas');
       const hasExportMode = canvas?.classList.contains('pdf-export-mode') || false;
-      setIsExportMode(hasExportMode);
+      
+      if (hasExportMode !== isExportMode) {
+        setIsExportMode(hasExportMode);
+        // Force re-render when export mode changes
+        setRenderKey(prev => prev + 1);
+      }
     };
 
     // Initial check
@@ -64,14 +72,14 @@ const StrategyEdge: React.FC<EdgeProps<StrategyEdgeData>> = ({
       });
     }
 
-    // Also check periodically as a fallback
-    const intervalId = setInterval(checkExportMode, 100);
+    // Also check periodically as a fallback with shorter interval
+    const intervalId = setInterval(checkExportMode, 50);
 
     return () => {
       observerRef.current?.disconnect();
       clearInterval(intervalId);
     };
-  }, []);
+  }, [isExportMode]);
 
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
@@ -202,12 +210,15 @@ const StrategyEdge: React.FC<EdgeProps<StrategyEdgeData>> = ({
         />
       )}
 
-      <BaseEdge
-        id={id}
-        path={edgePath}
-        style={getAnimationStyle()}
-        className={`edge-animation-${getAnimationName()}`}
-      />
+      <g data-edge-type={String(effectiveType)}>
+        <BaseEdge
+          id={id}
+          key={renderKey}
+          path={edgePath}
+          style={getAnimationStyle()}
+          className={`edge-animation-${getAnimationName()}`}
+        />
+      </g>
 
       <EdgeLabelRenderer>
         <div
