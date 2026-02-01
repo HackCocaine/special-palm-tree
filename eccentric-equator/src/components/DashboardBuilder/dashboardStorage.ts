@@ -26,12 +26,43 @@ export interface DashboardVersion {
 const STORAGE_KEY = 'hackfluency_dashboards';
 const VERSIONS_KEY = 'hackfluency_dashboard_versions';
 
+function safeStorageGet(key: string): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return localStorage.getItem(key);
+  } catch (error) {
+    console.error(`Error reading from localStorage [${key}]:`, error);
+    return null;
+  }
+}
+
+function safeStorageSet(key: string, value: string): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (error) {
+    console.error(`Error writing to localStorage [${key}]:`, error);
+    if (error instanceof DOMException && 
+        (error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+      alert('Storage limit reached. Please delete old dashboards or versions.');
+    }
+    return false;
+  }
+}
+
 // Get all dashboards from localStorage
 export function getAllDashboards(): SavedDashboard[] {
-  if (typeof window === 'undefined') return [];
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : [];
+  const data = safeStorageGet(STORAGE_KEY);
+  if (!data) return [];
+  try {
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error parsing dashboards from storage:', error);
+    return [];
+  }
 }
+
 
 // Get active (non-archived) dashboards
 export function getActiveDashboards(): SavedDashboard[] {
@@ -56,8 +87,9 @@ export function getDashboardById(id: string): SavedDashboard | null {
 
 // Generate a unique ID
 function generateId(): string {
-  return `dash-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `dash-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 }
+
 
 // Generate a URL-friendly slug
 export function generateSlug(name: string): string {
@@ -91,7 +123,7 @@ export function saveDashboard(
   };
   
   dashboards.push(newDashboard);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(dashboards));
+  safeStorageSet(STORAGE_KEY, JSON.stringify(dashboards));
   
   // Save version history
   saveVersion(newDashboard.id, 1, nodes, edges);
@@ -124,7 +156,7 @@ export function updateDashboard(
   };
   
   dashboards[index] = updatedDashboard;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(dashboards));
+  safeStorageSet(STORAGE_KEY, JSON.stringify(dashboards));
   
   // Save version if content changed
   if (contentChanged) {
@@ -154,7 +186,7 @@ export function publishDashboard(id: string): SavedDashboard | null {
     updatedAt: now,
   };
   
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(dashboards));
+  safeStorageSet(STORAGE_KEY, JSON.stringify(dashboards));
   return dashboards[index];
 }
 
@@ -173,7 +205,7 @@ export function archiveDashboard(id: string): SavedDashboard | null {
     updatedAt: now,
   };
   
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(dashboards));
+  safeStorageSet(STORAGE_KEY, JSON.stringify(dashboards));
   return dashboards[index];
 }
 
@@ -192,7 +224,7 @@ export function restoreDashboard(id: string): SavedDashboard | null {
     updatedAt: now,
   };
   
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(dashboards));
+  safeStorageSet(STORAGE_KEY, JSON.stringify(dashboards));
   return dashboards[index];
 }
 
@@ -203,13 +235,14 @@ export function deleteDashboard(id: string): boolean {
   
   if (filtered.length === dashboards.length) return false;
   
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  safeStorageSet(STORAGE_KEY, JSON.stringify(filtered));
   
   // Also delete versions
   deleteVersions(id);
   
   return true;
 }
+
 
 // Version management
 function saveVersion(
@@ -236,16 +269,21 @@ function saveVersion(
     const remaining = versions.filter(v => 
       v.dashboardId !== dashboardId || !toRemove.includes(v)
     );
-    localStorage.setItem(VERSIONS_KEY, JSON.stringify(remaining));
+    safeStorageSet(VERSIONS_KEY, JSON.stringify(remaining));
   } else {
-    localStorage.setItem(VERSIONS_KEY, JSON.stringify(versions));
+    safeStorageSet(VERSIONS_KEY, JSON.stringify(versions));
   }
 }
 
 function getAllVersions(): DashboardVersion[] {
-  if (typeof window === 'undefined') return [];
-  const data = localStorage.getItem(VERSIONS_KEY);
-  return data ? JSON.parse(data) : [];
+  const data = safeStorageGet(VERSIONS_KEY);
+  if (!data) return [];
+  try {
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error parsing versions from storage:', error);
+    return [];
+  }
 }
 
 export function getVersionsForDashboard(dashboardId: string): DashboardVersion[] {
@@ -262,8 +300,9 @@ export function getVersion(dashboardId: string, version: number): DashboardVersi
 
 function deleteVersions(dashboardId: string): void {
   const versions = getAllVersions().filter(v => v.dashboardId !== dashboardId);
-  localStorage.setItem(VERSIONS_KEY, JSON.stringify(versions));
+  safeStorageSet(VERSIONS_KEY, JSON.stringify(versions));
 }
+
 
 // Duplicate a dashboard
 export function duplicateDashboard(id: string, newName?: string): SavedDashboard | null {
