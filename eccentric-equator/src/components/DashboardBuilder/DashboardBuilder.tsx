@@ -1,13 +1,15 @@
 import React, { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import {
   ReactFlow,
-  Controls,
-  Background,
   MiniMap,
   addEdge,
   useNodesState,
   useEdgesState,
+  useReactFlow,
+  useViewport,
+  Background,
   BackgroundVariant,
+  ReactFlowProvider,
   type Connection,
   type Edge,
   type Node,
@@ -25,17 +27,36 @@ import { CATEGORY_CONFIG, STATUS_CONFIG, PRIORITY_CONFIG, QUARTER_CONFIG, EDGE_T
 import { saveDashboard, publishDashboard, type SavedDashboard } from './dashboardStorage';
 import { exportDashboardToPDF } from './pdfExport';
 
-// --- FLEXIBLE LAYOUT REFACTOR ---
-// 1. Constants are adjusted for a dynamic layout.
-// 2. Positioning helpers are moved inside the component and memoized.
-// 3. Initial node positions are now calculated dynamically in a useEffect.
-// 4. The QuarterColumns component is simplified.
-
+// --- FIXED COORDINATE SYSTEM ---
+const VIRTUAL_WIDTH = 1440;
+const QUARTER_WIDTH = VIRTUAL_WIDTH / 4; // 360px
+const QUARTER_PADDING = 20;
 const QUARTERS: Quarter[] = ['q1', 'q2', 'q3', 'q4'];
-const NODE_WIDTH = 200; // Approximate node width
-const QUARTER_PADDING = 20; // Padding from quarter edges
 
-// Node data is separated from position, which is now dynamic.
+// Background guides that move and scale with the flow - ensures visual consistency
+const StrategicBackground: React.FC = () => {
+  const { x, y, zoom } = useViewport();
+  
+  const style: React.CSSProperties = {
+    transform: `translate(${x}px, ${y}px) scale(${zoom})`,
+    transformOrigin: '0 0',
+  };
+
+  return (
+    <div className="strategic-bg-guide" style={style}>
+      {QUARTERS.map((q) => (
+        <div key={q} className="strategic-bg-column">
+          <div className="strategic-bg-label">
+            <span className="strategic-bg-badge">{QUARTER_CONFIG[q].label}</span>
+            <span className="strategic-bg-months">{QUARTER_CONFIG[q].months}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// Node data is separated from position, which is now center-based.
 const initialNodeDetails = [
   { id: '1', data: { category: 'objective', quarter: 'q1', title: 'Security Assessment', description: 'Complete baseline security evaluation', status: 'done', priority: 'critical' } },
   { id: '2', data: { category: 'initiative', quarter: 'q1', title: 'Asset Inventory', description: 'Catalog all digital assets', status: 'done', priority: 'high' } },
@@ -52,16 +73,16 @@ const initialNodeDetails = [
 ];
 
 const initialEdges: Edge[] = [
-  { id: 'e1-2', source: '1', target: '2', type: 'strategy', data: {} }, // objective -> initiative (inherits green)
-  { id: 'e2-4', source: '2', target: '4', type: 'strategy', data: {} }, // initiative -> initiative (inherits blue)
-  { id: 'e3-5', source: '3', target: '5', type: 'strategy', data: { type: 'mitigates' } }, // risk -> control (explicit orange)
-  { id: 'e4-7', source: '4', target: '7', type: 'strategy', data: {} }, // initiative -> initiative (inherits blue)
-  { id: 'e5-6', source: '5', target: '6', type: 'strategy', data: {} }, // control -> milestone (inherits teal)
-  { id: 'e6-10', source: '6', target: '10', type: 'strategy', data: {} }, // milestone -> objective (inherits purple)
-  { id: 'e7-8', source: '7', target: '8', type: 'strategy', data: {} }, // initiative -> control (inherits blue)
-  { id: 'e8-9', source: '8', target: '9', type: 'strategy', data: {} }, // control -> metric (inherits teal)
-  { id: 'e10-11', source: '10', target: '11', type: 'strategy', data: {} }, // objective -> milestone (inherits green)
-  { id: 'e11-12', source: '11', target: '12', type: 'strategy', data: {} }, // milestone -> metric (inherits purple)
+  { id: 'e1-2', source: '1', target: '2', type: 'strategy', data: {} },
+  { id: 'e2-4', source: '2', target: '4', type: 'strategy', data: {} },
+  { id: 'e3-5', source: '3', target: '5', type: 'strategy', data: { type: 'mitigates' } },
+  { id: 'e4-7', source: '4', target: '7', type: 'strategy', data: {} },
+  { id: 'e5-6', source: '5', target: '6', type: 'strategy', data: {} },
+  { id: 'e6-10', source: '6', target: '10', type: 'strategy', data: {} },
+  { id: 'e7-8', source: '7', target: '8', type: 'strategy', data: {} },
+  { id: 'e8-9', source: '8', target: '9', type: 'strategy', data: {} },
+  { id: 'e10-11', source: '10', target: '11', type: 'strategy', data: {} },
+  { id: 'e11-12', source: '11', target: '12', type: 'strategy', data: {} },
 ];
 
 const nodeTypes: NodeTypes = {
@@ -100,23 +121,6 @@ const PaletteItem: React.FC<{
     </div>
   );
 };
-
-// Quarter column overlay - now fully flexible, with no inline styles.
-const QuarterColumns: React.FC = () => (
-  <div className="quarter-columns">
-    {(['q1', 'q2', 'q3', 'q4'] as Quarter[]).map((q) => (
-      <div 
-        key={q} 
-        className="quarter-column"
-      >
-        <div className="quarter-label">
-          <span className={`quarter-badge ${q}`}>{QUARTER_CONFIG[q].label}</span>
-          <span className="quarter-name">{QUARTER_CONFIG[q].months}</span>
-        </div>
-      </div>
-    ))}
-  </div>
-);
 
 // Edge Properties Panel
 const EdgePropertiesPanel: React.FC<{
@@ -160,11 +164,11 @@ const EdgePropertiesPanel: React.FC<{
         <span
           className="panel-type"
           style={{
-            background: isInherited ? `${inheritedConfig.color}15` : `${EDGE_TYPE_CONFIG[currentType].color}15`,
-            color: isInherited ? inheritedConfig.color : EDGE_TYPE_CONFIG[currentType].color,
+            background: isInherited ? `${inheritedConfig.color}15` : `${EDGE_TYPE_CONFIG[currentType as EdgeType].color}15`,
+            color: isInherited ? inheritedConfig.color : EDGE_TYPE_CONFIG[currentType as EdgeType].color,
           }}
         >
-          {isInherited ? `Auto: ${inheritedConfig.label}` : EDGE_TYPE_CONFIG[currentType].label}
+          {isInherited ? `Auto: ${inheritedConfig.label}` : EDGE_TYPE_CONFIG[currentType as EdgeType].label}
         </span>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button
@@ -461,6 +465,7 @@ const SuccessToast: React.FC<{
 
 // Main Dashboard Builder Component
 const DashboardBuilder: React.FC = () => {
+  const { screenToFlowPosition } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -469,64 +474,35 @@ const DashboardBuilder: React.FC = () => {
   const [publishedDashboard, setPublishedDashboard] = useState<SavedDashboard | null>(null);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
-  const [canvasWidth, setCanvasWidth] = useState(0);
 
-  // --- DYNAMIC LAYOUT LOGIC ---
-
-  // 1. Observe canvas size and update state
-  useEffect(() => {
-    const canvasElement = canvasRef.current;
-    if (!canvasElement) return;
-
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (entry) {
-        setCanvasWidth(entry.contentRect.width);
-      }
-    });
-
-    observer.observe(canvasElement);
-    // Set initial width
-    setCanvasWidth(canvasElement.offsetWidth);
-
-    return () => observer.disconnect();
+  // --- POSITIONING HELPERS ---
+  const getQuarterCenter = useCallback((quarter: Quarter): number => {
+    const quarterIndex = QUARTERS.indexOf(quarter);
+    return quarterIndex * QUARTER_WIDTH + QUARTER_WIDTH / 2;
   }, []);
 
-  // 2. Memoize positioning functions based on canvas width
-  const quarterWidth = canvasWidth / 4;
-
-  const getQuarterBounds = useCallback((quarter: Quarter, nodeWidth: number = NODE_WIDTH) => {
-    const quarterIndex = QUARTERS.indexOf(quarter);
-    const minX = quarterIndex * quarterWidth + QUARTER_PADDING;
-    const maxX = (quarterIndex + 1) * quarterWidth - nodeWidth - QUARTER_PADDING;
-    return { minX, maxX, quarterIndex };
-  }, [quarterWidth]);
-
   const getQuarterFromPosition = useCallback((x: number): Quarter => {
-    const centerX = x + NODE_WIDTH / 2;
-    const quarterIndex = Math.min(3, Math.max(0, Math.floor(centerX / quarterWidth)));
+    const quarterIndex = Math.min(3, Math.max(0, Math.floor(x / QUARTER_WIDTH)));
     return QUARTERS[quarterIndex];
-  }, [quarterWidth]);
+  }, []);
 
-  const constrainToQuarter = useCallback((x: number, quarter: Quarter, nodeWidth?: number): number => {
-    const { minX, maxX } = getQuarterBounds(quarter, nodeWidth);
+  const constrainToQuarter = useCallback((x: number, quarter: Quarter): number => {
+    const quarterIndex = QUARTERS.indexOf(quarter);
+    const minX = quarterIndex * QUARTER_WIDTH + QUARTER_PADDING;
+    const maxX = (quarterIndex + 1) * QUARTER_WIDTH - QUARTER_PADDING;
+    // Since nodeOrigin is [0.5, 0], x refers to the center of the node
     return Math.min(maxX, Math.max(minX, x));
-  }, [getQuarterBounds]);
-
-  const getQuarterCenterX = useCallback((quarter: Quarter, nodeWidth?: number): number => {
-    const { minX, maxX } = getQuarterBounds(quarter, nodeWidth);
-    return minX + (maxX - minX) / 2;
-  }, [getQuarterBounds]);
+  }, []);
 
 
-  // 3. Dynamically position initial nodes once canvas is measured
+  // Initialize nodes once
   useEffect(() => {
-    if (canvasWidth > 0 && nodes.length === 0) {
+    if (nodes.length === 0) {
       const yOffsets: Record<Quarter, number> = { q1: 0, q2: 0, q3: 0, q4: 0 };
       const Y_SPACING = 160;
 
       const positionedNodes = initialNodeDetails.map(detail => {
-        const quarter = detail.data.quarter;
+        const quarter = detail.data.quarter as Quarter;
         const yPos = 80 + yOffsets[quarter];
         yOffsets[quarter] += Y_SPACING;
 
@@ -534,15 +510,15 @@ const DashboardBuilder: React.FC = () => {
           id: detail.id,
           type: 'strategy',
           position: {
-            x: getQuarterCenterX(quarter),
+            x: getQuarterCenter(quarter),
             y: yPos,
           },
           data: detail.data,
-        };
+        } as Node;
       });
       setNodes(positionedNodes);
     }
-  }, [canvasWidth, getQuarterCenterX, nodes.length, setNodes]);
+  }, [getQuarterCenter, nodes.length, setNodes]);
   
   // Custom onNodesChange that enforces quarter boundaries
   const onNodesChangeCustom = useCallback(
@@ -552,7 +528,7 @@ const DashboardBuilder: React.FC = () => {
           const node = nodes.find((n) => n.id === change.id);
           if (node) {
             const { quarter } = node.data as StrategyNodeData;
-            change.position.x = constrainToQuarter(change.position.x, quarter, node.width);
+            change.position.x = constrainToQuarter(change.position.x, quarter);
             change.position.y = Math.max(50, change.position.y);
           }
         }
@@ -622,14 +598,14 @@ const DashboardBuilder: React.FC = () => {
       const category = event.dataTransfer.getData('application/reactflow-category') as NodeCategory;
       if (!category) return;
 
-      const reactFlowBounds = canvasRef.current?.getBoundingClientRect();
-      if (!reactFlowBounds) return;
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
 
-      let positionX = event.clientX - reactFlowBounds.left;
-      const positionY = Math.max(80, event.clientY - reactFlowBounds.top - 50);
-
-      const quarter = getQuarterFromPosition(positionX);
-      positionX = constrainToQuarter(positionX, quarter);
+      const quarter = getQuarterFromPosition(position.x);
+      const positionX = constrainToQuarter(position.x, quarter);
+      const positionY = Math.max(80, position.y);
 
       const config = CATEGORY_CONFIG[category];
       const newNode: Node<StrategyNodeData> = {
@@ -650,7 +626,7 @@ const DashboardBuilder: React.FC = () => {
       setNodes((nds) => [...nds, newNode]);
       setSelectedNodeId(newNode.id);
     },
-    [setNodes, getQuarterFromPosition, constrainToQuarter]
+    [setNodes, screenToFlowPosition, getQuarterFromPosition, constrainToQuarter]
   );
 
   const updateSelectedNode = useCallback(
@@ -663,7 +639,7 @@ const DashboardBuilder: React.FC = () => {
             const updatedNode = { ...node, data: { ...node.data, ...updates } };
 
             if (updates.quarter && updates.quarter !== node.data.quarter) {
-              updatedNode.position.x = getQuarterCenterX(updates.quarter, node.width);
+              updatedNode.position.x = getQuarterCenter(updates.quarter);
             }
             
             return updatedNode;
@@ -672,7 +648,7 @@ const DashboardBuilder: React.FC = () => {
         })
       );
     },
-    [selectedNodeId, setNodes, getQuarterCenterX]
+    [selectedNodeId, setNodes, getQuarterCenter]
   );
 
   const deleteSelectedNode = useCallback(() => {
@@ -907,7 +883,6 @@ const DashboardBuilder: React.FC = () => {
         </aside>
 
         <div className="builder-canvas" ref={canvasRef} onDragOver={onDragOver} onDrop={onDrop}>
-          <QuarterColumns />
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -919,25 +894,25 @@ const DashboardBuilder: React.FC = () => {
             onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
+            nodeOrigin={[0.5, 0]}
+            defaultViewport={{ x: 50, y: 50, zoom: 1.0 }}
             fitView
-            fitViewOptions={{ padding: 0.1, minZoom: 0.9, maxZoom: 1.3 }}
+            fitViewOptions={{ padding: 0.15, maxZoom: 1.0 }}
             snapToGrid
             snapGrid={[10, 10]}
-            minZoom={0.9}
-            maxZoom={1.3}
-            panOnDrag={false}
-            zoomOnScroll={false}
-            zoomOnPinch={false}
-            zoomOnDoubleClick={false}
-            autoPanOnNodeDrag={false}
+            minZoom={0.5}
+            maxZoom={1.5}
+            panOnDrag={true}
+            zoomOnScroll={true}
+            zoomOnPinch={true}
+            autoPanOnNodeDrag={true}
+            translateExtent={[[-500, -500], [2000, 3000]]} // Allow comfortable editing space
           >
+            <StrategicBackground />
             <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="rgba(255,255,255,0.03)" />
-            <MiniMap
-              nodeColor={(n) => CATEGORY_CONFIG[(n.data as StrategyNodeData).category]?.color || '#00D26A'}
-              maskColor="rgba(0, 210, 106, 0.1)"
-            />
           </ReactFlow>
         </div>
+
 
         {selectedEdge ? (
           <EdgePropertiesPanel
@@ -959,4 +934,11 @@ const DashboardBuilder: React.FC = () => {
   );
 };
 
-export default DashboardBuilder;
+// Wrap with ReactFlowProvider
+const DashboardBuilderWrapper: React.FC = () => (
+  <ReactFlowProvider>
+    <DashboardBuilder />
+  </ReactFlowProvider>
+);
+
+export default DashboardBuilderWrapper;

@@ -213,12 +213,12 @@
 /* Strategy Node Styles */
 .strategy-node {
   background: #1a1a1a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 10px;
   padding: 12px;
   min-width: 180px;
-  transition: border-color 0.15s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.15s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
 }
 
 .strategy-node.selected {
@@ -357,121 +357,16 @@
   50% { filter: drop-shadow(0 0 10px currentColor); stroke-width: 4; }
 }
 
-/* Strategic Background Guide */
-.strategic-bg-guide {
-  position: absolute;
-  top: -5000px; /* Allow large vertical panning */
-  left: 0;
-  width: 1200px; 
-  height: 10000px;
-  display: flex;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.strategic-bg-column {
-  flex: 1;
-  border-right: 1px solid rgba(0, 210, 106, 0.1);
-  position: relative;
-}
-
-.strategic-bg-column:nth-child(1) { background: linear-gradient(90deg, rgba(0, 210, 106, 0.05) 0%, transparent 100%); }
-.strategic-bg-column:nth-child(2) { background: linear-gradient(90deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%); }
-.strategic-bg-column:nth-child(3) { background: linear-gradient(90deg, rgba(139, 92, 246, 0.05) 0%, transparent 100%); }
-.strategic-bg-column:nth-child(4) { background: linear-gradient(90deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%); border-right: none; }
-
-.strategic-bg-label {
-  position: absolute;
-  top: 5020px; /* Offset because container starts at -5000 */
-  left: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  opacity: 0.3;
-}
-
-.strategic-bg-badge {
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  font-size: 2.5rem; /* Larger labels */
-  color: #fff;
-  letter-spacing: -0.02em;
-}
-
-.strategic-bg-months {
-  font-size: 1rem;
-  color: #888;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-/* Unified Node Style Overrides */
-.strategy-node {
-  background: #111111 !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
-}
-
-.strategy-node .node-title {
-  font-size: 0.95rem !important;
-  font-weight: 700 !important;
-}
-
-.strategy-node .node-category {
-  font-size: 0.7rem !important;
-}
-
-.strategy-node .node-description {
-  color: #999 !important;
-}
-
-@keyframes edgePulse {
-  0%, 100% { opacity: 1; filter: drop-shadow(0 0 1px currentColor); }
-  50% { opacity: 0.75; filter: drop-shadow(0 0 3px currentColor); }
-}
-
-@keyframes edgeBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-@keyframes edgeGlow {
-  0%, 100% { filter: drop-shadow(0 0 2px currentColor); }
-  50% { filter: drop-shadow(0 0 8px currentColor); }
-}
-
-/* Edge Animations - RESTORED CLASSES */
-.edge-animation-edgeFlow {
-  animation: edgeFlow 1s linear infinite;
-}
-
-.edge-animation-edgePulse {
-  animation: edgePulse 2s ease-in-out infinite;
-}
-
-.edge-animation-edgeBlink {
-  animation: edgeBlink 0.8s ease-in-out infinite;
-}
-
-.edge-animation-edgeGlow {
-  animation: edgeGlow 1s ease-in-out infinite;
-}
-
-/* Base Edge overrides to ensure animation visibility */
-.viewer-canvas .react-flow__edge-path {
-  stroke-dasharray: inherit; /* Ensure StrategyEdge's dasharray is used */
-}
-
-/* Strategic Background Guide */
+/* Strategic Background Guide - Unified and fixed for Flow viewport */
 .strategic-bg-guide {
   position: absolute;
   top: 0;
   left: 0;
-  width: 1200px; /* Fixed base width to match coordinate system */
-  height: 2000px; /* Large enough for scrolling */
+  width: 1440px; /* Base width matching node coordinate space */
+  height: 3000px; /* Tall enough for vertical roadmap scrolling */
   display: flex;
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
 }
 
 .strategic-bg-column {

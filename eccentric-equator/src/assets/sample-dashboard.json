@@ -7,7 +7,7 @@
       "id": "1",
       "type": "strategy",
       "position": {
-        "x": 80,
+        "x": 180,
         "y": 80
       },
       "data": {
@@ -17,17 +17,13 @@
         "description": "Complete baseline security evaluation",
         "status": "done",
         "priority": "critical"
-      },
-      "measured": {
-        "width": 233,
-        "height": 134
       }
     },
     {
       "id": "2",
       "type": "strategy",
       "position": {
-        "x": 80,
+        "x": 180,
         "y": 240
       },
       "data": {
@@ -37,17 +33,13 @@
         "description": "Catalog all digital assets",
         "status": "done",
         "priority": "high"
-      },
-      "measured": {
-        "width": 180,
-        "height": 134
       }
     },
     {
       "id": "3",
       "type": "strategy",
       "position": {
-        "x": 80,
+        "x": 180,
         "y": 400
       },
       "data": {
@@ -57,17 +49,13 @@
         "description": "Outdated systems lacking patches",
         "status": "active",
         "priority": "critical"
-      },
-      "measured": {
-        "width": 213,
-        "height": 134
       }
     },
     {
       "id": "4",
       "type": "strategy",
       "position": {
-        "x": 440,
+        "x": 540,
         "y": 80
       },
       "data": {
@@ -77,17 +65,13 @@
         "description": "Implement ZTA framework",
         "status": "active",
         "priority": "critical"
-      },
-      "measured": {
-        "width": 180,
-        "height": 134
       }
     },
     {
       "id": "5",
       "type": "strategy",
       "position": {
-        "x": 440,
+        "x": 540,
         "y": 240
       },
       "data": {
@@ -97,17 +81,13 @@
         "description": "Multi-factor auth for all users",
         "status": "active",
         "priority": "high"
-      },
-      "measured": {
-        "width": 184,
-        "height": 134
       }
     },
     {
       "id": "6",
       "type": "strategy",
       "position": {
-        "x": 440,
+        "x": 540,
         "y": 400
       },
       "data": {
@@ -117,17 +97,13 @@
         "description": "Prepare audit documentation",
         "status": "planned",
         "priority": "high"
-      },
-      "measured": {
-        "width": 184,
-        "height": 134
       }
     },
     {
       "id": "7",
       "type": "strategy",
       "position": {
-        "x": 800,
+        "x": 900,
         "y": 80
       },
       "data": {
@@ -137,17 +113,13 @@
         "description": "Upgrade threat detection",
         "status": "planned",
         "priority": "high"
-      },
-      "measured": {
-        "width": 180,
-        "height": 134
       }
     },
     {
       "id": "8",
       "type": "strategy",
       "position": {
-        "x": 800,
+        "x": 900,
         "y": 240
       },
       "data": {
@@ -157,17 +129,13 @@
         "description": "Automated IR playbooks",
         "status": "planned",
         "priority": "medium"
-      },
-      "measured": {
-        "width": 180,
-        "height": 134
       }
     },
     {
       "id": "9",
       "type": "strategy",
       "position": {
-        "x": 800,
+        "x": 900,
         "y": 400
       },
       "data": {
@@ -178,17 +146,13 @@
         "status": "planned",
         "priority": "medium",
         "value": "< 4h"
-      },
-      "measured": {
-        "width": 180,
-        "height": 185
       }
     },
     {
       "id": "10",
       "type": "strategy",
       "position": {
-        "x": 1160,
+        "x": 1260,
         "y": 80
       },
       "data": {
@@ -198,17 +162,13 @@
         "description": "Achieve compliance",
         "status": "planned",
         "priority": "critical"
-      },
-      "measured": {
-        "width": 180,
-        "height": 134
       }
     },
     {
       "id": "11",
       "type": "strategy",
       "position": {
-        "x": 1160,
+        "x": 1260,
         "y": 240
       },
       "data": {
@@ -218,17 +178,13 @@
         "description": "Strategy effectiveness review",
         "status": "planned",
         "priority": "high"
-      },
-      "measured": {
-        "width": 187,
-        "height": 134
       }
     },
     {
       "id": "12",
       "type": "strategy",
       "position": {
-        "x": 1160,
+        "x": 1260,
         "y": 400
       },
       "data": {
@@ -239,10 +195,6 @@
         "status": "planned",
         "priority": "high",
         "value": "85%"
-      },
-      "measured": {
-        "width": 180,
-        "height": 185
       }
     }
   ],

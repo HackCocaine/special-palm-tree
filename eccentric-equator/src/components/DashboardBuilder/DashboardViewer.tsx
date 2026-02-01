@@ -1,25 +1,29 @@
-import React, { useMemo, useCallback, useState, useRef, useEffect } from 'react';
+import React, { useMemo, useCallback, useState, useRef } from 'react';
 import {
   ReactFlow,
-  Controls,
-  Background,
   MiniMap,
+  Background,
   BackgroundVariant,
   useViewport,
-  type Edge,
+  ReactFlowProvider,
   type Node,
   type NodeTypes,
   type ReactFlowInstance,
+  type EdgeTypes,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './viewer-styles.css';
 
 import StrategyNode from './StrategyNode';
 import StrategyEdge from './StrategyEdge';
-import type { StrategyNodeData, Quarter, EdgeTypes } from './types';
-import { CATEGORY_CONFIG, QUARTER_CONFIG } from './types';
+import type { StrategyNodeData, Quarter } from './types';
+import { QUARTER_CONFIG } from './types';
 import type { SavedDashboard } from './dashboardStorage';
 import { exportDashboardToPDF } from './pdfExport';
+
+// --- FIXED COORDINATE SYSTEM ---
+const VIRTUAL_WIDTH = 1440;
+const QUARTERS: Quarter[] = ['q1', 'q2', 'q3', 'q4'];
 
 const nodeTypes: NodeTypes = {
   strategy: StrategyNode,
@@ -45,7 +49,7 @@ const StrategicBackground: React.FC = () => {
 
   return (
     <div className="strategic-bg-guide" style={style}>
-      {(['q1', 'q2', 'q3', 'q4'] as Quarter[]).map((q) => (
+      {QUARTERS.map((q) => (
         <div key={q} className="strategic-bg-column">
           <div className="strategic-bg-label">
             <span className="strategic-bg-badge">{QUARTER_CONFIG[q].label}</span>
@@ -84,10 +88,6 @@ const DashboardStats: React.FC<{ nodes: Node<StrategyNodeData>[] }> = ({ nodes }
 const DashboardViewer: React.FC<DashboardViewerProps> = ({ dashboard, publicMode = false }) => {
   const [isExporting, setIsExporting] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
-
-  const onInit = useCallback((instance: ReactFlowInstance) => {
-    setTimeout(() => instance.fitView({ padding: 0.1, duration: 200 }), 100);
-  }, []);
 
   const handleExportPDF = useCallback(async () => {
     if (isExporting) return;
@@ -148,19 +148,22 @@ const DashboardViewer: React.FC<DashboardViewerProps> = ({ dashboard, publicMode
             nodes={dashboard.nodes}
             edges={dashboard.edges || []}
             nodeTypes={nodeTypes}
-            onInit={onInit}
-            fitView
-            fitViewOptions={{ padding: 0.1 }}
+            nodeOrigin={[0.5, 0]}
+            defaultViewport={{ x: -15, y: -15, zoom: 1.38 }}
+            fitView={!publicMode} // Only auto-fit for private dashboards
+            fitViewOptions={{ padding: 0.15, maxZoom: 1.0 }}
             nodesDraggable={false}
             nodesConnectable={false}
             nodesFocusable={false}
             edgesFocusable={false}
             elementsSelectable={false}
             panOnDrag={true}
-            zoomOnScroll={true}
-            zoomOnPinch={true}
-            minZoom={0.2}
-            maxZoom={2}
+            translateExtent={[[-50, -50], [1490, 1000]]} // Extremely tight pan limits
+            zoomOnScroll={false}
+            zoomOnPinch={false}
+            zoomOnDoubleClick={false}
+            minZoom={1.38}
+            maxZoom={1.38}
             edgeTypes={edgeTypes}
           >
             <StrategicBackground />
@@ -172,4 +175,11 @@ const DashboardViewer: React.FC<DashboardViewerProps> = ({ dashboard, publicMode
   );
 };
 
-export default DashboardViewer;
+// Wrap with provider
+const DashboardViewerWrapper: React.FC<DashboardViewerProps> = (props) => (
+  <ReactFlowProvider>
+    <DashboardViewer {...props} />
+  </ReactFlowProvider>
+);
+
+export default DashboardViewerWrapper;
