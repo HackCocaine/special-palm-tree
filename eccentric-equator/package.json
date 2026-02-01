@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@astrojs/react": "^4.4.2",
+    "@supabase/supabase-js": "^2.93.3",
     "@xyflow/react": "^12.10.0",
     "astro": "^5.16.15",
     "html-to-image": "^1.11.13",

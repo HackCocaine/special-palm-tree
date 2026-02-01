@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { AuthWrapper } from '../Auth';
 import './list-styles.css';
 import type { SavedDashboard } from './dashboardStorage';
 import {
@@ -74,8 +75,9 @@ const DashboardList: React.FC = () => {
   };
 
   return (
-    <div className="dashboard-list-page">
-      {/* Navigation */}
+    <AuthWrapper>
+      <div className="dashboard-list-page">
+        {/* Navigation */}
       <nav className="list-nav">
         <div className="nav-brand">
           <a href="/">
@@ -216,12 +218,12 @@ const DashboardList: React.FC = () => {
                   )}
                 </div>
 
-                <div className="card-actions">
-                  {dashboard.status !== 'archived' ? (
-                    <>
-                      <a href={`/dashboards/${dashboard.id}`} className="action-btn primary">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <div className="card-actions">
+                    {dashboard.status !== 'archived' ? (
+                      <>
+                        <a href={`/dashboards/view?id=${dashboard.id}`} className="action-btn primary">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                           <circle cx="12" cy="12" r="3"/>
                         </svg>
                         View
@@ -278,7 +280,8 @@ const DashboardList: React.FC = () => {
           </div>
         )}
       </main>
-    </div>
+      </div>
+    </AuthWrapper>
   );
 };
 

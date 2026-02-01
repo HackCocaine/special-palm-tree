@@ -1,0 +1,240 @@
+/* Auth Styles - Consistent with Hackfluency branding */
+
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #0a0a0a;
+  padding: 24px;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #ffffff;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.auth-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.auth-logo img {
+  height: 40px;
+  width: auto;
+}
+
+.auth-logo-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.logo-hack { color: #00D26A; }
+.logo-fluency { color: #ffffff; }
+
+.auth-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 8px;
+}
+
+.auth-subtitle {
+  color: #8a8a8a;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.auth-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #b0b0b0;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: #111111;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.auth-input:focus {
+  border-color: #00D26A;
+  background: #0d0d0d;
+  box-shadow: 0 0 0 4px rgba(0, 210, 106, 0.1);
+}
+
+.auth-input::placeholder {
+  color: #4a4a4a;
+}
+
+.auth-button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #00D26A, #00a854);
+  color: #0a0a0a;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.auth-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #00e676, #00D26A);
+  transform: translateY(-1px);
+}
+
+.auth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
+.auth-back-button {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: #6a6a6a;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+}
+
+.auth-back-button:hover {
+  color: #ffffff;
+  background: #2a2a2a;
+}
+
+.auth-alert {
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.auth-alert.error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.auth-alert.success {
+  background: rgba(0, 210, 106, 0.1);
+  border: 1px solid rgba(0, 210, 106, 0.2);
+  color: #00D26A;
+}
+
+.spinner-small {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.auth-success-state {
+  text-align: center;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  background: rgba(0, 210, 106, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-message {
+  font-size: 1.1rem;
+  color: #ffffff;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.success-message strong {
+  color: #00D26A;
+}
+
+.success-instruction {
+  font-size: 0.95rem;
+  color: #8a8a8a;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 24px;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+  }
+}
