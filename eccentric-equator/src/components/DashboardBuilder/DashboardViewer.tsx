@@ -22,6 +22,7 @@ import { QUARTER_CONFIG } from './types';
 import type { SavedDashboard } from './dashboardStorage';
 import { exportDashboardToPDF } from './pdfExport';
 import { useDeviceDetection, useReactFlowConfig, type DeviceType, BREAKPOINTS } from './useDeviceDetection';
+import { PDFExportContainer } from './PDFExportContainer';
 
 // --- FIXED COORDINATE SYSTEM ---
 const VIRTUAL_WIDTH = 1440;
@@ -159,16 +160,10 @@ function DashboardViewer({ dashboard, publicMode = false }: DashboardViewerProps
   const handleExportPDF = useCallback(async () => {
     if (isExporting) return;
     
-    // Reset viewport to default desktop position before export
-    clearViewportStorage();
-    setResetViewportKey(prev => prev + 1);
-    
-    // Wait for ReactFlow to reset to default viewport
-    await new Promise(resolve => setTimeout(resolve, 150));
-    
     setIsExporting(true);
     try {
-      await exportDashboardToPDF('.viewer-canvas', {
+      // Export from the hidden desktop container for consistent results
+      await exportDashboardToPDF('#pdf-export-container', {
         title: dashboard.name,
         filename: `${dashboard.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-roadmap.pdf`,
         includeHeader: true
@@ -284,6 +279,13 @@ function DashboardViewer({ dashboard, publicMode = false }: DashboardViewerProps
           </ReactFlow>
         </div>
       </div>
+
+      {/* Hidden PDF export container - renders desktop version for consistent export */}
+      <PDFExportContainer 
+        dashboard={dashboard} 
+        isExporting={isExporting} 
+        onExportComplete={() => setIsExporting(false)} 
+      />
     </div>
   );
 }
