@@ -1,0 +1,179 @@
+name: Deploy Astro to GitHub Pages
+
+on:
+  # Trigger on push to main branch
+  push:
+    branches: [main]
+  # Allow manual trigger from Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+env:
+  BUILD_PATH: "./eccentric-equator"
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: 'npm'
+          cache-dependency-path: ${{ env.BUILD_PATH }}/package-lock.json
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ${{ env.BUILD_PATH }}
+
+      - name: Build with Astro
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
+          PUBLIC_MODE: ${{ secrets.PUBLIC_MODE }}
+          PUBLIC_SITE_URL: ${{ secrets.PUBLIC_SITE_URL }}
+        run: |
+          npm run build
+        working-directory: ${{ env.BUILD_PATH }}
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ env.BUILD_PATH }}/dist
+
+  lighthouse:
+    name: Lighthouse CI Audit
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: ./artifact
+
+      - name: Extract artifact
+        run: |
+          mkdir -p ./dist
+          tar -xvf ./artifact/artifact.tar -C ./dist
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli
+
+      - name: Run Lighthouse CI
+        id: lighthouse
+        run: |
+          # Start a local server to serve the built site
+          npx serve dist -l 8080 --single &
+          SERVER_PID=$!
+          sleep 5
+          
+          # Run Lighthouse collect (without strict assertions)
+          lhci collect --url=http://localhost:8080/special-palm-tree/ --numberOfRuns=3
+          
+          # Debug: List lighthouse output directory
+          echo "📂 Listing .lighthouseci directory:"
+          ls -la .lighthouseci/ || echo "Directory not found"
+          
+          # Parse scores from lighthouse results using absolute path
+          REPORT_JSON=$(find "$(pwd)/.lighthouseci" -name "lhr-*.json" -type f | sort | tail -1)
+          
+          echo "📄 Found report: $REPORT_JSON"
+          
+          if [ -n "$REPORT_JSON" ] && [ -f "$REPORT_JSON" ]; then
+            # Use node with fs.readFileSync for proper JSON parsing
+            SEO_SCORE=$(node -e "const data = JSON.parse(require('fs').readFileSync('$REPORT_JSON', 'utf8')); console.log(Math.round(data.categories.seo.score * 100))")
+            PERF_SCORE=$(node -e "const data = JSON.parse(require('fs').readFileSync('$REPORT_JSON', 'utf8')); console.log(Math.round(data.categories.performance.score * 100))")
+            A11Y_SCORE=$(node -e "const data = JSON.parse(require('fs').readFileSync('$REPORT_JSON', 'utf8')); console.log(Math.round(data.categories.accessibility.score * 100))")
+            
+            echo "📊 Scores - SEO: $SEO_SCORE, Performance: $PERF_SCORE, Accessibility: $A11Y_SCORE"
+            
+            echo "seo_score=$SEO_SCORE" >> $GITHUB_OUTPUT
+            echo "perf_score=$PERF_SCORE" >> $GITHUB_OUTPUT
+            echo "a11y_score=$A11Y_SCORE" >> $GITHUB_OUTPUT
+            
+            echo "## 🔍 Lighthouse CI Results" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Category | Score | Status |" >> $GITHUB_STEP_SUMMARY
+            echo "|----------|-------|--------|" >> $GITHUB_STEP_SUMMARY
+            
+            # SEO check (< 90 = FAIL)
+            if [ "$SEO_SCORE" -lt 90 ]; then
+              echo "| 🔍 SEO | $SEO_SCORE | ❌ FAIL (min: 90) |" >> $GITHUB_STEP_SUMMARY
+              SEO_FAIL=true
+            else
+              echo "| 🔍 SEO | $SEO_SCORE | ✅ PASS |" >> $GITHUB_STEP_SUMMARY
+              SEO_FAIL=false
+            fi
+            
+            # Performance check (< 85 = WARNING)
+            if [ "$PERF_SCORE" -lt 85 ]; then
+              echo "| ⚡ Performance | $PERF_SCORE | ⚠️ WARNING (min: 85) |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| ⚡ Performance | $PERF_SCORE | ✅ PASS |" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            # Accessibility check (< 90 = WARNING)
+            if [ "$A11Y_SCORE" -lt 90 ]; then
+              echo "| ♿ Accessibility | $A11Y_SCORE | ⚠️ WARNING (min: 90) |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| ♿ Accessibility | $A11Y_SCORE | ✅ PASS |" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "---" >> $GITHUB_STEP_SUMMARY
+            echo "📊 *Lighthouse runs: 3 (median scores)*" >> $GITHUB_STEP_SUMMARY
+            
+            # Kill the server
+            kill $SERVER_PID 2>/dev/null || true
+            
+            # Fail the job if SEO < 90
+            if [ "$SEO_FAIL" = true ]; then
+              echo "❌ SEO score ($SEO_SCORE) is below the required threshold of 90"
+              exit 1
+            fi
+          else
+            echo "❌ Could not find Lighthouse report at: $REPORT_JSON"
+            echo "## ❌ Lighthouse CI Error" >> $GITHUB_STEP_SUMMARY
+            echo "Could not find or parse Lighthouse report" >> $GITHUB_STEP_SUMMARY
+            kill $SERVER_PID 2>/dev/null || true
+            exit 1
+          fi
+
+  deploy:
+    name: Deploy
+    needs: [build, lighthouse]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,8 @@
+# Robots.txt for Hackfluency
+# https://hackcocaine.github.io/special-palm-tree/
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://hackcocaine.github.io/special-palm-tree/sitemap.xml

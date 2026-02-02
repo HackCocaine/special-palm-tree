@@ -1,0 +1,21 @@
+---
+// Public Sample Dashboard Page
+// Route: /SecurityRoadmap.HF
+
+import Layout from '../layouts/Layout.astro';
+import PublicDashboardViewer from '../components/DashboardBuilder/PublicDashboardViewer';
+---
+
+<Layout title="Security Roadmap | Hackfluency" description="Preview of our cybersecurity strategy mapping tool.">
+  <div class="sample-page-wrapper">
+    <PublicDashboardViewer client:only="react" />
+  </div>
+</Layout>
+
+<style is:global>
+  .sample-page-wrapper {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+</style>

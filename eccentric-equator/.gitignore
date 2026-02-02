@@ -1,0 +1,69 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.output/
+.astro/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+temp/
+
+# Dev-only: DashboardBuilder editor components
+# WARNING: The following files are SHARED with viewer components and MUST stay in git:
+# - pdfExport.ts (used by DashboardViewer for PDF export)
+# - StrategyNode.tsx (used by DashboardViewer to render nodes)
+# - StrategyEdge.tsx (used by DashboardViewer to render edges)
+# Only DashboardBuilder.tsx is truly builder-only
+eccentric-equator/src/components/DashboardBuilder/DashboardBuilder.tsx
+eccentric-equator/src/components/DashboardBuilder/styles.css
+
+# Lock files (optional - commit if you want reproducible builds)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# TypeScript
+*.tsbuildinfo
+
+# Misc
+*.bak
+*.orig

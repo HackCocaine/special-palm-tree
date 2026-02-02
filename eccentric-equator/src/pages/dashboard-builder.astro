@@ -1,0 +1,38 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const mode = import.meta.env.PUBLIC_MODE || 'public';
+const isPublic = mode === 'public';
+const homeUrl = 'https://www.hackfluency.com';
+---
+
+<Layout 
+  title={isPublic ? "404 — Page Not Found" : "Strategy Dashboard Builder — Hackfluency"} 
+  description={isPublic ? "This page is not available." : "Design quarterly cybersecurity strategy dashboards with connected nodes."}
+>
+  <div id="builder-container" data-public={isPublic} data-home-url={homeUrl}></div>
+</Layout>
+
+<script>
+  // Client-side only logic
+  var container = document.getElementById('builder-container');
+  if (container) {
+    var isPublic = container.dataset.public === 'true';
+    var homeUrl = container.dataset.homeUrl || 'https://www.hackfluency.com';
+    
+    if (isPublic) {
+      // Public mode: show 404
+      container.innerHTML = '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; padding: 40px;"><h1 style="font-size: 4rem; margin-bottom: 1rem; color: #00D26A;">404</h1><p style="color: #6a6a6a; font-size: 1.1rem;">This feature is available for business partners only.</p><a href="' + homeUrl + '" style="margin-top: 2rem; padding: 12px 24px; background: #00D26A; color: #000; text-decoration: none; border-radius: 8px; font-weight: 600;">Return Home</a></div>';
+      window.location.replace(homeUrl);
+    } else {
+      // Dev mode: DashboardBuilder is not included in public repo
+      container.innerHTML = '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; padding: 40px;"><h1 style="font-size: 2rem; margin-bottom: 1rem; color: #00D26A;">Dashboard Builder</h1><p style="color: #6a6a6a; font-size: 1.1rem;">The builder component is only available in the development repository.</p><a href="' + homeUrl + '" style="margin-top: 2rem; padding: 12px 24px; background: #00D26A; color: #000; text-decoration: none; border-radius: 8px; font-weight: 600;">Return Home</a></div>';
+    }
+  }
+</script>
+
+<style is:global>
+  body {
+    overflow: hidden;
+  }
+</style>

@@ -1,0 +1,1390 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const base = import.meta.env.BASE_URL;
+
+// SVG icons for services - elegant, minimal line art
+const serviceIcons = {
+  shield: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>`,
+  lock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><circle cx="12" cy="16" r="1"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+  cpu: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>`,
+  target: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+  chart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21H4.6c-.56 0-.84 0-1.054-.109a1 1 0 0 1-.437-.437C3 20.24 3 19.96 3 19.4V3"/><path d="M7 14l4-4 4 4 6-6"/><path d="M17 8h4v4"/></svg>`,
+  alert: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4m0 4h.01"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .738-1.674l-8-9a1 1 0 0 0-1.476 0l-8 9z"/></svg>`
+};
+
+// SVG icons for values - refined symbols
+const valueIcons = {
+  excellence: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  evolution: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>`,
+  elegance: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>`,
+  integrity: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/></svg>`
+};
+
+const services = [
+  {
+    icon: serviceIcons.shield,
+    title: "Penetration Testing",
+    description: "Comprehensive security assessments that simulate real-world attacks to identify vulnerabilities before adversaries do."
+  },
+  {
+    icon: serviceIcons.lock,
+    title: "Security Architecture",
+    description: "Design and implement robust security frameworks tailored to your organization's unique risk profile."
+  },
+  {
+    icon: serviceIcons.cpu,
+    title: "AI Security Solutions",
+    description: "Leverage cutting-edge artificial intelligence to detect, prevent, and respond to sophisticated cyber threats."
+  },
+  {
+    icon: serviceIcons.target,
+    title: "Red Team Operations",
+    description: "Adversary simulation exercises that test your defenses against advanced persistent threats."
+  },
+  {
+    icon: serviceIcons.chart,
+    title: "Security Consulting",
+    description: "Strategic advisory services to align your security posture with business objectives and compliance requirements."
+  },
+  {
+    icon: serviceIcons.alert,
+    title: "Incident Response",
+    description: "Rapid response capabilities to contain, investigate, and remediate security breaches effectively."
+  }
+];
+
+const stats = [
+  { value: "500+", label: "Clients Protected" },
+  { value: "99.9%", label: "Threat Detection" },
+  { value: "24/7", label: "Monitoring" },
+  { value: "15+", label: "Years Excellence" }
+];
+
+const values = [
+  {
+    title: "Excellence",
+    description: "We pursue the highest standards in every engagement, delivering results that exceed expectations.",
+    icon: valueIcons.excellence
+  },
+  {
+    title: "Evolution",
+    description: "Continuously adapting and innovating to stay ahead of emerging threats and technologies.",
+    icon: valueIcons.evolution
+  },
+  {
+    title: "Elegance",
+    description: "Sophisticated solutions that are both powerful and seamlessly integrated into your operations.",
+    icon: valueIcons.elegance
+  },
+  {
+    title: "Integrity",
+    description: "Unwavering commitment to ethical practices and transparent client relationships.",
+    icon: valueIcons.integrity
+  }
+];
+---
+
+<Layout>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-container">
+      <a href={base} class="logo" aria-label="Hackfluency - Go to homepage">
+        <img src={`${base}HFNeon.png`} alt="" width="40" height="40" class="logo-img" aria-hidden="true" />
+        <span class="logo-text"><span class="logo-hack">Hack</span><span class="logo-fluency">fluency</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="#services">Services</a>
+        <a href="#about">About</a>
+        <a href="#values">Values</a>
+        <a href="/dashboards">Sign-In</a>
+      </div>
+      <div class="nav-actions">
+        <a href="/dashboards" class="nav-btn-dashboard">Sign-In</a>
+        <a href="https://hackfluency.zohobookings.com/#/hackfluency" target="_blank" rel="noopener" class="nav-cta">Book a Call</a>
+      </div>
+      <button class="mobile-menu-btn" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="hero-glow"></div>
+      <div class="hero-grid"></div>
+      <div class="hero-particles"></div>
+    </div>
+    <div class="hero-content container">
+      <div class="hero-logo">
+        <img src={`${base}HFNeon.png`} alt="Hackfluency logo - neon HF symbol" width="120" height="120" class="hero-logo-img" />
+      </div>
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Elite Cybersecurity Services
+      </div>
+      <h1 class="hero-title">
+        Defend Your Digital
+        <span class="hero-title-accent">Future</span>
+      </h1>
+      <p class="hero-subtitle">
+        World-class cybersecurity consulting, advanced threat intelligence, and AI-driven 
+        security solutions for organizations that refuse to compromise on protection.
+      </p>
+      <div class="hero-actions">
+        <a href="https://hackfluency.zohobookings.com/#/hackfluency" target="_blank" rel="noopener" class="btn btn-primary">
+          <span>20-Min Strategy Call</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+        <a href="#services" class="btn btn-secondary">
+          Explore Services
+        </a>
+      </div>
+      <div class="hero-stats">
+        {stats.map((stat) => (
+          <div class="stat-item">
+            <span class="stat-value">{stat.value}</span>
+            <span class="stat-label">{stat.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <span>Scroll to explore</span>
+      <div class="scroll-indicator"></div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services" class="services">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Our Expertise</span>
+        <h2 class="section-title">Comprehensive Security Solutions</h2>
+        <p class="section-subtitle">
+          From strategic consulting to hands-on implementation, we deliver end-to-end 
+          cybersecurity services tailored to your unique challenges.
+        </p>
+      </div>
+      <div class="services-grid">
+        {services.map((service, index) => (
+          <article class="service-card" style={`--delay: ${index * 0.1}s`}>
+            <div class="service-icon" aria-hidden="true" set:html={service.icon} />
+            <h3 class="service-title">{service.title}</h3>
+            <p class="service-description">{service.description}</p>
+            <a href="https://hackfluency.zohobookings.com/#/hackfluency" target="_blank" rel="noopener" class="service-link" aria-label={`Book a consultation for ${service.title}`}>
+              Book consultation
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-content">
+          <span class="section-tag">Who We Are</span>
+          <h2 class="section-title">Trusted by Industry Leaders</h2>
+          <p class="about-text">
+            Hackfluency was founded with a singular mission: to elevate cybersecurity 
+            from a reactive necessity to a strategic advantage. Our team comprises 
+            elite security researchers, ethical hackers, and industry veterans who 
+            have protected some of the world's most critical systems.
+          </p>
+          <p class="about-text">
+            We combine deep technical expertise with strategic insight, delivering 
+            solutions that not only protect your assets but enable your business to 
+            thrive in an increasingly hostile digital landscape.
+          </p>
+          <div class="about-features">
+            <div class="about-feature">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              <span>ISO 27001 Certified</span>
+            </div>
+            <div class="about-feature">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              <span>CREST Accredited</span>
+            </div>
+            <div class="about-feature">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              <span>SOC 2 Type II Compliant</span>
+            </div>
+          </div>
+        </div>
+        <div class="about-visual">
+          <div class="about-card">
+            <div class="about-card-glow"></div>
+            <div class="about-card-content">
+              <div class="terminal-header">
+                <span class="terminal-dot red"></span>
+                <span class="terminal-dot yellow"></span>
+                <span class="terminal-dot green"></span>
+              </div>
+              <div class="terminal-body">
+                <code>
+                  <span class="code-prompt">$</span> hackfluency --analyze<br/>
+                  <span class="code-comment"># Scanning network...</span><br/>
+                  <span class="code-success">✓ 247 endpoints secured</span><br/>
+                  <span class="code-success">✓ 0 critical vulnerabilities</span><br/>
+                  <span class="code-success">✓ Threat level: MINIMAL</span><br/>
+                  <span class="code-prompt">$</span> <span class="cursor">_</span>
+                </code>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Values Section -->
+  <section id="values" class="values">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Our Philosophy</span>
+        <h2 class="section-title">Values That Define Us</h2>
+        <p class="section-subtitle">
+          Our core values guide every decision, every engagement, and every solution we deliver.
+        </p>
+      </div>
+      <div class="values-grid">
+        {values.map((value, index) => (
+          <div class="value-card" style={`--delay: ${index * 0.15}s`}>
+            <div class="value-icon" set:html={value.icon} />
+            <h3 class="value-title">{value.title}</h3>
+            <p class="value-description">{value.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section id="contact" class="cta">
+    <div class="cta-bg">
+      <div class="cta-glow"></div>
+    </div>
+    <div class="container">
+      <div class="cta-content">
+        <span class="section-tag">Exclusive Access</span>
+        <h2 class="cta-title">Get a Project Roadmap & Expert Insights</h2>
+        <p class="cta-subtitle">
+          Schedule a complimentary 20-minute strategy session directly with a founder. 
+          Get personalized insights and a clear roadmap for your security challenges.
+        </p>
+        <div class="cta-features">
+          <div class="cta-feature">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>Direct founder access</span>
+          </div>
+          <div class="cta-feature">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>Custom project roadmap</span>
+          </div>
+          <div class="cta-feature">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>No commitment required</span>
+          </div>
+        </div>
+        <div class="cta-actions">
+          <a href="https://hackfluency.zohobookings.com/#/hackfluency" target="_blank" rel="noopener" class="btn btn-primary btn-large">
+            <span>20-Min Strategy Call</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </a>
+        </div>
+        <p class="cta-note">Limited availability · Typically responds within 24 hours</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href={base} class="logo footer-logo" aria-label="Hackfluency - Go to homepage">
+            <img src={`${base}HFNeon.png`} alt="" width="40" height="40" class="footer-logo-img" aria-hidden="true" />
+            <span class="logo-text"><span class="logo-hack">Hack</span><span class="logo-fluency">fluency</span></span>
+          </a>
+          <p class="footer-tagline">
+            Defending tomorrow's digital landscape, today.
+          </p>
+        </div>
+        <div class="footer-links">
+          <nav class="footer-column" aria-label="Services navigation">
+            <h5>Services</h5>
+            <a href="#services">Penetration Testing</a>
+            <a href="#services">Security Architecture</a>
+            <a href="#services">AI Security</a>
+            <a href="#services">Incident Response</a>
+          </nav>
+          <nav class="footer-column" aria-label="Company navigation">
+            <h5>Company</h5>
+            <a href="#about">About Us</a>
+            <a href="#values">Our Values</a>
+            <a href="https://hackfluency.zohobookings.com/#/hackfluency" target="_blank" rel="noopener">Book a Call</a>
+          </nav>
+          <nav class="footer-column" aria-label="Social media links">
+            <h5>Connect</h5>
+            <a href="https://www.linkedin.com/company/hackfluency" target="_blank" rel="noopener noreferrer" aria-label="Follow Hackfluency on LinkedIn">LinkedIn</a>
+            <a href="https://matrix.to/#/#eXcomm:matrix.org" target="_blank" rel="noopener noreferrer" aria-label="Join our Matrix community">Matrix</a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Trustpilot Widget Section -->
+      <div class="trustpilot-section">
+        <!-- TrustBox widget - Review Collector -->
+        <div class="trustpilot-widget"
+             data-locale="en-US"
+             data-template-id="56278e9abfbbba0bdcd568bc"
+             data-businessunit-id="68f53cf5ee195b73d33884e2"
+             data-style-height="52px"
+             data-style-width="100%"
+             data-token="9de2933f-e5a7-4a91-936a-a96daf9fce17">
+          <a href="https://www.trustpilot.com/review/hackfluency.com" target="_blank" rel="noopener">Trustpilot</a>
+        </div>
+        <!-- End TrustBox widget -->
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 Hackfluency. All rights reserved.</p>
+        <a href="mailto:inquiry@hackfluency.com" class="footer-email" aria-label="Send us an email">inquiry@hackfluency.com</a>
+      </div>
+    </div>
+  </footer>
+</Layout>
+
+<style>
+  /* Navigation */
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 20px 0;
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .nav-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-img {
+    width: 40px;
+    height: 40px;
+    filter: drop-shadow(0 0 8px var(--primary-glow));
+  }
+
+  .logo-text {
+    display: flex;
+  }
+
+  .logo-hack {
+    color: var(--primary);
+    text-shadow: 0 0 20px var(--primary-glow);
+  }
+
+  .logo-fluency {
+    color: var(--white);
+  }
+
+  .nav-links {
+    display: none;
+    gap: 40px;
+  }
+
+  @media (min-width: 768px) {
+    .nav-links {
+      display: flex;
+    }
+  }
+
+  .nav-links a {
+    font-size: 0.9rem;
+    color: var(--gray-300);
+    transition: color 0.3s ease;
+    padding: 12px 8px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .nav-links a:hover {
+    color: var(--primary);
+  }
+
+  .nav-cta {
+    display: none;
+    padding: 12px 24px;
+    background: var(--gradient-primary);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #000000;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-height: 44px;
+  }
+
+  @media (min-width: 768px) {
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .nav-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px var(--primary-glow);
+    color: #000000;
+  }
+
+  .nav-actions {
+    display: none;
+    align-items: center;
+    gap: 12px;
+  }
+
+  @media (min-width: 768px) {
+    .nav-actions {
+      display: flex;
+    }
+  }
+
+  .nav-btn-dashboard {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--white);
+    transition: all 0.3s ease;
+    min-height: 44px;
+    text-decoration: none;
+  }
+
+  .nav-btn-dashboard:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+  }
+
+  @media (min-width: 768px) {
+    .mobile-menu-btn {
+      display: none;
+    }
+  }
+
+  .mobile-menu-btn span {
+    width: 24px;
+    height: 2px;
+    background: var(--white);
+    transition: all 0.3s ease;
+  }
+
+  /* Hero Section */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 120px 0 80px;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .hero-bg::before,
+  .hero-bg::after {
+    content: '';
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: var(--accent);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    opacity: 0.6;
+    filter: blur(1px) drop-shadow(0 0 20px var(--accent-glow));
+    animation: hexFloat 8s ease-in-out infinite;
+  }
+
+  .hero-bg::before {
+    top: 20%;
+    right: 15%;
+    animation-delay: 0s;
+  }
+
+  .hero-bg::after {
+    bottom: 25%;
+    left: 10%;
+    width: 60px;
+    height: 60px;
+    animation-delay: 2s;
+  }
+
+  @keyframes hexFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+    50% { transform: translateY(-20px) rotate(10deg); opacity: 0.8; }
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1000px;
+    height: 1000px;
+    background: radial-gradient(ellipse at center, rgba(0, 210, 106, 0.2) 0%, rgba(0, 255, 127, 0.1) 30%, transparent 70%);
+    pointer-events: none;
+    animation: pulseGlow 4s ease-in-out infinite alternate;
+  }
+
+  @keyframes pulseGlow {
+    from { opacity: 0.8; transform: translateX(-50%) scale(1); }
+    to { opacity: 1; transform: translateX(-50%) scale(1.1); }
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 900px;
+  }
+
+  .hero-logo {
+    margin-bottom: 40px;
+  }
+
+  .hero-logo-img {
+    width: 180px;
+    height: 180px;
+    filter: drop-shadow(0 0 30px var(--primary-glow)) drop-shadow(0 0 60px rgba(0, 210, 106, 0.3));
+    animation: float 6s ease-in-out infinite, glow 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  @keyframes glow {
+    from { filter: drop-shadow(0 0 30px var(--primary-glow)) drop-shadow(0 0 60px rgba(0, 210, 106, 0.3)); }
+    to { filter: drop-shadow(0 0 40px var(--primary-glow)) drop-shadow(0 0 80px rgba(0, 255, 127, 0.4)); }
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(0, 147, 80, 0.1);
+    border: 1px solid rgba(0, 147, 80, 0.3);
+    border-radius: 100px;
+    font-size: 0.875rem;
+    color: var(--primary);
+    margin-bottom: 32px;
+  }
+
+  .badge-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--primary);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .hero-title {
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-title-accent {
+    background: var(--gradient-neon);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 30px var(--primary-glow));
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: var(--gray-400);
+    max-width: 700px;
+    margin: 0 auto 40px;
+    line-height: 1.7;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 60px;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  .btn-primary {
+    background: var(--gradient-primary);
+    color: #000000;
+    box-shadow: 0 4px 20px var(--primary-glow), 0 0 40px rgba(0, 210, 106, 0.2);
+    position: relative;
+    overflow: hidden;
+    text-shadow: none;
+  }
+
+  .btn-primary span {
+    position: relative;
+    z-index: 1;
+    color: #000000;
+    font-weight: 700;
+  }
+
+  .btn-primary svg {
+    position: relative;
+    z-index: 1;
+    stroke: #000000;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+
+  .btn-primary:hover::before {
+    transform: translateX(100%);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 40px var(--primary-glow), 0 0 60px rgba(0, 255, 127, 0.3);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .btn-large {
+    padding: 20px 40px;
+    font-size: 1.1rem;
+  }
+
+  .btn-full {
+    width: 100%;
+  }
+
+  /* Stats */
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 640px) {
+    .hero-stats {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-value {
+    display: block;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-shadow: 0 0 20px var(--primary-glow);
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: var(--gray-500);
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hero-scroll span {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .scroll-indicator {
+    width: 24px;
+    height: 40px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    position: relative;
+  }
+
+  .scroll-indicator::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 8px;
+    background: var(--primary);
+    border-radius: 2px;
+    animation: scroll 2s infinite;
+  }
+
+  @keyframes scroll {
+    0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+    50% { transform: translateX(-50%) translateY(12px); opacity: 0.3; }
+  }
+
+  /* Sections */
+  section {
+    padding: 120px 0;
+  }
+
+  .section-header {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 80px;
+  }
+
+  .section-tag {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(0, 147, 80, 0.1);
+    border: 1px solid rgba(0, 147, 80, 0.2);
+    border-radius: 100px;
+    font-size: 0.8rem;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin-bottom: 20px;
+  }
+
+  .section-subtitle {
+    font-size: 1.1rem;
+    color: var(--gray-400);
+    line-height: 1.7;
+  }
+
+  /* Services */
+  .services {
+    background: var(--dark);
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  @media (min-width: 640px) {
+    .services-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .services-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .service-card {
+    background: var(--gray-900);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 40px 32px;
+    transition: all 0.4s ease;
+    animation: fadeInUp 0.6s ease forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .service-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(0, 210, 106, 0.4);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 30px rgba(0, 210, 106, 0.1);
+  }
+
+  .service-card:hover .service-icon {
+    color: var(--primary);
+    filter: drop-shadow(0 0 12px rgba(0, 210, 106, 0.5));
+  }
+
+  .service-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 24px;
+    color: var(--gray-300);
+    transition: color 0.3s ease, filter 0.3s ease;
+  }
+
+  .service-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .service-title {
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+  }
+
+  .service-description {
+    color: var(--gray-400);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+
+  .service-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: gap 0.3s ease;
+    padding: 12px 0;
+    min-height: 44px;
+  }
+
+  .service-link:hover {
+    gap: 12px;
+  }
+
+  /* About */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  @media (min-width: 1024px) {
+    .about-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .about-text {
+    color: var(--gray-400);
+    font-size: 1.05rem;
+    line-height: 1.8;
+    margin-bottom: 20px;
+  }
+
+  .about-features {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .about-feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--gray-300);
+  }
+
+  .about-feature svg {
+    color: var(--primary);
+    flex-shrink: 0;
+  }
+
+  .about-visual {
+    display: flex;
+    justify-content: center;
+  }
+
+  .about-card {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .about-card-glow {
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(ellipse at center, rgba(0, 210, 106, 0.25) 0%, transparent 70%);
+    border-radius: 24px;
+    filter: blur(40px);
+    animation: pulseGlow 4s ease-in-out infinite alternate;
+  }
+
+  .about-card-content {
+    position: relative;
+    background: var(--gray-900);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .terminal-header {
+    display: flex;
+    gap: 8px;
+    padding: 16px 20px;
+    background: var(--gray-800);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .terminal-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .terminal-dot.red { background: var(--accent); }
+  .terminal-dot.yellow { background: #f59e0b; }
+  .terminal-dot.green { background: var(--primary); }
+
+  .terminal-body {
+    padding: 24px;
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+
+  .code-prompt { color: var(--primary); }
+  .code-comment { color: var(--gray-600); }
+  .code-success { color: var(--primary); }
+  .cursor {
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  /* Values */
+  .values {
+    background: var(--dark);
+  }
+
+  .values-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  @media (min-width: 640px) {
+    .values-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .values-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .value-card {
+    background: linear-gradient(180deg, var(--gray-900) 0%, rgba(31, 31, 31, 0.5) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 40px 32px;
+    text-align: center;
+    transition: all 0.4s ease;
+    animation: fadeInUp 0.6s ease forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+  }
+
+  .value-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(227, 27, 35, 0.5);
+    box-shadow: 0 20px 60px rgba(227, 27, 35, 0.15), 0 0 30px var(--accent-glow);
+  }
+
+  .value-card:hover .value-icon {
+    color: var(--accent);
+    filter: drop-shadow(0 0 15px rgba(227, 27, 35, 0.6));
+  }
+
+  .value-icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 20px;
+    color: var(--gray-300);
+    transition: color 0.4s ease, filter 0.4s ease;
+  }
+
+  .value-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .value-title {
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+    color: var(--white);
+  }
+
+  .value-description {
+    color: var(--gray-400);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  /* CTA */
+  .cta {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-bg {
+    position: absolute;
+    inset: 0;
+  }
+
+  .cta-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1200px;
+    height: 700px;
+    background: radial-gradient(ellipse at center, rgba(0, 210, 106, 0.2) 0%, rgba(0, 255, 127, 0.1) 40%, transparent 60%);
+    animation: pulseGlow 4s ease-in-out infinite alternate;
+  }
+
+  .cta-content {
+    position: relative;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .cta-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin-bottom: 20px;
+  }
+
+  .cta-subtitle {
+    color: var(--gray-300);
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+
+  .cta-features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .cta-feature {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary);
+    font-size: 0.95rem;
+  }
+
+  .cta-feature svg {
+    flex-shrink: 0;
+  }
+
+  .cta-actions {
+    margin-bottom: 24px;
+  }
+
+  .cta-note {
+    color: var(--gray-500);
+    font-size: 0.85rem;
+  }
+
+  /* Footer */
+  .footer {
+    background: var(--black);
+    padding: 80px 0 40px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .footer-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px;
+    margin-bottom: 60px;
+  }
+
+  @media (min-width: 768px) {
+    .footer-content {
+      grid-template-columns: 2fr 3fr;
+    }
+  }
+
+  .footer-logo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .footer-logo-img {
+    width: 60px;
+    height: 60px;
+    filter: drop-shadow(0 0 15px var(--primary-glow));
+  }
+
+  .footer-tagline {
+    color: var(--gray-500);
+    margin-top: 16px;
+    font-size: 0.95rem;
+  }
+
+  .footer-links {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+
+  @media (min-width: 640px) {
+    .footer-links {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .footer-column h5 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--white);
+    margin-top: 0;
+  }
+
+  .footer-column a {
+    display: block;
+    color: var(--gray-500);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    padding: 8px 0;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s ease;
+  }
+
+  .footer-column a:hover {
+    color: var(--primary);
+  }
+
+  .footer-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  @media (min-width: 640px) {
+    .footer-bottom {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+
+  .footer-bottom p {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+  }
+
+  .footer-email {
+    color: var(--gray-600);
+    font-size: 0.8rem;
+    transition: color 0.3s ease;
+    opacity: 0.7;
+  }
+
+  .footer-email:hover {
+    color: var(--gray-400);
+    opacity: 1;
+  }
+
+  .footer-legal {
+    display: flex;
+    gap: 24px;
+  }
+
+  .footer-legal a {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+    transition: color 0.3s ease;
+  }
+
+  .footer-legal a:hover {
+    color: var(--gray-400);
+  }
+
+  /* Trustpilot Widget Section */
+  .trustpilot-section {
+    padding: 40px 0;
+    margin: 40px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .trustpilot-widget {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .trustpilot-widget a {
+    color: var(--gray-500);
+    font-size: 0.875rem;
+    transition: color 0.3s ease;
+  }
+
+  .trustpilot-widget a:hover {
+    color: var(--primary);
+  }
+</style>
