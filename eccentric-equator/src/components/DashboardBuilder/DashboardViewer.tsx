@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState, useRef } from 'react';
+import React, { useMemo, useCallback, useState, useRef, useEffect } from 'react';
 import {
   ReactFlow,
   MiniMap,
@@ -10,6 +10,7 @@ import {
   type NodeTypes,
   type ReactFlowInstance,
   type EdgeTypes,
+  type Viewport,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './viewer-styles.css';
@@ -20,6 +21,7 @@ import type { StrategyNodeData, Quarter } from './types';
 import { QUARTER_CONFIG } from './types';
 import type { SavedDashboard } from './dashboardStorage';
 import { exportDashboardToPDF } from './pdfExport';
+import { useDeviceDetection, useReactFlowConfig, type DeviceType, BREAKPOINTS } from './useDeviceDetection';
 
 // --- FIXED COORDINATE SYSTEM ---
 const VIRTUAL_WIDTH = 1440;
@@ -36,6 +38,34 @@ const edgeTypes: EdgeTypes = {
 interface DashboardViewerProps {
   dashboard: SavedDashboard;
   publicMode?: boolean;
+}
+
+// Store viewport preference in localStorage
+const VIEWPORT_STORAGE_KEY = 'dashboard-viewport-zoom';
+
+function getStoredViewport(): Viewport | null {
+  if (typeof window === 'undefined') return null;
+  const stored = localStorage.getItem(VIEWPORT_STORAGE_KEY);
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+function storeViewport(viewport: Viewport) {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(VIEWPORT_STORAGE_KEY, JSON.stringify(viewport));
+  }
+}
+
+function clearViewportStorage() {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(VIEWPORT_STORAGE_KEY);
+  }
 }
 
 // Background guides that move and scale with the flow
@@ -91,10 +121,51 @@ function DashboardStats({ nodes }: DashboardStatsProps) {
 
 function DashboardViewer({ dashboard, publicMode = false }: DashboardViewerProps) {
   const [isExporting, setIsExporting] = useState(false);
+  const [viewport, setViewport] = useState<Viewport | null>(null);
+  const [resetViewportKey, setResetViewportKey] = useState(0);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const deviceInfo = useDeviceDetection();
+  const getReactFlowConfig = useReactFlowConfig(deviceInfo);
+  const previousDeviceType = useRef<DeviceType | null>(null);
+  
+  // Get configuration based on device type
+  const config = getReactFlowConfig();
+  
+  // Handle device type transitions - reset viewport when switching to desktop
+  useEffect(() => {
+    if (previousDeviceType.current && previousDeviceType.current !== deviceInfo.type) {
+      // Device type changed
+      const wasMobileOrTablet = previousDeviceType.current !== 'desktop';
+      const isNowDesktop = deviceInfo.type === 'desktop';
+      
+      if (wasMobileOrTablet && isNowDesktop) {
+        // Transitioning from mobile/tablet to desktop - reset to default viewport
+        clearViewportStorage();
+        setResetViewportKey(prev => prev + 1);
+      }
+    }
+    
+    previousDeviceType.current = deviceInfo.type;
+  }, [deviceInfo.type]);
+
+  // Handle viewport changes (only on mobile/tablet where zoom is enabled)
+  const onViewportChange = useCallback((newViewport: Viewport) => {
+    setViewport(newViewport);
+    if (deviceInfo.type !== 'desktop') {
+      storeViewport(newViewport);
+    }
+  }, [deviceInfo.type]);
 
   const handleExportPDF = useCallback(async () => {
     if (isExporting) return;
+    
+    // Reset viewport to default desktop position before export
+    clearViewportStorage();
+    setResetViewportKey(prev => prev + 1);
+    
+    // Wait for ReactFlow to reset to default viewport
+    await new Promise(resolve => setTimeout(resolve, 150));
+    
     setIsExporting(true);
     try {
       await exportDashboardToPDF('.viewer-canvas', {
@@ -106,6 +177,9 @@ function DashboardViewer({ dashboard, publicMode = false }: DashboardViewerProps
       setIsExporting(false);
     }
   }, [dashboard.name, isExporting]);
+
+  // Determine if controls should be shown based on device type
+  const showZoomControls = deviceInfo.type !== 'desktop';
 
   return (
     <div className={`dashboard-viewer ${publicMode ? 'public-mode' : ''}`}>
@@ -147,31 +221,66 @@ function DashboardViewer({ dashboard, publicMode = false }: DashboardViewerProps
       </nav>
 
       <div className="viewer-canvas" ref={canvasRef}>
-        <div className="react-flow-wrapper">
+        <div 
+          key={resetViewportKey} 
+          className={`react-flow-wrapper device-${deviceInfo.type}`}
+        >
           <ReactFlow
+            key={`${deviceInfo.type}-${resetViewportKey}`}
             nodes={dashboard.nodes}
             edges={dashboard.edges || []}
             nodeTypes={nodeTypes}
             nodeOrigin={[0.5, 0]}
-            defaultViewport={{ x: -15, y: -15, zoom: 1.38 }}
-            fitView={!publicMode} // Only auto-fit for private dashboards
-            fitViewOptions={{ padding: 0.15, maxZoom: 1.0 }}
+            defaultViewport={config.defaultViewport}
+            onViewportChange={onViewportChange}
+            fitView={!publicMode}
+            fitViewOptions={config.fitViewOptions}
             nodesDraggable={false}
             nodesConnectable={false}
             nodesFocusable={false}
             edgesFocusable={false}
             elementsSelectable={false}
-            panOnDrag={false}
-            translateExtent={[[0, 0], [1490, 1000]]} // Allow more upward panning to avoid black boundaries
-            zoomOnScroll={false}
-            zoomOnPinch={false}
-            zoomOnDoubleClick={false}
-            minZoom={1.38}
-            maxZoom={1.38}
+            panOnDrag={config.panOnDrag}
+            translateExtent={config.translateExtent}
+            zoomOnScroll={config.zoomOnScroll}
+            zoomOnPinch={config.zoomOnPinch}
+            zoomOnDoubleClick={config.zoomOnDoubleClick}
+            minZoom={config.minZoom}
+            maxZoom={config.maxZoom}
             edgeTypes={edgeTypes}
           >
             <StrategicBackground />
             <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="rgba(255,255,255,0.03)" />
+            {showZoomControls && (
+              <MiniMap
+                nodeStrokeColor={(node) => {
+                  const data = node.data as StrategyNodeData;
+                  if (!data) return '#fff';
+                  switch (data.status) {
+                    case 'done': return '#00D26A';
+                    case 'active': return '#3b82f6';
+                    case 'blocked': return '#ef4444';
+                    default: return '#8b5cf6';
+                  }
+                }}
+                nodeColor={(node) => {
+                  const data = node.data as StrategyNodeData;
+                  if (!data) return '#1a1a1a';
+                  switch (data.status) {
+                    case 'done': return 'rgba(0, 210, 106, 0.3)';
+                    case 'active': return 'rgba(59, 130, 246, 0.3)';
+                    case 'blocked': return 'rgba(239, 68, 68, 0.3)';
+                    default: return 'rgba(139, 92, 246, 0.3)';
+                  }
+                }}
+                maskColor="rgba(0, 0, 0, 0.5)"
+                style={{
+                  background: '#111111',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '8px',
+                }}
+              />
+            )}
           </ReactFlow>
         </div>
       </div>

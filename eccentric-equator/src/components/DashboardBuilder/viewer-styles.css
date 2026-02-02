@@ -437,3 +437,31 @@
     display: none;
   }
 }
+
+/* Device-specific ReactFlow wrapper styles */
+.react-flow-wrapper.device-mobile {
+  touch-action: pan-x pan-y;
+}
+
+.react-flow-wrapper.device-tablet {
+  touch-action: pan-x pan-y;
+}
+
+/* MiniMap positioning for mobile/tablet */
+@media (max-width: 768px) {
+  .react-flow__minimap {
+    width: 100px !important;
+    height: 80px !important;
+    bottom: 16px !important;
+    right: 16px !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .react-flow__minimap {
+    width: 120px !important;
+    height: 100px !important;
+    bottom: 20px !important;
+    right: 20px !important;
+  }
+}
