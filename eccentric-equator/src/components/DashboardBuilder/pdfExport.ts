@@ -169,28 +169,56 @@ export async function exportDashboardToPDF(
       orientation: 'landscape',
       unit: 'mm',
       format: 'a3',
-      compress: true
+      compress: true,
+      putOnlyUsedFonts: true,
     });
 
-    // Set dark background
+    pdf.setProperties({
+      title: title || 'Security Strategy Roadmap',
+      subject: 'Q1-Q4 Cybersecurity Strategy Roadmap',
+      author: 'Hackfluency',
+      creator: 'Hackfluency Strategy Dashboard',
+      keywords: 'cybersecurity, strategy, roadmap, security planning',
+      creationDate: new Date(),
+    });
+
+    const logoImg = new Image();
+    logoImg.crossOrigin = 'anonymous';
+    const logoDataUrl = await new Promise<string>((resolve, reject) => {
+      logoImg.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = logoImg.width;
+        canvas.height = logoImg.height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(logoImg, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        } else {
+          reject(new Error('Failed to get canvas context'));
+        }
+      };
+      logoImg.onerror = () => reject(new Error('Failed to load logo'));
+      logoImg.src = '/HFNeon.png';
+    });
+
     pdf.setFillColor(10, 10, 10);
     pdf.rect(0, 0, pageWidth, pageHeight, 'F');
     
-    // Header section
     let yOffset = 15;
     
     if (includeHeader) {
-      // Brand accent line
+      const logoSize = 20;
+      pdf.addImage(logoDataUrl, 'PNG', 15, yOffset - 5, logoSize, logoSize);
+      
       pdf.setDrawColor(0, 210, 106);
       pdf.setLineWidth(1);
-      pdf.line(15, yOffset, 60, yOffset);
+      pdf.line(40, yOffset, 85, yOffset);
       
       // Title
       pdf.setFontSize(28);
       pdf.setTextColor(255, 255, 255);
-      pdf.text(title, 15, yOffset + 12);
+      pdf.text(title, 40, yOffset + 12);
       
-      // Subtitle with date
       pdf.setFontSize(11);
       pdf.setTextColor(138, 138, 138);
       const dateStr = new Date().toLocaleDateString('en-US', {
@@ -198,14 +226,11 @@ export async function exportDashboardToPDF(
         month: 'long',
         day: 'numeric'
       });
-      pdf.text(`Q1 - Q4 Strategy Roadmap  •  Generated on ${dateStr}`, 15, yOffset + 20);
+      pdf.text(`Q1 - Q4 Strategy Roadmap  •  Generated on ${dateStr}`, 40, yOffset + 20);
       
-      // Branding on right side
       pdf.setFontSize(12);
       pdf.setTextColor(0, 210, 106);
-      pdf.text('Hack', pageWidth - 55, yOffset + 8);
-      pdf.setTextColor(255, 255, 255);
-      pdf.text('fluency', pageWidth - 38, yOffset + 8);
+      pdf.text('Hackfluency', pageWidth - 55, yOffset + 8);
       
       // Divider line
       pdf.setDrawColor(42, 42, 42);
@@ -269,9 +294,12 @@ export async function exportDashboardToPDF(
       { align: 'center' }
     );
     
-    // Right footer - page branding
     pdf.setTextColor(0, 210, 106);
     pdf.text('hackfluency.com', pageWidth - 15, pageHeight - 10, { align: 'right' });
+    
+    pdf.setFontSize(8);
+    pdf.setTextColor(80, 80, 80);
+    pdf.text('© 2026 Hackfluency. All rights reserved.', pageWidth / 2, pageHeight - 5, { align: 'center' });
 
     // Save the PDF
     pdf.save(filename);

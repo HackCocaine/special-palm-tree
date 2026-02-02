@@ -1,33 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { AuthWrapper } from '../Auth';
 import { useAuth } from '../Auth/AuthContext';
+import { supabase } from '../../lib/supabase';
 import './list-styles.css';
 import type { SavedDashboard } from './dashboardStorage';
-import {
-  getAllDashboards,
-  archiveDashboard,
-  restoreDashboard,
-  deleteDashboard,
-  duplicateDashboard,
-} from './dashboardStorage';
 
 type ViewMode = 'active' | 'archived';
 
-const DashboardListContent: React.FC = () => {
-  const [dashboards, setDashboards] = useState<SavedDashboard[]>([]);
+function DashboardListContent() {
   const [viewMode, setViewMode] = useState<ViewMode>('active');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const { isAuthorized } = useAuth();
-  const isDev = import.meta.env.DEV;
-
-  const loadDashboards = useCallback(() => {
-    const all = getAllDashboards();
-    setDashboards(all);
-  }, []);
-
-  useEffect(() => {
-    loadDashboards();
-  }, [loadDashboards]);
+  const { dashboards, isAuthorized } = useAuth();
 
   const filteredDashboards = dashboards.filter((d) => {
     const isStatusMatch = viewMode === 'archived' ? d.status === 'archived' : d.status !== 'archived';
@@ -36,20 +19,17 @@ const DashboardListContent: React.FC = () => {
   });
 
   const handleArchive = (id: string) => {
-    archiveDashboard(id);
-    loadDashboards();
+    console.log('Archive not yet implemented for Supabase:', id);
   };
 
   const handleRestore = (id: string) => {
-    restoreDashboard(id);
-    loadDashboards();
+    console.log('Restore not yet implemented for Supabase:', id);
   };
 
   const handleDelete = (id: string) => {
     if (deleteConfirm === id) {
-      deleteDashboard(id);
+      console.log('Delete not yet implemented for Supabase:', id);
       setDeleteConfirm(null);
-      loadDashboards();
     } else {
       setDeleteConfirm(id);
       setTimeout(() => setDeleteConfirm(null), 3000);
@@ -57,8 +37,12 @@ const DashboardListContent: React.FC = () => {
   };
 
   const handleDuplicate = (id: string) => {
-    duplicateDashboard(id);
-    loadDashboards();
+    console.log('Duplicate not yet implemented for Supabase:', id);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = '/';
   };
 
   const formatDate = (dateStr: string) => {
@@ -171,17 +155,15 @@ const DashboardListContent: React.FC = () => {
                 ? 'Archived dashboards you have access to will appear here'
                 : 'You do not have access to any dashboards, or haven\'t created any yet.'}
             </p>
-            {isDev && (
-              <div style={{ marginTop: '24px', borderTop: '1px solid #1a1a1a', paddingTop: '24px' }}>
-                <p style={{ color: '#666', fontSize: '0.8rem', marginBottom: '12px' }}>Developer Tools:</p>
-                <a href="/dashboards/sample" className="nav-btn" style={{ background: '#1a1a1a', border: '1px solid #333' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>
-                  </svg>
-                  View Public Sample
-                </a>
-              </div>
-            )}
+            <div style={{ marginTop: '24px', borderTop: '1px solid #1a1a1a', paddingTop: '24px' }}>
+              <p style={{ color: '#666', fontSize: '0.8rem', marginBottom: '12px' }}>Need an example?</p>
+              <a href="/SecurityRoadmap.HF" className="nav-btn" style={{ background: '#1a1a1a', border: '1px solid #333' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>
+                </svg>
+                View Security Roadmap
+              </a>
+            </div>
             {viewMode === 'active' && (
               <a href="/dashboard-builder" className="empty-cta">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -298,17 +280,31 @@ const DashboardListContent: React.FC = () => {
             ))}
           </div>
         )}
+
+        <footer className="list-footer">
+          <button
+            className="logout-btn"
+            onClick={handleLogout}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sign Out
+          </button>
+        </footer>
       </main>
       </div>
   );
-};
+}
 
-const DashboardList: React.FC = () => {
+function DashboardList() {
   return (
     <AuthWrapper>
       <DashboardListContent />
     </AuthWrapper>
   );
-};
+}
 
 export default DashboardList;

@@ -34,7 +34,7 @@ const QUARTER_PADDING = 20;
 const QUARTERS: Quarter[] = ['q1', 'q2', 'q3', 'q4'];
 
 // Background guides that move and scale with the flow - ensures visual consistency
-const StrategicBackground: React.FC = () => {
+function StrategicBackground() {
   const { x, y, zoom } = useViewport();
   
   const style: React.CSSProperties = {
@@ -54,7 +54,7 @@ const StrategicBackground: React.FC = () => {
       ))}
     </div>
   );
-};
+}
 
 // Node data is separated from position, which is now center-based.
 const initialNodeDetails = [
@@ -90,14 +90,16 @@ const nodeTypes: NodeTypes = {
 };
 
 const edgeTypes: EdgeTypes = {
-  strategy: StrategyEdge,
+  strategy: StrategyEdge as EdgeTypes['strategy'],
 };
 
 // Sidebar palette item component
-const PaletteItem: React.FC<{
+interface PaletteItemProps {
   category: NodeCategory;
   onDragStart: (event: React.DragEvent, category: NodeCategory) => void;
-}> = ({ category, onDragStart }) => {
+}
+
+function PaletteItem({ category, onDragStart }: PaletteItemProps) {
   const config = CATEGORY_CONFIG[category];
   
   const icons: Record<string, React.ReactElement> = {
@@ -120,16 +122,18 @@ const PaletteItem: React.FC<{
       <span className="palette-label">{config.label}</span>
     </div>
   );
-};
+}
 
 // Edge Properties Panel
-const EdgePropertiesPanel: React.FC<{
+interface EdgePropertiesPanelProps {
   selectedEdge: Edge | null;
   nodes: Node<StrategyNodeData>[];
   onUpdate: (type: EdgeType | undefined) => void;
   onReset: () => void;
   onDelete: () => void;
-}> = ({ selectedEdge, nodes, onUpdate, onReset, onDelete }) => {
+}
+
+function EdgePropertiesPanel({ selectedEdge, nodes, onUpdate, onReset, onDelete }: EdgePropertiesPanelProps) {
   if (!selectedEdge) {
     return (
       <div className="builder-panel">
@@ -229,14 +233,16 @@ const EdgePropertiesPanel: React.FC<{
       </div>
     </div>
   );
-};
+}
 
 // Properties Panel
-const PropertiesPanel: React.FC<{
+interface PropertiesPanelProps {
   selectedNode: Node<StrategyNodeData> | null;
   onUpdate: (data: Partial<StrategyNodeData>) => void;
   onDelete: () => void;
-}> = ({ selectedNode, onUpdate, onDelete }) => {
+}
+
+function PropertiesPanel({ selectedNode, onUpdate, onDelete }: PropertiesPanelProps) {
   if (!selectedNode) {
     return (
       <div className="builder-panel">
@@ -340,14 +346,16 @@ const PropertiesPanel: React.FC<{
       </div>
     </div>
   );
-};
+}
 
 // Publish Modal Component
-const PublishModal: React.FC<{
+interface PublishModalProps {
   isOpen: boolean;
   onClose: () => void;
   onPublish: (name: string, description: string, publishImmediately: boolean) => void;
-}> = ({ isOpen, onClose, onPublish }) => {
+}
+
+function PublishModal({ isOpen, onClose, onPublish }: PublishModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [publishImmediately, setPublishImmediately] = useState(true);
@@ -424,13 +432,15 @@ const PublishModal: React.FC<{
       </div>
     </div>
   );
-};
+}
 
 // Success Toast Component
-const SuccessToast: React.FC<{
+interface SuccessToastProps {
   dashboard: SavedDashboard | null;
   onClose: () => void;
-}> = ({ dashboard, onClose }) => {
+}
+
+function SuccessToast({ dashboard, onClose }: SuccessToastProps) {
   if (!dashboard) return null;
 
   const viewUrl = `/dashboards/view?id=${dashboard.id}`;
@@ -461,12 +471,12 @@ const SuccessToast: React.FC<{
       </div>
     </div>
   );
-};
+}
 
 // Main Dashboard Builder Component
-const DashboardBuilder: React.FC = () => {
+function DashboardBuilder() {
   const { screenToFlowPosition } = useReactFlow();
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node<StrategyNodeData>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
@@ -514,7 +524,7 @@ const DashboardBuilder: React.FC = () => {
             y: yPos,
           },
           data: detail.data,
-        } as Node;
+        } as Node<StrategyNodeData>;
       });
       setNodes(positionedNodes);
     }
@@ -522,7 +532,7 @@ const DashboardBuilder: React.FC = () => {
   
   // Custom onNodesChange that enforces quarter boundaries
   const onNodesChangeCustom = useCallback(
-    (changes: NodeChange[]) => {
+    (changes: NodeChange<Node<StrategyNodeData>>[]) => {
       const constrainedChanges = changes.map((change) => {
         if (change.type === 'position' && change.position && change.dragging) {
           const node = nodes.find((n) => n.id === change.id);
@@ -932,13 +942,15 @@ const DashboardBuilder: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 // Wrap with ReactFlowProvider
-const DashboardBuilderWrapper: React.FC = () => (
-  <ReactFlowProvider>
-    <DashboardBuilder />
-  </ReactFlowProvider>
-);
+function DashboardBuilderWrapper() {
+  return (
+    <ReactFlowProvider>
+      <DashboardBuilder />
+    </ReactFlowProvider>
+  );
+}
 
 export default DashboardBuilderWrapper;

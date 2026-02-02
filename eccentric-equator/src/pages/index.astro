@@ -97,8 +97,12 @@ const values = [
         <a href="#services">Services</a>
         <a href="#about">About</a>
         <a href="#values">Values</a>
+        <a href="/dashboards">Sign-In</a>
       </div>
-      <a href="https://hackfluency.zohobookings.com/#/hackfluency" target="_blank" rel="noopener" class="nav-cta">Book a Call</a>
+      <div class="nav-actions">
+        <a href="/dashboards" class="nav-btn-dashboard">Sign-In</a>
+        <a href="https://hackfluency.zohobookings.com/#/hackfluency" target="_blank" rel="noopener" class="nav-cta">Book a Call</a>
+      </div>
       <button class="mobile-menu-btn" aria-label="Toggle menu">
         <span></span>
         <span></span>
@@ -466,6 +470,40 @@ const values = [
     transform: translateY(-2px);
     box-shadow: 0 10px 40px var(--primary-glow);
     color: #000000;
+  }
+
+  .nav-actions {
+    display: none;
+    align-items: center;
+    gap: 12px;
+  }
+
+  @media (min-width: 768px) {
+    .nav-actions {
+      display: flex;
+    }
+  }
+
+  .nav-btn-dashboard {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--white);
+    transition: all 0.3s ease;
+    min-height: 44px;
+    text-decoration: none;
+  }
+
+  .nav-btn-dashboard:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
   }
 
   .mobile-menu-btn {

@@ -14,23 +14,24 @@ import {
   CATEGORY_EDGE_DEFAULTS,
 } from './types';
 
-interface StrategyEdgeData {
+interface StrategyEdgeData extends Record<string, unknown> {
   type?: EdgeType;
 }
 
-const StrategyEdge: React.FC<EdgeProps<StrategyEdgeData>> = ({
-  id,
-  source,
-  target,
-  sourceX,
-  sourceY,
-  targetX,
-  targetY,
-  sourcePosition,
-  targetPosition,
-  data,
-  selected,
-}) => {
+function StrategyEdge(props: EdgeProps) {
+  const {
+    id,
+    source,
+    target,
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+    sourcePosition,
+    targetPosition,
+    data,
+    selected,
+  } = props;
   const { getNode } = useReactFlow();
   const [isExportMode, setIsExportMode] = useState(false);
   const observerRef = useRef<MutationObserver | null>(null);
@@ -94,16 +95,18 @@ const StrategyEdge: React.FC<EdgeProps<StrategyEdgeData>> = ({
   const sourceNode = getNode(source);
   const sourceCategory = sourceNode?.data?.category as NodeCategory | undefined;
 
+  const edgeData = data as StrategyEdgeData | undefined;
+
   // Resolve effective edge type
-  const effectiveType: EdgeType = data?.type || (sourceCategory ? CATEGORY_EDGE_DEFAULTS[sourceCategory] : 'dependency');
+  const effectiveType: EdgeType = edgeData?.type || (sourceCategory ? CATEGORY_EDGE_DEFAULTS[sourceCategory] : 'dependency');
 
   // Get full configuration for the edge type
   const config: EdgeTypeConfig = EDGE_TYPE_CONFIG[effectiveType];
 
   // Resolve edge color based on type or inheritance
-  const edgeColor = resolveEdgeColor(data?.type, sourceCategory);
-  const edgeTypeLabel = getEdgeTypeLabel(data?.type, sourceCategory);
-  const isExplicit = !!data?.type;
+  const edgeColor = resolveEdgeColor(edgeData?.type, sourceCategory);
+  const edgeTypeLabel = getEdgeTypeLabel(edgeData?.type, sourceCategory);
+  const isExplicit = !!edgeData?.type;
 
   // Build animation style based on type and export mode
   const getAnimationStyle = (): React.CSSProperties => {
@@ -210,7 +213,7 @@ const StrategyEdge: React.FC<EdgeProps<StrategyEdgeData>> = ({
         />
       )}
 
-      <g data-edge-type={String(effectiveType)}>
+      <g data-edge-type={effectiveType}>
         <BaseEdge
           id={id}
           key={renderKey}
@@ -257,6 +260,6 @@ const StrategyEdge: React.FC<EdgeProps<StrategyEdgeData>> = ({
       </EdgeLabelRenderer>
     </>
   );
-};
+}
 
 export default StrategyEdge;

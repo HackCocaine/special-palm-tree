@@ -2,22 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { AuthWrapper } from '../Auth';
 import { useAuth } from '../Auth/AuthContext';
 import DashboardViewer from './DashboardViewer';
-import { getDashboardById, type SavedDashboard } from './dashboardStorage';
+import type { SavedDashboard } from './dashboardStorage';
 import './viewer-styles.css';
 
 interface DashboardViewerWrapperProps {
   dashboardId?: string;
 }
 
-const DashboardViewerContent: React.FC<DashboardViewerWrapperProps> = ({ dashboardId: propId }) => {
+function DashboardViewerContent({ dashboardId: propId }: DashboardViewerWrapperProps) {
   const [dashboardId, setDashboardId] = useState<string | null>(propId || null);
   const [dashboard, setDashboard] = useState<SavedDashboard | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const { isAuthorized } = useAuth();
+  const { isAuthorized, getDashboardById } = useAuth();
 
   useEffect(() => {
-    // If no propId, try to get from URL
     if (!propId) {
       const params = new URLSearchParams(window.location.search);
       const id = params.get('id');
@@ -33,17 +32,15 @@ const DashboardViewerContent: React.FC<DashboardViewerWrapperProps> = ({ dashboa
   useEffect(() => {
     if (!dashboardId) return;
 
-    // First check local existence
     const loaded = getDashboardById(dashboardId);
-    
-    // Then check server-side authorization
+
     if (loaded && isAuthorized(dashboardId)) {
       setDashboard(loaded);
     } else {
-      setError(true); // Either not found locally OR not authorized
+      setError(true);
     }
     setLoading(false);
-  }, [dashboardId, isAuthorized]);
+  }, [dashboardId, isAuthorized, getDashboardById]);
 
   if (loading) {
     return (
@@ -79,14 +76,14 @@ const DashboardViewerContent: React.FC<DashboardViewerWrapperProps> = ({ dashboa
   return (
     <DashboardViewer dashboard={dashboard} />
   );
-};
+}
 
-const DashboardViewerWrapper: React.FC<DashboardViewerWrapperProps> = (props) => {
+function DashboardViewerWrapper(props: DashboardViewerWrapperProps) {
   return (
     <AuthWrapper allowPublic={true}>
       <DashboardViewerContent {...props} />
     </AuthWrapper>
   );
-};
+}
 
 export default DashboardViewerWrapper;

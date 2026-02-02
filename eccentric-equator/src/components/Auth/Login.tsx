@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import './auth.css';
 
-const Login: React.FC = () => {
+function Login() {
   const [email, setEmail] = useState('');
   const [emailSent, setEmailSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -19,8 +19,8 @@ const Login: React.FC = () => {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          shouldCreateUser: false, // Only allow existing users
-          emailRedirectTo: window.location.href, // Redirect back to this page
+          shouldCreateUser: false,
+          emailRedirectTo: `${window.location.origin}/dashboards`,
         },
       });
 
@@ -105,12 +105,23 @@ const Login: React.FC = () => {
             <button type="submit" className="auth-button" disabled={loading}>
               {loading ? <div className="spinner-small" /> : 'Send Magic Link'}
             </button>
+            
+            <div className="auth-divider">
+              <span>or</span>
+            </div>
+            
+            <a href="/SecurityRoadmap.HF" className="auth-button-secondary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>
+              </svg>
+              View Security Roadmap
+            </a>
           </form>
         )}
       </div>
     </div>
   );
-};
+}
 
 export default Login;
 

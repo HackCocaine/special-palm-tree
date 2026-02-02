@@ -3,7 +3,7 @@ import DashboardViewer from './DashboardViewer';
 import type { SavedDashboard } from './dashboardStorage';
 import sampleData from '../../assets/sample-dashboard.json';
 
-const PublicDashboardViewer: React.FC = () => {
+function PublicDashboardViewer() {
   // Directly render the viewer with sample data, no AuthWrapper
   // We pass publicMode={true} to adjust navigation and banners
   return (
@@ -11,6 +11,6 @@ const PublicDashboardViewer: React.FC = () => {
       <DashboardViewer dashboard={sampleData as SavedDashboard} publicMode={true} />
     </div>
   );
-};
+}
 
 export default PublicDashboardViewer;

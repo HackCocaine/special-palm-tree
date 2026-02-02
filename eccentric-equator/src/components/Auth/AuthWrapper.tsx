@@ -1,95 +1,112 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import Login from './Login';
 import type { Session } from '@supabase/supabase-js';
 import { AuthProvider } from './AuthContext';
+import type { SavedDashboard } from '../DashboardBuilder/dashboardStorage';
 
 interface AuthWrapperProps {
   children: React.ReactNode;
+  allowPublic?: boolean;
 }
 
-const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
+function AuthWrapper({ children, allowPublic = false }: AuthWrapperProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [authorizedDashboards, setAuthorizedDashboards] = useState<Set<string>>(new Set());
+  const [dashboards, setDashboards] = useState<SavedDashboard[]>([]);
   const [loading, setLoading] = useState(true);
   const [authChecking, setAuthChecking] = useState(false);
 
-  const isDev = import.meta.env.DEV;
+  const getDashboardById = useCallback((id: string): SavedDashboard | null => {
+    return dashboards.find(d => d.id === id) || null;
+  }, [dashboards]);
 
   useEffect(() => {
-    if (isDev) {
-      console.log('Dev mode detected: Bypassing authentication');
-      setSession({
-        access_token: 'mock-token',
-        refresh_token: 'mock-refresh-token',
-        expires_in: 3600,
-        token_type: 'bearer',
-        user: {
-          id: 'dev-user',
-          aud: 'authenticated',
-          role: 'authenticated',
-          email: 'dev@example.com',
-          app_metadata: { provider: 'email' },
-          user_metadata: {},
-          created_at: new Date().toISOString(),
-        }
-      } as Session);
-      setLoading(false);
-      return;
-    }
-
-    // Check active session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (!session) setLoading(false);
     });
 
-    // Listen for changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (!session) setLoading(false);
 
-      // Clean URL hash if we have a session
       if (session && window.location.hash && window.location.hash.includes('access_token')) {
         window.history.replaceState(
-          null, 
-          '', 
+          null,
+          '',
           window.location.pathname + window.location.search
         );
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [isDev]);
+  }, []);
 
-  // Fetch authorized dashboards when session is active
   useEffect(() => {
-    if (isDev) return;
+    if (!session) {
+      setAuthorizedDashboards(new Set());
+      setDashboards([]);
+      return;
+    }
 
-    const fetchAuthorizations = async () => {
-      if (!session) {
-        setAuthorizedDashboards(new Set());
-        return;
-      }
+    const fetchDashboards = async () => {
 
       setAuthChecking(true);
       try {
-        const { data, error } = await supabase
+        const { data: accessData, error: accessError } = await supabase
           .from('dashboard_access')
           .select('dashboard_id');
-        
-        if (error) {
-          console.error('Error fetching authorizations:', error);
+
+        if (accessError) {
+          console.error('Error fetching authorizations:', accessError);
           setAuthorizedDashboards(new Set());
-        } else {
-          const authorizedIds = new Set(data.map(row => row.dashboard_id));
-          setAuthorizedDashboards(authorizedIds);
+          setDashboards([]);
+          return;
+        }
+
+        const authorizedIds = accessData.map(row => row.dashboard_id);
+        setAuthorizedDashboards(new Set(authorizedIds));
+
+        if (authorizedIds.length === 0) {
+          setDashboards([]);
+          return;
+        }
+
+        const { data: dashboardData, error: dashboardError } = await supabase
+          .from('dashboards')
+          .select('id, title, status, version, payload')
+          .in('id', authorizedIds);
+
+        if (dashboardError) {
+          console.error('Error fetching dashboard data:', dashboardError);
+          setDashboards([]);
+        } else if (dashboardData) {
+          const parsedDashboards: SavedDashboard[] = dashboardData.map(row => {
+            const payload = row.payload as Record<string, unknown>;
+            const statusMap: Record<number, SavedDashboard['status']> = { 0: 'draft', 1: 'published' };
+            return {
+              id: row.id,
+              name: row.title || (payload.name as string) || (payload.title as string) || 'Untitled Dashboard',
+              description: (payload.description as string) || '',
+              nodes: (payload.nodes as SavedDashboard['nodes']) || [],
+              edges: (payload.edges as SavedDashboard['edges']) || [],
+              createdAt: (payload.createdAt as string) || (payload.created_at as string) || new Date().toISOString(),
+              updatedAt: (payload.updatedAt as string) || (payload.updated_at as string) || new Date().toISOString(),
+              publishedAt: (payload.publishedAt as string) || (payload.published_at as string),
+              archivedAt: (payload.archivedAt as string) || (payload.archived_at as string),
+              version: row.version || (payload.version as number) || 1,
+              status: statusMap[row.status as number] || (payload.status as SavedDashboard['status']) || 'draft',
+            };
+          });
+          setDashboards(parsedDashboards);
         }
       } catch (err) {
         console.error('Authorization fetch failed:', err);
         setAuthorizedDashboards(new Set());
+        setDashboards([]);
       } finally {
         setAuthChecking(false);
         setLoading(false);
@@ -97,12 +114,11 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
     };
 
     if (session) {
-      fetchAuthorizations();
+      fetchDashboards();
     }
-  }, [session, isDev]);
+  }, [session]);
 
   const isAuthorized = (dashboardId: string) => {
-    if (isDev) return true;
     return authorizedDashboards.has(dashboardId);
   };
 
@@ -133,15 +149,15 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
     );
   }
 
-  if (!session) {
+  if (!session && !allowPublic) {
     return <Login />;
   }
 
   return (
-    <AuthProvider value={{ session, authorizedDashboards, isAuthorized, loading }}>
+    <AuthProvider value={{ session, authorizedDashboards, isAuthorized, loading, dashboards, getDashboardById }}>
       {children}
     </AuthProvider>
   );
-};
+}
 
 export default AuthWrapper;

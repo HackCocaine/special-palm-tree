@@ -30,7 +30,7 @@ const nodeTypes: NodeTypes = {
 };
 
 const edgeTypes: EdgeTypes = {
-  strategy: StrategyEdge,
+  strategy: StrategyEdge as EdgeTypes['strategy'],
 };
 
 interface DashboardViewerProps {
@@ -39,7 +39,7 @@ interface DashboardViewerProps {
 }
 
 // Background guides that move and scale with the flow
-const StrategicBackground: React.FC = () => {
+function StrategicBackground() {
   const { x, y, zoom } = useViewport();
   
   const style: React.CSSProperties = {
@@ -59,9 +59,13 @@ const StrategicBackground: React.FC = () => {
       ))}
     </div>
   );
-};
+}
 
-const DashboardStats: React.FC<{ nodes: Node<StrategyNodeData>[] }> = ({ nodes }) => {
+interface DashboardStatsProps {
+  nodes: Node<StrategyNodeData>[];
+}
+
+function DashboardStats({ nodes }: DashboardStatsProps) {
   const stats = useMemo(() => {
     const byStatus: Record<string, number> = { done: 0, active: 0, planned: 0, blocked: 0 };
     nodes.forEach((node) => {
@@ -85,7 +89,7 @@ const DashboardStats: React.FC<{ nodes: Node<StrategyNodeData>[] }> = ({ nodes }
   );
 };
 
-const DashboardViewer: React.FC<DashboardViewerProps> = ({ dashboard, publicMode = false }) => {
+function DashboardViewer({ dashboard, publicMode = false }: DashboardViewerProps) {
   const [isExporting, setIsExporting] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -173,13 +177,15 @@ const DashboardViewer: React.FC<DashboardViewerProps> = ({ dashboard, publicMode
       </div>
     </div>
   );
-};
+}
 
 // Wrap with provider
-const DashboardViewerWrapper: React.FC<DashboardViewerProps> = (props) => (
-  <ReactFlowProvider>
-    <DashboardViewer {...props} />
-  </ReactFlowProvider>
-);
+function DashboardViewerWrapper(props: DashboardViewerProps) {
+  return (
+    <ReactFlowProvider>
+      <DashboardViewer {...props} />
+    </ReactFlowProvider>
+  );
+}
 
 export default DashboardViewerWrapper;

@@ -4,7 +4,11 @@ import type { NodeProps } from '@xyflow/react';
 import type { StrategyNodeData, NodeCategory } from './types';
 import { CATEGORY_CONFIG, STATUS_CONFIG, PRIORITY_CONFIG } from './types';
 
-const Icons: Record<string, React.FC<{ size?: number }>> = {
+interface IconProps {
+  size?: number;
+}
+
+const Icons: Record<string, (props: IconProps) => React.ReactElement> = {
   target: ({ size = 16 }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
@@ -42,7 +46,7 @@ interface StrategyNodeProps {
   selected?: boolean;
 }
 
-const StrategyNode: React.FC<StrategyNodeProps> = ({ data, selected }) => {
+function StrategyNode({ data, selected }: StrategyNodeProps) {
   const config = CATEGORY_CONFIG[data.category];
   const statusConfig = STATUS_CONFIG[data.status];
   const priorityConfig = PRIORITY_CONFIG[data.priority];
@@ -104,6 +108,6 @@ const StrategyNode: React.FC<StrategyNodeProps> = ({ data, selected }) => {
       </div>
     </div>
   );
-};
+}
 
 export default memo(StrategyNode);
