@@ -86,6 +86,43 @@ const values = [
 ---
 
 <Layout>
+  <!-- Mobile Menu Toggle Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const menuBtn = document.querySelector('.mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const body = document.body;
+      
+      if (menuBtn && mobileMenu) {
+        menuBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const isOpen = mobileMenu.classList.toggle('active');
+          menuBtn.classList.toggle('active');
+          body.style.overflow = isOpen ? 'hidden' : '';
+        });
+        
+        // Close menu when clicking on a link
+        const mobileLinks = mobileMenu.querySelectorAll('a');
+        mobileLinks.forEach(link => {
+          link.addEventListener('click', () => {
+            mobileMenu.classList.remove('active');
+            menuBtn.classList.remove('active');
+            body.style.overflow = '';
+          });
+        });
+        
+        // Close menu when clicking outside
+        mobileMenu.addEventListener('click', (e) => {
+          if (e.target === mobileMenu) {
+            mobileMenu.classList.remove('active');
+            menuBtn.classList.remove('active');
+            body.style.overflow = '';
+          }
+        });
+      }
+    });
+  </script>
+
   <!-- Navigation -->
   <nav class="nav">
     <div class="nav-container">
@@ -108,6 +145,22 @@ const values = [
         <span></span>
         <span></span>
       </button>
+    </div>
+    
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobile-menu">
+      <div class="mobile-menu-content">
+        <nav class="mobile-nav-links">
+          <a href="#services" class="mobile-nav-link">Services</a>
+          <a href="#about" class="mobile-nav-link">About</a>
+          <a href="#values" class="mobile-nav-link">Values</a>
+          <a href="/dashboards" class="mobile-nav-link">Sign-In</a>
+        </nav>
+        <div class="mobile-nav-actions">
+          <a href="/dashboards" class="mobile-nav-btn-dashboard">Sign-In</a>
+          <a href="https://hackfluency.zohobookings.com/#/hackfluency" target="_blank" rel="noopener" class="mobile-nav-cta">Book a Call</a>
+        </div>
+      </div>
     </div>
   </nav>
 
@@ -543,7 +596,28 @@ const values = [
     height: 2px;
     background: var(--white);
     transition: all 0.3s ease;
+    border-radius: 2px;
   }
+
+  @media (min-width: 768px) {
+    .mobile-menu-btn {
+      display: none;
+    }
+  }
+
+  /* Hamburger Button Active State */
+  .mobile-menu-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+
+  .mobile-menu-btn.active span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .mobile-menu-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+
 
   /* Hero Section */
   .hero {
@@ -1386,5 +1460,109 @@ const values = [
 
   .trustpilot-widget a:hover {
     color: var(--primary);
+  }
+  
+  /* Mobile Menu Overlay */
+  .mobile-menu-overlay {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(20px);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  .mobile-menu-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .mobile-menu-content {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  
+  .mobile-nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+  
+  .mobile-nav-link {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--white);
+    transition: all 0.3s ease;
+    min-height: 56px;
+  }
+  
+  .mobile-nav-link:hover {
+    background: rgba(0, 210, 106, 0.1);
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateX(8px);
+  }
+  
+  .mobile-nav-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .mobile-nav-btn-dashboard {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 24px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--white);
+    transition: all 0.3s ease;
+    min-height: 56px;
+    text-decoration: none;
+  }
+  
+  .mobile-nav-btn-dashboard:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  .mobile-nav-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 24px;
+    background: var(--gradient-primary);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #000000;
+    transition: all 0.3s ease;
+    min-height: 56px;
+    text-decoration: none;
+  }
+  
+  .mobile-nav-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px var(--primary-glow);
+    color: #000000;
   }
 </style>
