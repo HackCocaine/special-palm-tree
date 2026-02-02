@@ -362,6 +362,22 @@ const values = [
           </nav>
         </div>
       </div>
+
+      <!-- Trustpilot Widget Section -->
+      <div class="trustpilot-section">
+        <!-- TrustBox widget - Review Collector -->
+        <div class="trustpilot-widget"
+             data-locale="en-US"
+             data-template-id="56278e9abfbbba0bdcd568bc"
+             data-businessunit-id="68f53cf5ee195b73d33884e2"
+             data-style-height="52px"
+             data-style-width="100%"
+             data-token="9de2933f-e5a7-4a91-936a-a96daf9fce17">
+          <a href="https://www.trustpilot.com/review/hackfluency.com" target="_blank" rel="noopener">Trustpilot</a>
+        </div>
+        <!-- End TrustBox widget -->
+      </div>
+
       <div class="footer-bottom">
         <p>&copy; 2026 Hackfluency. All rights reserved.</p>
         <a href="mailto:inquiry@hackfluency.com" class="footer-email" aria-label="Send us an email">inquiry@hackfluency.com</a>
@@ -1344,5 +1360,31 @@ const values = [
 
   .footer-legal a:hover {
     color: var(--gray-400);
+  }
+
+  /* Trustpilot Widget Section */
+  .trustpilot-section {
+    padding: 40px 0;
+    margin: 40px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .trustpilot-widget {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .trustpilot-widget a {
+    color: var(--gray-500);
+    font-size: 0.875rem;
+    transition: color 0.3s ease;
+  }
+
+  .trustpilot-widget a:hover {
+    color: var(--primary);
   }
 </style>
