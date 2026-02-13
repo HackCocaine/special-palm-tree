@@ -229,7 +229,8 @@ export class XScraper extends BaseScraper<XScrapedData> {
         author: string;
         displayName: string;
         timestamp: string;
-        metrics: { likes: string; reposts: string; replies: string };
+        tweetId: string;
+        metrics: { likes: string; reposts: string; replies: string; views: string };
       }> = [];
 
       tweetElements.forEach((tweet) => {
@@ -244,20 +245,29 @@ export class XScraper extends BaseScraper<XScrapedData> {
 
           const timeElement = tweet.querySelector('time');
           const timestamp = timeElement?.getAttribute('datetime') || new Date().toISOString();
+          
+          // Extract tweet ID from the permalink
+          const permalink = tweet.querySelector('a[href*="/status/"]');
+          const tweetUrl = permalink?.getAttribute('href') || '';
+          const tweetIdMatch = tweetUrl.match(/\/status\/(\d+)/);
+          const tweetId = tweetIdMatch ? tweetIdMatch[1] : '';
 
           const likesElement = tweet.querySelector('[data-testid="like"]');
           const repostsElement = tweet.querySelector('[data-testid="retweet"]');
           const repliesElement = tweet.querySelector('[data-testid="reply"]');
+          const viewsElement = tweet.querySelector('[data-testid="app-text-transition-container"]');
 
           results.push({
             text,
             author,
             displayName,
             timestamp,
+            tweetId,
             metrics: {
               likes: likesElement?.textContent || '0',
               reposts: repostsElement?.textContent || '0',
-              replies: repliesElement?.textContent || '0'
+              replies: repliesElement?.textContent || '0',
+              views: viewsElement?.textContent || '0'
             }
           });
         } catch {
@@ -273,7 +283,7 @@ export class XScraper extends BaseScraper<XScrapedData> {
       if (!tweet.text || tweet.text.length < 10) continue;
 
       const post: XPost = {
-        id: this.generateId('xpost'),
+        id: tweet.tweetId || this.generateId('xpost'),
         text: tweet.text,
         author: {
           username: tweet.author,
@@ -284,12 +294,16 @@ export class XScraper extends BaseScraper<XScrapedData> {
           likes: this.parseMetric(tweet.metrics.likes),
           reposts: this.parseMetric(tweet.metrics.reposts),
           replies: this.parseMetric(tweet.metrics.replies),
-          views: 0
+          views: this.parseMetric(tweet.metrics.views)
         },
         timestamp: tweet.timestamp,
         hashtags: this.extractHashtags(tweet.text),
         mentions: this.extractMentions(tweet.text),
-        urls: this.extractUrls(tweet.text)
+        urls: this.extractUrls(tweet.text),
+        // Add permalink for evidence
+        permalink: tweet.tweetId && tweet.author 
+          ? `https://x.com/${tweet.author}/status/${tweet.tweetId}`
+          : undefined
       };
 
       posts.push(post);

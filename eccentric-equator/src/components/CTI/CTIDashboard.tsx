@@ -6,6 +6,34 @@
 import React, { useEffect, useState } from 'react';
 import './cti-dashboard.css';
 
+interface EvidenceLink {
+  source: string;
+  type: 'post' | 'host' | 'exploit' | 'feed' | 'search';
+  title: string;
+  url: string;
+  timestamp: string;
+  excerpt?: string;
+}
+
+interface CorrelationSignal {
+  id: string;
+  label: string;
+  infraCount: number;
+  socialCount: number;
+  timeDeltaHours: number | null;
+  interpretation: string;
+  evidence: {
+    infrastructure: EvidenceLink[];
+    social: EvidenceLink[];
+  };
+}
+
+interface CorrelationData {
+  insight: string;
+  pattern: 'infra-first' | 'social-first' | 'simultaneous' | 'insufficient-data';
+  signals: CorrelationSignal[];
+}
+
 interface DashboardData {
   meta: {
     version: string;
@@ -50,6 +78,7 @@ interface DashboardData {
     ips: string[];
     keywords: string[];
   };
+  correlation?: CorrelationData;
 }
 
 const RISK_COLORS = {
@@ -128,6 +157,9 @@ const CTIDashboard: React.FC = () => {
         
         {/* Metrics Grid */}
         <MetricsGrid metrics={data.metrics} />
+        
+        {/* Correlation Analysis - Cross-source intelligence */}
+        {data.correlation && <CorrelationPanel correlation={data.correlation} />}
         
         {/* Two Column Layout */}
         <div className="cti-columns">
@@ -371,6 +403,110 @@ const IndicatorsPanel: React.FC<{ indicators: DashboardData['indicators'] }> = (
           </div>
         </div>
       )}
+    </section>
+  );
+};
+
+/**
+ * Correlation Panel - Shows cross-source intelligence correlation with evidence links
+ */
+const CorrelationPanel: React.FC<{ correlation: CorrelationData }> = ({ correlation }) => {
+  const patternLabels: Record<string, string> = {
+    'infra-first': 'Infrastructure First',
+    'social-first': 'Social First',
+    'simultaneous': 'Simultaneous',
+    'insufficient-data': 'Insufficient Data'
+  };
+
+  return (
+    <section className="cti-section cti-correlation">
+      <div className="cti-correlation-header">
+        <h2 className="cti-section-title">Cross-Source Correlation</h2>
+        <div className="cti-correlation-pattern">
+          <span className="cti-pattern-label">Pattern:</span>
+          <span className={`cti-pattern-badge cti-pattern-${correlation.pattern}`}>
+            {patternLabels[correlation.pattern]}
+          </span>
+        </div>
+      </div>
+      
+      <p className="cti-correlation-insight">{correlation.insight}</p>
+      
+      <div className="cti-correlation-signals">
+        {correlation.signals.map((signal) => (
+          <div key={signal.id} className="cti-correlation-signal">
+            <div className="cti-signal-header">
+              <h3 className="cti-signal-label">{signal.label}</h3>
+              <div className="cti-signal-counts">
+                <span className="cti-count-infra" title="Infrastructure signals">
+                  🖥 {signal.infraCount}
+                </span>
+                <span className="cti-count-social" title="Social signals">
+                  💬 {signal.socialCount}
+                </span>
+                {signal.timeDeltaHours !== null && (
+                  <span className="cti-time-delta" title="Time difference">
+                    ⏱ {signal.timeDeltaHours.toFixed(1)}h
+                  </span>
+                )}
+              </div>
+            </div>
+            
+            <p className="cti-signal-interpretation">{signal.interpretation}</p>
+            
+            {/* Evidence Links */}
+            <div className="cti-evidence-container">
+              {signal.evidence.infrastructure.length > 0 && (
+                <div className="cti-evidence-group">
+                  <h4 className="cti-evidence-title">Infrastructure Evidence</h4>
+                  <div className="cti-evidence-links">
+                    {signal.evidence.infrastructure.map((ev, i) => (
+                      <a 
+                        key={i} 
+                        href={ev.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="cti-evidence-link cti-evidence-infra"
+                        title={ev.excerpt || ev.title}
+                      >
+                        <span className="cti-evidence-icon">🔍</span>
+                        <span className="cti-evidence-text">{ev.title}</span>
+                        <span className="cti-evidence-arrow">↗</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {signal.evidence.social.length > 0 && (
+                <div className="cti-evidence-group">
+                  <h4 className="cti-evidence-title">Social Intelligence</h4>
+                  <div className="cti-evidence-links">
+                    {signal.evidence.social.map((ev, i) => (
+                      <a 
+                        key={i} 
+                        href={ev.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="cti-evidence-link cti-evidence-social"
+                        title={ev.excerpt || ev.title}
+                      >
+                        <span className="cti-evidence-icon">💬</span>
+                        <span className="cti-evidence-text">{ev.excerpt ? ev.excerpt.substring(0, 50) + '...' : ev.title}</span>
+                        <span className="cti-evidence-arrow">↗</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <p className="cti-correlation-note">
+        Evidence links open external sources for verification. Infrastructure data from Shodan, social intelligence from X.com.
+      </p>
     </section>
   );
 };

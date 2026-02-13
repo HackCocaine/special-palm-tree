@@ -20,7 +20,8 @@ import {
   ShodanExploit,
   CorrelationSignal,
   CorrelatedData,
-  TemporalCorrelation
+  TemporalCorrelation,
+  EvidenceLink
 } from '../types/index.js';
 
 // Patrones para extracción de IOCs (Indicators of Compromise)
@@ -333,7 +334,25 @@ export class DataProcessor {
           infraTimestamp: tracker.infraData.firstSeen,
           socialTimestamp: tracker.socialData.firstSeen,
           deltahours: deltaHours,
-          interpretation: this.interpretCorrelation(label, deltaHours, infraPrecedesSocial)
+          interpretation: this.interpretCorrelation(label, deltaHours, infraPrecedesSocial),
+          evidence: {
+            infra: tracker.infraData.samples.slice(0, 3).map(sample => ({
+              source: DataSource.SHODAN,
+              type: 'host' as const,
+              title: `${label} host`,
+              url: `https://www.shodan.io/host/${sample}`,
+              timestamp: tracker.infraData.lastSeen,
+              excerpt: `Exposed ${label} service`
+            })),
+            social: tracker.socialData.samples.slice(0, 3).map(excerpt => ({
+              source: DataSource.X_COM,
+              type: 'post' as const,
+              title: `${label} discussion`,
+              url: `https://x.com/search?q=${encodeURIComponent(label)}`,
+              timestamp: tracker.socialData.lastSeen,
+              excerpt: excerpt.substring(0, 100)
+            }))
+          }
         });
       } else if (hasInfra) {
         infraOnly++;

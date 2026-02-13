@@ -97,6 +97,7 @@ export interface XPost {
     type: 'image' | 'video' | 'gif';
     url: string;
   }[];
+  permalink?: string; // Direct link to the original tweet for evidence
 }
 
 export interface XScrapedData extends BaseScrapedData {
@@ -256,11 +257,44 @@ export interface CTIDashboard {
   };
 }
 
+// ==================== Evidence & Source Links ====================
+
+/**
+ * Evidence link to original source
+ * Allows users to verify and explore threat data
+ */
+export interface EvidenceLink {
+  source: DataSource;
+  type: 'post' | 'host' | 'exploit' | 'feed' | 'search';
+  title: string;
+  url: string;
+  timestamp: string;
+  excerpt?: string;
+  metadata?: {
+    author?: string;
+    engagement?: number;
+    port?: number;
+    ip?: string;
+  };
+}
+
+/**
+ * Observable indicator with evidence
+ */
+export interface ObservableWithEvidence {
+  type: 'ip' | 'port' | 'domain' | 'cve' | 'hash' | 'keyword';
+  value: string;
+  context: string;
+  evidence: EvidenceLink[];
+  severity: ThreatSeverity;
+  confidence: number;
+}
+
 // ==================== Correlation Types ====================
 
 /**
  * Señales correlacionables entre fuentes
- * No dependemos de CVEs - usamos puertos, servicios, keywords
+ * Links infrastructure signals (Shodan) with social context (X.com)
  */
 export interface CorrelationSignal {
   id: string;
@@ -273,12 +307,14 @@ export interface CorrelationSignal {
     firstSeen: string;
     lastSeen: string;
     sampleData?: string[]; // IPs, posts excerpts, etc
+    evidence?: EvidenceLink[]; // Links to original sources
   }>;
   temporalAnalysis?: {
     infraPrecedesSocial: boolean;
     timeDeltaHours: number;
     pattern: 'scanning' | 'exploitation' | 'discussion' | 'unknown';
   };
+  correlationInsight?: string; // AI-generated insight about this correlation
 }
 
 export interface TemporalCorrelation {
@@ -287,6 +323,10 @@ export interface TemporalCorrelation {
   socialTimestamp: string | null;
   deltahours: number | null;
   interpretation: string;
+  evidence: {
+    infra?: EvidenceLink[];
+    social?: EvidenceLink[];
+  };
 }
 
 export interface CorrelatedData {
@@ -300,6 +340,7 @@ export interface CorrelatedData {
     avgTimeDelta: number | null;
   };
   dominantPattern: 'infra-first' | 'social-first' | 'simultaneous' | 'insufficient-data';
+  executiveInsight?: string; // High-level correlation summary for executives
 }
 
 // ==================== Scraper Configuration ====================

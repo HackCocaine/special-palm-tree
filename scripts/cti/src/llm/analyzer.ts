@@ -106,6 +106,7 @@ export class LLMAnalyzer {
    * Prompt for CTI analyst-style response with STRICT GROUNDING
    * CRITICAL: Model can ONLY reference data provided in prompt
    * No hallucination, no invented data, no assumptions
+   * OUTPUT MUST BE IN ENGLISH ONLY
    */
   private buildCompactPrompt(d: NormalizedData): string {
     // Build ONLY factual data points
@@ -118,14 +119,25 @@ export class LLMAnalyzer {
     // Fact 2: Sources used
     facts.push(`FACT: Sources - ${d.sources.join(', ')}`);
     
-    // Fact 3: Correlation data (only if exists)
+    // Fact 3: Correlation data (only if exists) - Enhanced correlation context
     const corrSignals = d.correlation.signals.filter(s => s.infraCount > 0 && s.socialCount > 0);
     if (corrSignals.length > 0) {
+      facts.push(`FACT: Cross-source correlation detected`);
       for (const sig of corrSignals.slice(0, 3)) {
-        const delta = sig.deltaHours !== null ? `${sig.deltaHours.toFixed(1)}h apart` : 'timing unknown';
-        facts.push(`FACT: ${sig.label} detected in infrastructure (${sig.infraCount}x) AND social (${sig.socialCount}x), ${delta}`);
+        const delta = sig.deltaHours !== null ? Math.abs(sig.deltaHours).toFixed(1) : 'unknown';
+        const direction = sig.deltaHours !== null 
+          ? (sig.deltaHours > 0 ? 'infra preceded social' : 'social preceded infra')
+          : 'timing unclear';
+        facts.push(`CORR: ${sig.label} - infrastructure (${sig.infraCount} hosts), social (${sig.socialCount} mentions), ${delta}h delta, ${direction}`);
       }
-      facts.push(`FACT: Temporal pattern - ${d.correlation.pattern}`);
+      facts.push(`FACT: Dominant pattern - ${d.correlation.pattern}`);
+      
+      // Add interpretation guidance based on pattern
+      if (d.correlation.pattern === 'infra-first') {
+        facts.push(`CONTEXT: Infrastructure activity before social discussion typically indicates reconnaissance or early exploitation`);
+      } else if (d.correlation.pattern === 'social-first') {
+        facts.push(`CONTEXT: Social discussion before infrastructure activity may indicate emerging threat awareness or coordinated campaigns`);
+      }
     } else {
       facts.push(`FACT: No cross-source correlation detected`);
     }
@@ -135,19 +147,20 @@ export class LLMAnalyzer {
       .map(t => `SIGNAL: [${t.sev}] ${t.cat} - ${t.title}`)
       .join('\n');
 
-    return `STRICT GROUNDING RULES:
-1. ONLY reference data labeled FACT or SIGNAL below
+    return `STRICT GROUNDING RULES (ENGLISH ONLY OUTPUT):
+1. ONLY reference data labeled FACT, CORR, or SIGNAL below
 2. Do NOT invent CVEs, IPs, or specific numbers not provided
 3. Do NOT assume causation - only state temporal observations
 4. If data insufficient, say "insufficient data"
+5. RESPOND IN ENGLISH ONLY - No other languages
 
 VERIFIED DATA:
 ${facts.join('\n')}
 
 ${threatList}
 
-OUTPUT JSON (use ONLY facts above):
-{"risk":"critical|high|medium|low","summary":"1-2 sentences using ONLY facts provided. Example: 'SSH activity detected in infrastructure (X hosts) preceded social discussion by Y hours, suggesting reconnaissance rather than exploitation.'","action":"Specific action based on facts"}`;
+OUTPUT JSON (use ONLY facts above, ENGLISH ONLY):
+{"risk":"critical|high|medium|low","summary":"1-2 sentences in ENGLISH using ONLY facts provided. Focus on correlation between infrastructure and social signals if available.","action":"Specific action based on facts, in ENGLISH"}`;
   }
 
   private async callOllama(prompt: string): Promise<string> {
