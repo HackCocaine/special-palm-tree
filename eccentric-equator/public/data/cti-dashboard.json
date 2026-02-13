@@ -1,28 +1,28 @@
 {
   "meta": {
     "version": "2.0.0",
-    "generatedAt": "2026-02-13T20:34:37.360Z",
-    "validUntil": "2026-02-14T02:34:37.360Z"
+    "generatedAt": "2026-02-13T22:27:11.794Z",
+    "validUntil": "2026-02-14T04:27:11.794Z"
   },
   "status": {
     "riskLevel": "critical",
     "riskScore": 100,
     "trend": "decreasing",
-    "confidenceLevel": 95
+    "confidenceLevel": 85
   },
   "executive": {
-    "headline": "Critical Threat Activity Detected",
-    "summary": "The vulnerability is critical or high severity with a medium to low impact.",
+    "headline": "Threat Level: CRITICAL",
+    "summary": "The threat intelligence indicates that a sophisticated cyberattack targeting individuals has been detected across multiple hosts, primarily using SSH (Port 22), RDP (Port 3389), and SMB (Port 445) protocols. The attack leverages known vulnerabilities such as CVE-2008-3844, CVE-2019-16905, CVE-2016-20012, CVE-2021-36368, and the critical CVE-2025-26465. The attackers are employing a variety of techniques including brute force attacks (T1041), credential access (T1110), user execution (T1204), and data exfiltration over command-and-control channels (T1078). This attack is particularly concerning due to its sophistication, targeting individuals with high-value payloads.\n\n###",
     "keyFindings": [
-      "62 CVE references identified in collected intelligence",
-      "5 critical severity signals require immediate attention",
-      "Vulnerability represents primary threat vector"
+      "**Multiple Exposed Ports**: 12 hosts are exposed on Port 22 for SSH, which can be exploited for lateral movement and credential access.",
+      "**Critical Vulnerability Exposure**: The critical CVE-2025-26465 is present in 7 hosts, indicating a significant"
     ],
     "recommendedActions": [
-      "Initiate incident response procedures",
-      "Review and patch critical vulnerabilities immediately",
-      "Increase monitoring on affected systems",
-      "Brief security leadership on current threat status"
+      "*Patch Critical Vulnerabilities**: Immediately patch all hosts with CVE-2025-26465 to mitigate the risk of exploitation.",
+      "*Implement Network Segmentation**: Segment the exposed infrastructure from other parts of the network to limit lateral movement and reduce attack surface.",
+      "*Enhance Authentication Controls**: Strengthen authentication mechanisms, especially for SSH and RDP services, including multi-factor authentication (MFA).",
+      "*Monitor and Log Activity**: Increase monitoring on all exposed ports and implement logging policies to detect unusual activity early.",
+      "*Update Security Software**: Ensure that all security software, such as firewalls and intrusion detection systems, are up-to-date with the latest signatures and configurations."
     ]
   },
   "metrics": {
@@ -51,56 +51,56 @@
   },
   "timeline": [
     {
-      "id": "threat_mllcj0eh_fzdxzl",
-      "title": "Vulnerable Infrastructure Detected (36 hosts)",
+      "id": "threat_mllgi2wo_nuc50t",
+      "title": "Vulnerable Infrastructure Detected (29 hosts)",
       "severity": "critical",
       "category": "Vulnerability",
-      "timestamp": "2026-02-13T20:34:15.465Z"
+      "timestamp": "2026-02-13T21:31:06.180Z"
     },
     {
-      "id": "threat_mllcj0el_lzr4kf",
+      "id": "threat_mllgi2ws_vtnmzk",
       "title": "Threat: CVE-2026-21509",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-10T19:17:33.000Z"
     },
     {
-      "id": "threat_mllcj0ek_osjzxj",
+      "id": "threat_mllgi2wr_wogxep",
       "title": "Apple 0-Day Vulnerability Actively Exploited Sophisticated...",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-12T05:42:00.000Z"
     },
     {
-      "id": "threat_mllcj0ek_7fny0h",
+      "id": "threat_mllgi2ws_o3c3gz",
       "title": "Quiz Time! What zero-day vulnerability cybersecurity?...",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-11T18:06:01.000Z"
     },
     {
-      "id": "threat_mllcj0ek_1j3ugn",
+      "id": "threat_mllgi2ws_wrx6uw",
       "title": "18Lv PUC465th Zero-Day Exploit(One-Day Fusion Mix)...",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-11T07:25:14.000Z"
     },
     {
-      "id": "threat_mllcj0ek_p3g42b",
+      "id": "threat_mllgi2wr_93llky",
       "title": "Forcepoint researchers look into high-volume Phorpiex...",
       "severity": "high",
       "category": "APT",
       "timestamp": "2026-02-12T11:01:52.000Z"
     },
     {
-      "id": "threat_mllcj0el_k5uua3",
+      "id": "threat_mllgi2ws_7oy1ks",
       "title": "Threat: CVE-2026-1731",
       "severity": "medium",
       "category": "Vulnerability",
       "timestamp": "2026-02-10T17:19:25.000Z"
     },
     {
-      "id": "threat_mllcj0el_de3rfk",
+      "id": "threat_mllgi2ws_j0o8ci",
       "title": "Threat: CVE-2025-68947",
       "severity": "medium",
       "category": "Ransomware",
@@ -111,34 +111,34 @@
     {
       "name": "Technical Reconnaissance",
       "signalCount": 1,
-      "lastUpdate": "2026-02-13T20:34:37.360Z"
+      "lastUpdate": "2026-02-13T22:27:11.794Z"
     },
     {
       "name": "Social Intelligence (X)",
       "signalCount": 13,
-      "lastUpdate": "2026-02-13T20:34:37.360Z"
+      "lastUpdate": "2026-02-13T22:27:11.794Z"
     }
   ],
   "indicators": {
     "cves": [
       "CVE-2008-3844",
-      "CVE-2019-6110",
+      "CVE-2019-16905",
       "CVE-2016-20012",
-      "CVE-2018-15919",
-      "CVE-2018-15473",
       "CVE-2021-36368",
       "CVE-2025-26465",
-      "CVE-2017-15906",
-      "CVE-2018-20685",
-      "CVE-2020-14145"
+      "CVE-2020-14145",
+      "CVE-2023-51767",
+      "CVE-2020-15778",
+      "CVE-2023-48795",
+      "CVE-2023-38408"
     ],
     "domains": [],
     "ips": [
-      "172.245.45.198",
-      "173.240.92.72",
-      "169.229.197.56",
-      "207.204.35.48",
-      "207.204.4.199"
+      "72.167.204.70",
+      "144.126.152.80",
+      "199.184.215.90",
+      "38.60.163.61",
+      "149.69.118.24"
     ],
     "keywords": []
   },
@@ -147,15 +147,21 @@
     "exposedPorts": [
       {
         "port": 22,
-        "service": "SSH",
-        "count": 98,
-        "percentage": 98
+        "service": "OpenSSH",
+        "count": 54,
+        "percentage": 54
+      },
+      {
+        "port": 445,
+        "service": "SMB",
+        "count": 41,
+        "percentage": 41
       },
       {
         "port": 3389,
         "service": "Remote Desktop Protocol",
-        "count": 2,
-        "percentage": 2
+        "count": 5,
+        "percentage": 5
       }
     ],
     "topCountries": [
@@ -164,10 +170,20 @@
         "count": 100
       }
     ],
-    "vulnerableHosts": 36,
+    "vulnerableHosts": 29,
     "sampleHosts": [
       {
-        "ip": "172.245.xxx.xxx",
+        "ip": "72.167.xxx.xxx",
+        "port": 22,
+        "service": "OpenSSH",
+        "vulns": [
+          "CVE-2008-3844",
+          "CVE-2019-16905",
+          "CVE-2016-20012"
+        ]
+      },
+      {
+        "ip": "144.126.xxx.xxx",
         "port": 22,
         "service": "OpenSSH",
         "vulns": [
@@ -177,17 +193,7 @@
         ]
       },
       {
-        "ip": "173.240.xxx.xxx",
-        "port": 22,
-        "service": "OpenSSH",
-        "vulns": [
-          "CVE-2008-3844",
-          "CVE-2016-20012",
-          "CVE-2021-36368"
-        ]
-      },
-      {
-        "ip": "169.229.xxx.xxx",
+        "ip": "199.184.xxx.xxx",
         "port": 22,
         "service": "OpenSSH",
         "vulns": [
@@ -197,23 +203,19 @@
         ]
       },
       {
-        "ip": "207.204.xxx.xxx",
-        "port": 22,
-        "service": "OpenSSH",
+        "ip": "38.60.xxx.xxx",
+        "port": 445,
+        "service": "SMB",
         "vulns": [
-          "CVE-2006-4924",
-          "CVE-2016-20012",
-          "CVE-2017-15906"
+          "CVE-2020-0796"
         ]
       },
       {
-        "ip": "207.204.xxx.xxx",
-        "port": 22,
-        "service": "OpenSSH",
+        "ip": "149.69.xxx.xxx",
+        "port": 445,
+        "service": "SMB",
         "vulns": [
-          "CVE-2006-4924",
-          "CVE-2016-20012",
-          "CVE-2017-15906"
+          "CVE-2020-0796"
         ]
       }
     ]
@@ -224,12 +226,12 @@
       {
         "topic": "attack",
         "count": 7,
-        "engagement": 612
+        "engagement": 611
       },
       {
         "topic": "exploit",
         "count": 5,
-        "engagement": 429
+        "engagement": 428
       },
       {
         "topic": "ransomware",
@@ -252,7 +254,7 @@
         "excerpt": "#UNC6384 #MustangPanda #APT\nUpload from \n\n... powershell $Env:temp\\4w42197.msi\n\nref1: https://dreamgroup.com/plugx-diplo...",
         "author": "@PrakkiSathwik",
         "timestamp": "2026-02-13T06:35:12.000Z",
-        "engagement": 27,
+        "engagement": 28,
         "url": "https://x.com/PrakkiSathwik/status/2022197848696291643"
       },
       {
@@ -273,7 +275,7 @@
         "excerpt": " Apple 0-Day Vulnerability Actively Exploited in Sophisticated Attack to Target Individuals \n\nSource: https://cybersecur...",
         "author": "@The_Cyber_News",
         "timestamp": "2026-02-12T05:42:00.000Z",
-        "engagement": 258,
+        "engagement": 257,
         "url": "https://x.com/The_Cyber_News/status/2021822072339804492"
       },
       {
@@ -285,5 +287,236 @@
       }
     ],
     "sentiment": "alarming"
+  },
+  "ctiAnalysis": {
+    "model": "qwen2.5:3b",
+    "killChainPhase": "Exploitation",
+    "threatLandscape": "The threat intelligence indicates that a sophisticated cyberattack targeting individuals has been detected across multiple hosts, primarily using SSH (Port 22), RDP (Port 3389), and SMB (Port 445) protocols. The attack leverages known vulnerabilities such as CVE-2008-3844, CVE-2019-16905, CVE-2016-20012, CVE-2021-36368, and the critical CVE-2025-26465. The attackers are employing a variety of techniques including brute force attacks (T1041), credential access (T1110), user execution (T1204), and data exfiltration over command-and-control channels (T1078). This attack is particularly concerning due to its sophistication, targeting individuals with high-value payloads.\n\n###",
+    "mitreAttack": [
+      {
+        "tactic": "Lateral Movement",
+        "techniques": [
+          "T1021.004: Remote Services: SSH",
+          "T1021.001: Remote Services: RDP",
+          "T1021.002: Remote Services: SMB"
+        ],
+        "mitigations": [
+          "Implement network segmentation",
+          "Enable logging and monitoring"
+        ]
+      },
+      {
+        "tactic": "Initial Access",
+        "techniques": [
+          "T1190: Exploit Public-Facing Application",
+          "T1566: Phishing"
+        ],
+        "mitigations": [
+          "Implement network segmentation",
+          "Enable logging and monitoring"
+        ]
+      },
+      {
+        "tactic": "Impact",
+        "techniques": [
+          "T1486: Data Encrypted for Impact"
+        ],
+        "mitigations": [
+          "Implement network segmentation",
+          "Enable logging and monitoring"
+        ]
+      },
+      {
+        "tactic": "Defense Evasion",
+        "techniques": [
+          "T1078: Valid Accounts"
+        ],
+        "mitigations": [
+          "Implement network segmentation",
+          "Enable logging and monitoring"
+        ]
+      },
+      {
+        "tactic": "Execution",
+        "techniques": [
+          "T1204: User Execution"
+        ],
+        "mitigations": [
+          "Implement network segmentation",
+          "Enable logging and monitoring"
+        ]
+      },
+      {
+        "tactic": "Credential Access",
+        "techniques": [
+          "T1110: Brute Force"
+        ],
+        "mitigations": [
+          "Implement network segmentation",
+          "Enable logging and monitoring"
+        ]
+      },
+      {
+        "tactic": "Exfiltration",
+        "techniques": [
+          "T1041: Exfiltration Over C2"
+        ],
+        "mitigations": [
+          "Implement network segmentation",
+          "Enable logging and monitoring"
+        ]
+      }
+    ],
+    "keyFindings": [
+      {
+        "finding": "**Multiple Exposed Ports**: 12 hosts are exposed on Port 22 for SSH, which can be exploited for lateral movement and credential access.",
+        "severity": "high",
+        "evidence": "Based on collected intelligence data",
+        "recommendation": "*Patch Critical Vulnerabilities**: Immediately patch all hosts with CVE-2025-26465 to mitigate the risk of exploitation."
+      },
+      {
+        "finding": "**Critical Vulnerability Exposure**: The critical CVE-2025-26465 is present in 7 hosts, indicating a significant",
+        "severity": "medium",
+        "evidence": "Based on collected intelligence data",
+        "recommendation": "*Implement Network Segmentation**: Segment the exposed infrastructure from other parts of the network to limit lateral movement and reduce attack surface."
+      }
+    ],
+    "ttps": [
+      {
+        "technique": "Remote Services: SSH",
+        "techniqueId": "T1021.004",
+        "tactic": "Lateral Movement",
+        "evidence": "SSH exposed on port 22",
+        "confidence": 0.8
+      },
+      {
+        "technique": "Remote Services: RDP",
+        "techniqueId": "T1021.001",
+        "tactic": "Lateral Movement",
+        "evidence": "RDP exposed on port 3389",
+        "confidence": 0.8
+      },
+      {
+        "technique": "Remote Services: SMB",
+        "techniqueId": "T1021.002",
+        "tactic": "Lateral Movement",
+        "evidence": "SMB exposed on port 445",
+        "confidence": 0.8
+      },
+      {
+        "technique": "Exploit Public-Facing Application",
+        "techniqueId": "T1190",
+        "tactic": "Initial Access",
+        "evidence": "Mentioned in X.com post: \" Apple 0-Day Vulnerability Actively Exploited in S...\"",
+        "confidence": 0.8
+      },
+      {
+        "technique": "Data Encrypted for Impact",
+        "techniqueId": "T1486",
+        "tactic": "Impact",
+        "evidence": "Mentioned in X.com post: \" Reynolds ransomware embeds its own BYOVD evasion,...\"",
+        "confidence": 0.8
+      },
+      {
+        "technique": "Valid Accounts",
+        "techniqueId": "T1078",
+        "tactic": "Defense Evasion",
+        "evidence": "Mentioned in X.com post: \" Ransomware Persists — But Encryption Is No Longer...\"",
+        "confidence": 0.8
+      },
+      {
+        "technique": "User Execution",
+        "techniqueId": "T1204",
+        "tactic": "Execution",
+        "evidence": "Mentioned in X.com post: \" Ransomware Persists — But Encryption Is No Longer...\"",
+        "confidence": 0.8
+      },
+      {
+        "technique": "Brute Force",
+        "techniqueId": "T1110",
+        "tactic": "Credential Access",
+        "evidence": "Mentioned in X.com post: \" DFIR Labs | BlueSky Ransomware Lab\n\nDive into a r...\"",
+        "confidence": 0.8
+      },
+      {
+        "technique": "Phishing",
+        "techniqueId": "T1566",
+        "tactic": "Initial Access",
+        "evidence": "Mentioned in X.com post: \"Forcepoint researchers look into a high-volume Pho...\"",
+        "confidence": 0.8
+      },
+      {
+        "technique": "Exfiltration Over C2",
+        "techniqueId": "T1041",
+        "tactic": "Exfiltration",
+        "evidence": "Mentioned in X.com post: \"Cyberattack Update\n\nJapan - Anabuki Kosan Inc.\n\nQi...\"",
+        "confidence": 0.8
+      }
+    ],
+    "temporalPatterns": [],
+    "crossSourceLinks": [
+      {
+        "infraSignal": "OpenSSH",
+        "socialSignal": "@The_Cyber_News:  Apple 0-Day Vulnerability Actively Exploited in S...",
+        "relationship": "Concurrent activity",
+        "timeDelta": "Within 24h",
+        "significance": "Potential correlation between infrastructure and social signals"
+      },
+      {
+        "infraSignal": "OpenSSH",
+        "socialSignal": "@rootxharsh: The exploit for CVE-2026-1731 is out.\n\nThe APT of ...",
+        "relationship": "Concurrent activity",
+        "timeDelta": "Within 24h",
+        "significance": "Potential correlation between infrastructure and social signals"
+      },
+      {
+        "infraSignal": "OpenSSH",
+        "socialSignal": "@TheHackersNews:  Reynolds ransomware embeds its own BYOVD evasion,...",
+        "relationship": "Concurrent activity",
+        "timeDelta": "Within 24h",
+        "significance": "Potential correlation between infrastructure and social signals"
+      }
+    ],
+    "immediateActions": [
+      "*Patch Critical Vulnerabilities**: Immediately patch all hosts with CVE-2025-26465 to mitigate the risk of exploitation.",
+      "*Implement Network Segmentation**: Segment the exposed infrastructure from other parts of the network to limit lateral movement and reduce attack surface.",
+      "*Enhance Authentication Controls**: Strengthen authentication mechanisms, especially for SSH and RDP services, including multi-factor authentication (MFA)."
+    ],
+    "strategicRecommendations": [
+      "*Monitor and Log Activity**: Increase monitoring on all exposed ports and implement logging policies to detect unusual activity early.",
+      "*Update Security Software**: Ensure that all security software, such as firewalls and intrusion detection systems, are up-to-date with the latest signatures and configurations."
+    ],
+    "sourcesAndReferences": [
+      {
+        "source": "Shodan",
+        "url": "https://www.shodan.io/host/198.20.133.130",
+        "relevance": "OpenSSH on port 22"
+      },
+      {
+        "source": "Shodan",
+        "url": "https://www.shodan.io/host/72.167.204.70",
+        "relevance": "OpenSSH on port 22"
+      },
+      {
+        "source": "Shodan",
+        "url": "https://www.shodan.io/host/98.142.218.43",
+        "relevance": "SMB on port 445"
+      },
+      {
+        "source": "NVD",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2008-3844",
+        "relevance": "CVE-2008-3844 (medium)"
+      },
+      {
+        "source": "NVD",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2019-16905",
+        "relevance": "CVE-2019-16905 (medium)"
+      },
+      {
+        "source": "NVD",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2016-20012",
+        "relevance": "CVE-2016-20012 (medium)"
+      }
+    ]
   }
 }
