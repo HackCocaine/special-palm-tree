@@ -88,7 +88,7 @@ async function runDashboard(): Promise<void> {
   console.log('\n========== DASHBOARD ==========\n');
   const generator = new DashboardGenerator();
   const dashboard = await generator.generate();
-  console.log(`[Dashboard] ✓ Generated with ${dashboard.widgets.length} widgets`);
+  console.log(`[Dashboard] ✓ Generated - Risk: ${dashboard.status.riskLevel}, Signals: ${dashboard.metrics.totalSignals}`);
 }
 
 async function main(): Promise<void> {
