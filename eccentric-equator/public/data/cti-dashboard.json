@@ -1,8 +1,8 @@
 {
   "meta": {
     "version": "2.0.0",
-    "generatedAt": "2026-02-13T22:54:01.890Z",
-    "validUntil": "2026-02-14T04:54:01.890Z"
+    "generatedAt": "2026-02-13T23:08:33.900Z",
+    "validUntil": "2026-02-14T05:08:33.900Z"
   },
   "status": {
     "riskLevel": "moderate",
@@ -12,11 +12,9 @@
   },
   "executive": {
     "headline": "Threat Level: MEDIUM",
-    "summary": "The current threat landscape indicates a complex interplay between social media discussions and infrastructure exposure, suggesting ongoing cyber threats with potential for lateral movement and data exfiltration. The timeline reveals both proactive measures by organizations to patch vulnerabilities as well as active exploitation of known vulnerabilities.\n\n###",
+    "summary": "The current threat landscape indicates a complex interplay of social media discussions and infrastructure exposure, with multiple high-profile threats being discussed in real-time. The timeline reveals significant activity from known cyber actors such as the Qilin hacking group and the MustangPanda APT.",
     "keyFindings": [
-      "*Multiple CVEs Being Exploited**: Multiple CVEs such as CVE-2020-0796, CVE-2008-3844, and CVE-2025-26465 are being actively exploited.",
-      "*Ransomware Activity**: The Qilin hacking group is claiming responsibility for a ransomware attack against Anabuki Kosan Inc., indicating ongoing threat activity.",
-      "*SSH Exposure**: Multiple hosts have SSH exposed on port 22, suggesting potential lateral movement and credential access."
+      "2026-1731, CVE-2025-26465)."
     ],
     "recommendedActions": [
       "Initiate incident response procedures",
@@ -26,97 +24,97 @@
     ]
   },
   "metrics": {
-    "totalSignals": 14,
-    "criticalCount": 5,
+    "totalSignals": 12,
+    "criticalCount": 3,
     "highCount": 1,
     "mediumCount": 3,
     "lowCount": 5,
     "categories": [
       {
-        "name": "Vulnerability",
-        "count": 6,
-        "percentage": 43
-      },
-      {
         "name": "Ransomware",
         "count": 5,
-        "percentage": 36
+        "percentage": 42
+      },
+      {
+        "name": "Vulnerability",
+        "count": 4,
+        "percentage": 33
       },
       {
         "name": "APT",
         "count": 3,
-        "percentage": 21
+        "percentage": 25
       }
     ]
   },
   "timeline": [
     {
-      "id": "threat_mllhd3s5_dkrk5k",
+      "id": "threat_mllhv1fs_qnbd1k",
       "title": "Vulnerable Infrastructure Detected (29 hosts)",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-13T21:31:06.180Z"
     },
     {
-      "id": "threat_mllhd3sa_7ety99",
+      "id": "threat_mllhv1fw_jt5hzr",
       "title": "Threat: CVE-2026-21509",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-10T19:17:33.000Z"
     },
     {
-      "id": "threat_mllhd3s9_6nqco4",
+      "id": "threat_mllhv1fv_mm8u1t",
       "title": "Apple 0-Day Vulnerability Actively Exploited Sophisticated...",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-12T05:42:00.000Z"
     },
     {
-      "id": "threat_mllhd3sa_rqocz0",
-      "title": "Quiz Time! What zero-day vulnerability cybersecurity?...",
-      "severity": "critical",
-      "category": "Vulnerability",
-      "timestamp": "2026-02-11T18:06:01.000Z"
-    },
-    {
-      "id": "threat_mllhd3sa_6npv5o",
-      "title": "18Lv PUC465th Zero-Day Exploit(One-Day Fusion Mix)...",
-      "severity": "critical",
-      "category": "Vulnerability",
-      "timestamp": "2026-02-11T07:25:14.000Z"
-    },
-    {
-      "id": "threat_mllhd3s9_45i5ui",
+      "id": "threat_mllhv1fv_2ixoq5",
       "title": "Forcepoint researchers look into high-volume Phorpiex...",
       "severity": "high",
       "category": "APT",
       "timestamp": "2026-02-12T11:01:52.000Z"
     },
     {
-      "id": "threat_mllhd3sa_2w772a",
+      "id": "threat_mllhv1fw_sxx9i3",
       "title": "Threat: CVE-2026-1731",
       "severity": "medium",
       "category": "Vulnerability",
       "timestamp": "2026-02-10T17:19:25.000Z"
     },
     {
-      "id": "threat_mllhd3sb_cooxwz",
+      "id": "threat_mllhv1fw_gww9ws",
       "title": "Threat: CVE-2025-68947",
       "severity": "medium",
       "category": "Ransomware",
       "timestamp": "2026-02-10T14:42:11.000Z"
+    },
+    {
+      "id": "threat_mllhv1fv_j6rn3h",
+      "title": "According S2W, DragonForce operates ransomware cartel...",
+      "severity": "medium",
+      "category": "Ransomware",
+      "timestamp": "2026-02-12T09:29:33.000Z"
+    },
+    {
+      "id": "threat_mllhv1fu_fu031l",
+      "title": "#UNC6384 #MustangPanda #APTUpload from powershell $Env:temp\\4w42197.msiref1:...",
+      "severity": "low",
+      "category": "APT",
+      "timestamp": "2026-02-13T06:35:12.000Z"
     }
   ],
   "sources": [
     {
       "name": "Technical Reconnaissance",
       "signalCount": 1,
-      "lastUpdate": "2026-02-13T22:54:01.890Z"
+      "lastUpdate": "2026-02-13T23:08:33.900Z"
     },
     {
       "name": "Social Intelligence (X)",
-      "signalCount": 13,
-      "lastUpdate": "2026-02-13T22:54:01.890Z"
+      "signalCount": 11,
+      "lastUpdate": "2026-02-13T23:08:33.900Z"
     }
   ],
   "indicators": {
@@ -221,17 +219,17 @@
     ]
   },
   "socialIntel": {
-    "totalPosts": 13,
+    "totalPosts": 11,
     "topTopics": [
       {
         "topic": "attack",
-        "count": 7,
-        "engagement": 611
+        "count": 6,
+        "engagement": 595
       },
       {
         "topic": "exploit",
-        "count": 5,
-        "engagement": 428
+        "count": 4,
+        "engagement": 417
       },
       {
         "topic": "ransomware",
@@ -240,8 +238,8 @@
       },
       {
         "topic": "vulnerability",
-        "count": 4,
-        "engagement": 342
+        "count": 3,
+        "engagement": 326
       },
       {
         "topic": "cve",
@@ -279,19 +277,19 @@
         "url": "https://x.com/The_Cyber_News/status/2021822072339804492"
       },
       {
-        "excerpt": "Quiz Time! \n\nWhat is a zero-day vulnerability in cybersecurity? \n\nA) A known bug in software  \nB) A flaw without a patch...",
-        "author": "@cyb3rshi3ld",
-        "timestamp": "2026-02-11T18:06:01.000Z",
-        "engagement": 16,
-        "url": "https://x.com/cyb3rshi3ld/status/2021646921740505481"
+        "excerpt": "#Breaking #Millcreek #ApartmentFire 4434 Lemans Drive. #UFA just arrived to a 3 story apt building with fire and heavy b...",
+        "author": "@SLCScanner",
+        "timestamp": "2026-02-11T01:18:55.000Z",
+        "engagement": 47,
+        "url": "https://x.com/SLCScanner/status/2021393477712707622"
       }
     ],
-    "sentiment": "alarming"
+    "sentiment": "neutral"
   },
   "ctiAnalysis": {
     "model": "qwen2.5:3b",
     "killChainPhase": "Exploitation",
-    "threatLandscape": "The current threat landscape indicates a complex interplay between social media discussions and infrastructure exposure, suggesting ongoing cyber threats with potential for lateral movement and data exfiltration. The timeline reveals both proactive measures by organizations to patch vulnerabilities as well as active exploitation of known vulnerabilities.\n\n###",
+    "threatLandscape": "The current threat landscape indicates a complex interplay of social media discussions and infrastructure exposure, with multiple high-profile threats being discussed in real-time. The timeline reveals significant activity from known cyber actors such as the Qilin hacking group and the MustangPanda APT.\n\n###",
     "mitreAttack": [
       {
         "tactic": "Lateral Movement",
@@ -369,20 +367,8 @@
     ],
     "keyFindings": [
       {
-        "finding": "*Multiple CVEs Being Exploited**: Multiple CVEs such as CVE-2020-0796, CVE-2008-3844, and CVE-2025-26465 are being actively exploited.",
+        "finding": "2026-1731, CVE-2025-26465).",
         "severity": "high",
-        "evidence": "Based on collected intelligence data",
-        "recommendation": "Review and assess risk"
-      },
-      {
-        "finding": "*Ransomware Activity**: The Qilin hacking group is claiming responsibility for a ransomware attack against Anabuki Kosan Inc., indicating ongoing threat activity.",
-        "severity": "medium",
-        "evidence": "Based on collected intelligence data",
-        "recommendation": "Review and assess risk"
-      },
-      {
-        "finding": "*SSH Exposure**: Multiple hosts have SSH exposed on port 22, suggesting potential lateral movement and credential access.",
-        "severity": "medium",
         "evidence": "Based on collected intelligence data",
         "recommendation": "Review and assess risk"
       }
@@ -462,9 +448,9 @@
     "temporalPatterns": [
       {
         "pattern": "INFRA-FIRST correlation detected",
-        "description": "The analysis of the timeline reveals that social media discussions often precede infrastructure findings by a few hours to a day. This indicates that attackers are likely using social platforms to disseminate information about vulnerabilities or attacks before exploiting them on their targets' systems.\n\n- **Social Discussion Preceding Infrastructure Exposure**: The discussion around the Qilin hacking group's ransomware attack against Anabuki Kosan Inc. (2026-02-10T11:12:42.000Z) precedes the SSH exposure on port 22 by about 78 hours.\n  \n- **Infrastructure Exposure Preceding Social Discussion**: The SSH exposed hosts (2026-02-13T21:14:31.598Z) do not directly correlate with any specific social discussion, but the exposure of multiple vulnerabilities and services might be a result of ongoing exploitation.\n\n###",
+        "description": "The relationship between social media discussions and infrastructure findings reveals a clear temporal correlation, where social discussions often precede or coincide with the exposure of vulnerabilities in infrastructure.\n\n- **Social Discussion Preceding Infrastructure Exposure:** The discussion about the MustangPanda APT (2026-02-13T06:35:12.000Z) coincides with the discovery of infrastructure exposed on port 445, which is commonly used by this group.\n  \n- **Time Window Between Events:** The time window between social discussions and infrastructure findings ranges from 16 to 76 hours, indicating a rapid response cycle where threats are discussed before they manifest in real-world exposure.\n\n- **CVEs Being Discussed vs. Infrastructure Vulnerabilities:** There is no direct correlation found between the CVEs being actively exploited (e.g., CVE-2026-1731) and specific infrastructure vulnerabilities (e.g., CVE-2025-26465). However, both are part of a broader pattern of active exploitation.\n\n###",
         "timeframe": "24-48 hours",
-        "confidence": 0.4,
+        "confidence": 0.75,
         "evidence": [
           {
             "source": "X.com",
@@ -485,21 +471,14 @@
       },
       {
         "pattern": "Emerging Threat",
-        "description": "*APT Activity**: The ongoing discussion about the Qilin hacking group and its ransomware attack suggests that APT activity is persistent, indicating potential for further attacks or data exfiltration attempts.",
+        "description": "*Ransomware Campaigns Exploiting BYOVD Evasion Techniques:** The discussion of BYOVD evasion techniques (2026-02-13T21:14:31.598Z) coincides with the discovery of vulnerabilities in 14 hosts, indicating that these campaigns are actively exploiting known weaknesses.",
         "timeframe": "Active",
         "confidence": 0.7,
         "evidence": []
       },
       {
         "pattern": "Emerging Threat",
-        "description": "*CVE-2025-26465 Exploitation**: Multiple hosts are affected by CVE-2025-26465, a vulnerability in the SMB protocol. Given its widespread exposure and recent social media discussion about it, this threat is likely to continue as more systems become vulnerable.",
-        "timeframe": "Active",
-        "confidence": 0.7,
-        "evidence": []
-      },
-      {
-        "pattern": "Emerging Threat",
-        "description": "*Phorpiex Campaign**: The ongoing Phorpiex campaign (discussed on 2026-02-12T11:01:52.000Z) suggests that attackers are actively exploiting the vulnerabilities in this malware, indicating a potential for further data exfiltration or lateral movement.",
+        "description": "*APT Groups Exploiting New Vulnerabilities:** The discussion about CVE-2026-1731 (2026-02-13T21:14:31.598Z) coincides with the exposure of vulnerabilities in 14",
         "timeframe": "Active",
         "confidence": 0.7,
         "evidence": []
@@ -507,25 +486,11 @@
     ],
     "crossSourceLinks": [
       {
-        "infraSignal": "OpenSSH",
-        "socialSignal": "@The_Cyber_News:  Apple 0-Day Vulnerability Actively Exploited in S...",
-        "relationship": "Concurrent activity",
-        "timeDelta": "Within analysis window",
-        "significance": "Temporal proximity detected"
-      },
-      {
-        "infraSignal": "OpenSSH",
-        "socialSignal": "@rootxharsh: The exploit for CVE-2026-1731 is out.\n\nThe APT of ...",
-        "relationship": "Concurrent activity",
-        "timeDelta": "Within analysis window",
-        "significance": "Temporal proximity detected"
-      },
-      {
-        "infraSignal": "OpenSSH",
-        "socialSignal": "@TheHackersNews:  Reynolds ransomware embeds its own BYOVD evasion,...",
-        "relationship": "Concurrent activity",
-        "timeDelta": "Within analysis window",
-        "significance": "Temporal proximity detected"
+        "infraSignal": "** Exposure of ports 445 on 206.71.234.116 and 206.71.234.116 (2026-02-13T21:19:02.717Z)",
+        "socialSignal": "** @PrakkiSathwik: \"#UNC6384 #MustangPanda #APT",
+        "relationship": "infra-first",
+        "timeDelta": "** 16 hours",
+        "significance": "** The MustangPanda APT is known for using PowerShell scripts and exploiting vulnerabilities in the environment."
       }
     ],
     "immediateActions": [],
