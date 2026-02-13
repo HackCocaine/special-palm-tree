@@ -1,8 +1,8 @@
 {
   "meta": {
     "version": "2.0.0",
-    "generatedAt": "2026-02-13T20:14:07.165Z",
-    "validUntil": "2026-02-14T02:14:07.165Z"
+    "generatedAt": "2026-02-13T20:34:37.360Z",
+    "validUntil": "2026-02-14T02:34:37.360Z"
   },
   "status": {
     "riskLevel": "critical",
@@ -14,7 +14,7 @@
     "headline": "Critical Threat Activity Detected",
     "summary": "The vulnerability is critical or high severity with a medium to low impact.",
     "keyFindings": [
-      "51 CVE references identified in collected intelligence",
+      "62 CVE references identified in collected intelligence",
       "5 critical severity signals require immediate attention",
       "Vulnerability represents primary threat vector"
     ],
@@ -51,56 +51,56 @@
   },
   "timeline": [
     {
-      "id": "threat_mllbsn48_dbjc0d",
-      "title": "Vulnerable Infrastructure Detected (24 hosts)",
+      "id": "threat_mllcj0eh_fzdxzl",
+      "title": "Vulnerable Infrastructure Detected (36 hosts)",
       "severity": "critical",
       "category": "Vulnerability",
-      "timestamp": "2026-02-13T20:13:45.409Z"
+      "timestamp": "2026-02-13T20:34:15.465Z"
     },
     {
-      "id": "threat_mllbsn4b_v62w55",
+      "id": "threat_mllcj0el_lzr4kf",
       "title": "Threat: CVE-2026-21509",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-10T19:17:33.000Z"
     },
     {
-      "id": "threat_mllbsn4b_fib5p2",
+      "id": "threat_mllcj0ek_osjzxj",
       "title": "Apple 0-Day Vulnerability Actively Exploited Sophisticated...",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-12T05:42:00.000Z"
     },
     {
-      "id": "threat_mllbsn4b_806cky",
+      "id": "threat_mllcj0ek_7fny0h",
       "title": "Quiz Time! What zero-day vulnerability cybersecurity?...",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-11T18:06:01.000Z"
     },
     {
-      "id": "threat_mllbsn4b_k3myqb",
+      "id": "threat_mllcj0ek_1j3ugn",
       "title": "18Lv PUC465th Zero-Day Exploit(One-Day Fusion Mix)...",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-11T07:25:14.000Z"
     },
     {
-      "id": "threat_mllbsn4b_ho9c9t",
+      "id": "threat_mllcj0ek_p3g42b",
       "title": "Forcepoint researchers look into high-volume Phorpiex...",
       "severity": "high",
       "category": "APT",
       "timestamp": "2026-02-12T11:01:52.000Z"
     },
     {
-      "id": "threat_mllbsn4c_prj2op",
+      "id": "threat_mllcj0el_k5uua3",
       "title": "Threat: CVE-2026-1731",
       "severity": "medium",
       "category": "Vulnerability",
       "timestamp": "2026-02-10T17:19:25.000Z"
     },
     {
-      "id": "threat_mllbsn4c_qqe88p",
+      "id": "threat_mllcj0el_de3rfk",
       "title": "Threat: CVE-2025-68947",
       "severity": "medium",
       "category": "Ransomware",
@@ -111,12 +111,12 @@
     {
       "name": "Technical Reconnaissance",
       "signalCount": 1,
-      "lastUpdate": "2026-02-13T20:14:07.165Z"
+      "lastUpdate": "2026-02-13T20:34:37.360Z"
     },
     {
       "name": "Social Intelligence (X)",
       "signalCount": 13,
-      "lastUpdate": "2026-02-13T20:14:07.165Z"
+      "lastUpdate": "2026-02-13T20:34:37.360Z"
     }
   ],
   "indicators": {
@@ -134,12 +134,156 @@
     ],
     "domains": [],
     "ips": [
-      "154.44.21.174",
-      "34.171.79.35",
-      "128.14.24.39",
-      "35.233.168.226",
-      "162.245.239.6"
+      "172.245.45.198",
+      "173.240.92.72",
+      "169.229.197.56",
+      "207.204.35.48",
+      "207.204.4.199"
     ],
     "keywords": []
+  },
+  "infrastructure": {
+    "totalHosts": 100,
+    "exposedPorts": [
+      {
+        "port": 22,
+        "service": "SSH",
+        "count": 98,
+        "percentage": 98
+      },
+      {
+        "port": 3389,
+        "service": "Remote Desktop Protocol",
+        "count": 2,
+        "percentage": 2
+      }
+    ],
+    "topCountries": [
+      {
+        "country": "US",
+        "count": 100
+      }
+    ],
+    "vulnerableHosts": 36,
+    "sampleHosts": [
+      {
+        "ip": "172.245.xxx.xxx",
+        "port": 22,
+        "service": "OpenSSH",
+        "vulns": [
+          "CVE-2008-3844",
+          "CVE-2019-6110",
+          "CVE-2016-20012"
+        ]
+      },
+      {
+        "ip": "173.240.xxx.xxx",
+        "port": 22,
+        "service": "OpenSSH",
+        "vulns": [
+          "CVE-2008-3844",
+          "CVE-2016-20012",
+          "CVE-2021-36368"
+        ]
+      },
+      {
+        "ip": "169.229.xxx.xxx",
+        "port": 22,
+        "service": "OpenSSH",
+        "vulns": [
+          "CVE-2016-20012",
+          "CVE-2021-36368",
+          "CVE-2025-26465"
+        ]
+      },
+      {
+        "ip": "207.204.xxx.xxx",
+        "port": 22,
+        "service": "OpenSSH",
+        "vulns": [
+          "CVE-2006-4924",
+          "CVE-2016-20012",
+          "CVE-2017-15906"
+        ]
+      },
+      {
+        "ip": "207.204.xxx.xxx",
+        "port": 22,
+        "service": "OpenSSH",
+        "vulns": [
+          "CVE-2006-4924",
+          "CVE-2016-20012",
+          "CVE-2017-15906"
+        ]
+      }
+    ]
+  },
+  "socialIntel": {
+    "totalPosts": 13,
+    "topTopics": [
+      {
+        "topic": "attack",
+        "count": 7,
+        "engagement": 612
+      },
+      {
+        "topic": "exploit",
+        "count": 5,
+        "engagement": 429
+      },
+      {
+        "topic": "ransomware",
+        "count": 6,
+        "engagement": 348
+      },
+      {
+        "topic": "vulnerability",
+        "count": 4,
+        "engagement": 342
+      },
+      {
+        "topic": "cve",
+        "count": 3,
+        "engagement": 261
+      }
+    ],
+    "recentPosts": [
+      {
+        "excerpt": "#UNC6384 #MustangPanda #APT\nUpload from \n\n... powershell $Env:temp\\4w42197.msi\n\nref1: https://dreamgroup.com/plugx-diplo...",
+        "author": "@PrakkiSathwik",
+        "timestamp": "2026-02-13T06:35:12.000Z",
+        "engagement": 27,
+        "url": "https://x.com/PrakkiSathwik/status/2022197848696291643"
+      },
+      {
+        "excerpt": "Forcepoint researchers look into a high-volume Phorpiex campaign delivered through malspam emails weaponized with Window...",
+        "author": "@virusbtn",
+        "timestamp": "2026-02-12T11:01:52.000Z",
+        "engagement": 48,
+        "url": "https://x.com/virusbtn/status/2021902568323265019"
+      },
+      {
+        "excerpt": "According to S2W, DragonForce operates as a ransomware cartel under a RaaS model since Dec 2023, had 363 victims by Jan ...",
+        "author": "@Cyber_O51NT",
+        "timestamp": "2026-02-12T09:29:33.000Z",
+        "engagement": 9,
+        "url": "https://x.com/Cyber_O51NT/status/2021879339671826682"
+      },
+      {
+        "excerpt": " Apple 0-Day Vulnerability Actively Exploited in Sophisticated Attack to Target Individuals \n\nSource: https://cybersecur...",
+        "author": "@The_Cyber_News",
+        "timestamp": "2026-02-12T05:42:00.000Z",
+        "engagement": 258,
+        "url": "https://x.com/The_Cyber_News/status/2021822072339804492"
+      },
+      {
+        "excerpt": "Quiz Time! \n\nWhat is a zero-day vulnerability in cybersecurity? \n\nA) A known bug in software  \nB) A flaw without a patch...",
+        "author": "@cyb3rshi3ld",
+        "timestamp": "2026-02-11T18:06:01.000Z",
+        "engagement": 16,
+        "url": "https://x.com/cyb3rshi3ld/status/2021646921740505481"
+      }
+    ],
+    "sentiment": "alarming"
   }
 }
