@@ -448,7 +448,15 @@ export class DataProcessor {
   private async processXData(data: XScrapedData): Promise<void> {
     console.log(`[DataProcessor] Processing ${data.posts.length} X.com posts...`);
 
+    let filteredCount = 0;
     for (const post of data.posts) {
+      // Filter out spam/noise posts
+      const isSpam = SPAM_PATTERNS.some(pattern => pattern.test(post.text));
+      if (isSpam) {
+        filteredCount++;
+        continue;
+      }
+
       // Normalizar texto antes de procesar
       const normalizedText = this.normalizeScrapedText(post.text);
       

@@ -236,14 +236,27 @@ export class DashboardGenerator {
         lastUpdate: now.toISOString()
       }));
 
-    // Build timeline (top 8 threats)
-    const timeline = threats.slice(0, 8).map(t => ({
-      id: t.id,
-      title: this.sanitizeTitle(t.title),
-      severity: t.severity,
-      category: this.formatCategory(t.category),
-      timestamp: t.timestamp
-    }));
+    // Spam patterns for filtering timeline
+    const spamPatterns = [
+      /quiz\s*time/i,
+      /what\s+is\s+.*\?\s*[A-D]\)/i,
+      /^\d+[A-Za-z]+\s+\w+\d+/i,
+      /fusion\s*mix/i,
+      /one-day\s*fusion/i,
+    ];
+    const isSpamTitle = (title: string) => spamPatterns.some(p => p.test(title));
+
+    // Build timeline (top 8 threats, filtered for spam)
+    const timeline = threats
+      .filter(t => !isSpamTitle(t.title))
+      .slice(0, 8)
+      .map(t => ({
+        id: t.id,
+        title: this.sanitizeTitle(t.title),
+        severity: t.severity,
+        category: this.formatCategory(t.category),
+        timestamp: t.timestamp
+      }));
 
     // Extract indicators for display
     const displayIndicators = this.extractDisplayIndicators(indicators);
@@ -431,21 +444,33 @@ export class DashboardGenerator {
   }
 
   /**
+   * Clean LLM output from malformed markdown
+   */
+  private cleanLLMText(text: string): string {
+    return text
+      .replace(/\*\*([^*]+)\*\*/g, '$1')  // Remove **bold**
+      .replace(/^\*([A-Z])/gm, '$1')       // Fix *Patch -> Patch at start
+      .replace(/\*+$/gm, '')               // Remove trailing asterisks
+      .replace(/#{2,}/g, '')               // Remove ### headers
+      .replace(/\n{3,}/g, '\n\n')          // Normalize newlines
+      .trim();
+  }
+
+  /**
    * Enhance executive summary with CTI analysis
    */
   private enhanceExecutiveWithCTI(
     executive: PublicDashboard['executive'], 
     ctiAnalysis: CTIAnalysis
   ): PublicDashboard['executive'] {
+    const cleanFindings = ctiAnalysis.analysis.keyFindings.map(f => this.cleanLLMText(f));
+    const cleanRecs = ctiAnalysis.analysis.recommendations.map(r => this.cleanLLMText(r));
+    
     return {
       headline: `Threat Level: ${ctiAnalysis.analysis.riskLevel.toUpperCase()}`,
-      summary: ctiAnalysis.analysis.summary || executive.summary,
-      keyFindings: ctiAnalysis.analysis.keyFindings.length > 0 
-        ? ctiAnalysis.analysis.keyFindings
-        : executive.keyFindings,
-      recommendedActions: ctiAnalysis.analysis.recommendations.length > 0
-        ? ctiAnalysis.analysis.recommendations.slice(0, 5)
-        : executive.recommendedActions
+      summary: this.cleanLLMText(ctiAnalysis.analysis.summary || executive.summary),
+      keyFindings: cleanFindings.length > 0 ? cleanFindings : executive.keyFindings,
+      recommendedActions: cleanRecs.length > 0 ? cleanRecs.slice(0, 5) : executive.recommendedActions
     };
   }
 
@@ -521,7 +546,19 @@ export class DashboardGenerator {
   private buildSocialIntelSection(xData?: XScrapedData | null): PublicDashboard['socialIntel'] | undefined {
     if (!xData || xData.posts.length === 0) return undefined;
 
-    const posts = xData.posts;
+    // Spam patterns to filter out noise
+    const spamPatterns = [
+      /quiz\s*time/i,
+      /what\s+is\s+.*\?\s*[A-D]\)/i,
+      /^\d+[A-Za-z]+\s+\w+\d+/i,
+      /fusion\s*mix/i,
+      /one-day\s*fusion/i,
+    ];
+    
+    const isSpam = (text: string) => spamPatterns.some(p => p.test(text));
+    
+    // Filter out spam posts
+    const posts = xData.posts.filter(p => !isSpam(p.text));
     const totalPosts = posts.length;
 
     // Extract topics from hashtags and keywords
