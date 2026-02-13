@@ -286,6 +286,8 @@ SHODAN QUERY SYNTAX (free tier):
 - Combine with spaces: port:22 country:US
 
 IMPORTANT: Free tier cannot use vuln: filter. Focus on ports, products, and countries.
+IMPORTANT: Do NOT suggest generic baseline scans like "port:22,3389,445" unless those services are explicitly supported by social evidence.
+Every query must be traceable to at least one social indicator (CVE, actor, malware family, campaign, product, or discussed region).
 
 RESPOND WITH JSON ARRAY:
 [
@@ -351,7 +353,8 @@ Only suggest 3-5 queries. Be specific and actionable.`;
         q.query && 
         typeof q.query === 'string' && 
         q.query.length > 3 &&
-        !q.query.includes('vuln:') // Free tier no puede usar vuln:
+        !q.query.includes('vuln:') && // Free tier no puede usar vuln:
+        !this.isOverGenericQuery(q.query)
       ).map(q => ({
         query: q.query.trim(),
         rationale: q.rationale || 'LLM suggested',
@@ -515,7 +518,7 @@ Only suggest 3-5 queries. Be specific and actionable.`;
     // LLM queries tienen prioridad (van primero)
     for (const q of [...llmQueries, ...heuristicQueries]) {
       const normalized = q.query.toLowerCase().trim();
-      if (!seen.has(normalized)) {
+      if (!seen.has(normalized) && !this.isOverGenericQuery(q.query)) {
         seen.add(normalized);
         result.push(q);
       }
@@ -523,6 +526,20 @@ Only suggest 3-5 queries. Be specific and actionable.`;
 
     // Limitar a 5 queries para respetar rate limits de Shodan free tier
     return result.slice(0, 5);
+  }
+
+  private isOverGenericQuery(query: string): boolean {
+    const normalized = query.toLowerCase().replace(/\s+/g, ' ').trim();
+    const genericPatterns = [
+      'port:22,3389,445',
+      'port:22,445',
+      'port:22',
+      'port:3389',
+      'port:445',
+      'port:22,3389,445,3306'
+    ];
+
+    return genericPatterns.includes(normalized);
   }
 
   private async loadXData(): Promise<XScrapedData | null> {

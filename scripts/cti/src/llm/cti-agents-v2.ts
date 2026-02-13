@@ -140,6 +140,7 @@ export class CTIAgentSystem {
     const cves: CTIAnalysis['extraction']['cves'] = [];
     const ttps: CTIAnalysis['extraction']['ttps'] = [];
     const socialPosts: CTIAnalysis['extraction']['socialPosts'] = [];
+    const socialContextText = (xData?.posts || []).map(p => p.text).join(' ').toLowerCase();
     
     // Extract from Shodan
     if (shodan?.hosts) {
@@ -169,11 +170,21 @@ export class CTIAgentSystem {
         }
       }
       
-      // Map ports to TTPs
+      // Map ports to TTPs ONLY when corroborated by social context
       const ports = new Set(shodan.hosts.map(h => h.port));
-      if (ports.has(22)) ttps.push({ ...MITRE_MAPPINGS['port 22'], evidence: 'SSH exposed on port 22' });
-      if (ports.has(3389)) ttps.push({ ...MITRE_MAPPINGS['port 3389'], evidence: 'RDP exposed on port 3389' });
-      if (ports.has(445)) ttps.push({ ...MITRE_MAPPINGS['port 445'], evidence: 'SMB exposed on port 445' });
+      const socialMentionsSSH = /(ssh|openssh|secure shell|ssh brute)/i.test(socialContextText);
+      const socialMentionsRDP = /(rdp|remote desktop|bluekeep)/i.test(socialContextText);
+      const socialMentionsSMB = /(smb|samba|eternalblue|wannacry|windows share)/i.test(socialContextText);
+
+      if (ports.has(22) && socialMentionsSSH) {
+        ttps.push({ ...MITRE_MAPPINGS['port 22'], evidence: 'SSH exposure corroborated by social discussion' });
+      }
+      if (ports.has(3389) && socialMentionsRDP) {
+        ttps.push({ ...MITRE_MAPPINGS['port 3389'], evidence: 'RDP exposure corroborated by social discussion' });
+      }
+      if (ports.has(445) && socialMentionsSMB) {
+        ttps.push({ ...MITRE_MAPPINGS['port 445'], evidence: 'SMB exposure corroborated by social discussion' });
+      }
     }
     
     // Extract from X.com posts with timestamps

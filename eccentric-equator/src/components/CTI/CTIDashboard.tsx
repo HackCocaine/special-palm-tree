@@ -122,6 +122,9 @@ interface DashboardData {
     model: string;
     killChainPhase: string;
     threatLandscape: string;
+    analystBrief?: string;
+    methodologies?: string[];
+    observableSummary?: string[];
     mitreAttack: Array<{
       tactic: string;
       techniques: string[];
@@ -800,6 +803,35 @@ const CTIAnalysisPanel: React.FC<{ analysis: NonNullable<DashboardData['ctiAnaly
       {analysis.threatLandscape && (
         <div className="cti-threat-landscape">
           <p>{analysis.threatLandscape}</p>
+        </div>
+      )}
+
+      {analysis.analystBrief && (
+        <div className="cti-threat-landscape">
+          <h3 className="cti-section-title" style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>CTI Analyst JR Summary</h3>
+          <p>{analysis.analystBrief}</p>
+        </div>
+      )}
+
+      {analysis.observableSummary && analysis.observableSummary.length > 0 && (
+        <div className="cti-threat-landscape">
+          <h3 className="cti-section-title" style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Current Observables</h3>
+          <ul>
+            {analysis.observableSummary.map((item, idx) => (
+              <li key={idx}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {analysis.methodologies && analysis.methodologies.length > 0 && (
+        <div className="cti-threat-landscape">
+          <h3 className="cti-section-title" style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Methodologies Applied</h3>
+          <ul>
+            {analysis.methodologies.map((item, idx) => (
+              <li key={idx}>{item}</li>
+            ))}
+          </ul>
         </div>
       )}
 

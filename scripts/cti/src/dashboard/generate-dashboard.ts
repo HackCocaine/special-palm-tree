@@ -114,6 +114,9 @@ export interface PublicDashboard {
     model: string;
     killChainPhase: string;
     threatLandscape: string;
+    analystBrief?: string;
+    methodologies?: string[];
+    observableSummary?: string[];
     mitreAttack: Array<{
       tactic: string;
       techniques: string[];
@@ -401,11 +404,26 @@ export class DashboardGenerator {
       })));
     }
 
+    const methodologies = [
+      'MITRE ATT&CK for tactic/technique mapping',
+      'Cyber Kill Chain for phase prioritization',
+      'Temporal correlation analysis (social ↔ infrastructure)',
+      'Source reliability weighting (social engagement + technical evidence)'
+    ];
+
+    const observableSummary = this.buildObservableSummary(ctiAnalysis);
+    const analystBrief = this.buildAnalystJrBrief(ctiAnalysis, crossSourceLinks, observableSummary);
+
+    const cleanThreatLandscape = this.cleanLLMText(ctiAnalysis.analysis.summary || '');
+
     // Transform v2 structure to dashboard format
     return {
       model: ctiAnalysis.model,
       killChainPhase: ctiAnalysis.analysis.killChainPhase,
-      threatLandscape: ctiAnalysis.analysis.summary,
+      threatLandscape: cleanThreatLandscape,
+      analystBrief,
+      methodologies,
+      observableSummary,
       mitreAttack: Array.from(tacticMap.entries()).map(([tactic, techniques]) => ({
         tactic,
         techniques,
@@ -429,6 +447,11 @@ export class DashboardGenerator {
       immediateActions: ctiAnalysis.analysis.recommendations.slice(0, 3),
       strategicRecommendations: ctiAnalysis.analysis.recommendations.slice(3),
       sourcesAndReferences: [
+        ...ctiAnalysis.extraction.socialPosts.slice(0, 4).map(post => ({
+          source: 'X.com',
+          url: post.url || `https://x.com/search?q=${encodeURIComponent(post.text.substring(0, 40))}`,
+          relevance: `${post.author} (${post.engagement} engagement)`
+        })),
         ...ctiAnalysis.extraction.ips.slice(0, 3).map(ip => ({
           source: 'Shodan',
           url: ip.url,
@@ -441,6 +464,52 @@ export class DashboardGenerator {
         }))
       ]
     };
+  }
+
+  private buildObservableSummary(ctiAnalysis: CTIAnalysis): string[] {
+    const observables: string[] = [];
+
+    const topCves = ctiAnalysis.extraction.cves.slice(0, 4).map(c => c.id);
+    if (topCves.length > 0) {
+      observables.push(`CVEs in current cycle: ${topCves.join(', ')}`);
+    }
+
+    const topInfra = ctiAnalysis.extraction.ips.slice(0, 4).map(i => `${i.service} (${i.value}:${i.port})`);
+    if (topInfra.length > 0) {
+      observables.push(`Infrastructure observables: ${topInfra.join(' | ')}`);
+    }
+
+    const topSocialSignals = ctiAnalysis.extraction.socialPosts.slice(0, 3).map(p => {
+      const compact = this.cleanLLMText(p.text).replace(/\s+/g, ' ').substring(0, 70);
+      return `${p.author}: ${compact}${compact.length >= 70 ? '...' : ''}`;
+    });
+    if (topSocialSignals.length > 0) {
+      observables.push(`Social observables: ${topSocialSignals.join(' || ')}`);
+    }
+
+    return observables;
+  }
+
+  private buildAnalystJrBrief(
+    ctiAnalysis: CTIAnalysis,
+    crossSourceLinks: Array<{ infraSignal: string; socialSignal: string; relationship: string; timeDelta: string; significance: string }>,
+    observableSummary: string[]
+  ): string {
+    const pattern = ctiAnalysis.correlation?.pattern || 'isolated';
+    const window = ctiAnalysis.correlation?.timeWindow || '24-48 hours';
+    const topCorrelation = crossSourceLinks[0];
+    const mainObservable = observableSummary[0] || 'No high-confidence observables extracted yet';
+
+    const relationText = topCorrelation
+      ? `Primary correlation: social signal "${this.cleanLLMText(topCorrelation.socialSignal).substring(0, 80)}" linked to infrastructure "${this.cleanLLMText(topCorrelation.infraSignal).substring(0, 80)}" (${topCorrelation.timeDelta}).`
+      : 'No strong one-to-one correlation pair was extracted in this run.';
+
+    return [
+      `CTI Analyst JR Summary: Current social context indicates active threat discussion with ${pattern.toUpperCase()} behavior across sources within ${window}.`,
+      relationText,
+      `Observable focus: ${mainObservable}.`,
+      'Assessment confidence is driven by temporal alignment + source evidence, not isolated port exposure.'
+    ].join(' ');
   }
 
   /**
