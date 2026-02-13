@@ -24,14 +24,14 @@ concurrency:
 env:
   CTI_CACHE_DIR: ${{ github.workspace }}/DATA/cti-cache
   CTI_OUTPUT_DIR: ${{ github.workspace }}/DATA/cti-output
-  # Use mistral:7b-instruct for CTI - good balance of capability and container size
-  OLLAMA_MODEL: mistral:7b-instruct
+  # Use qwen2.5:3b for CTI - faster inference on CPU runners, good reasoning
+  OLLAMA_MODEL: qwen2.5:3b
 
 jobs:
   cti-pipeline:
     name: CTI Pipeline
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     
     steps:
       - name: Checkout
@@ -52,8 +52,11 @@ jobs:
         run: |
           curl -fsSL https://ollama.com/install.sh | sh
           ollama serve &
-          sleep 5
+          sleep 10
           ollama pull ${{ env.OLLAMA_MODEL }}
+          echo "Testing model availability..."
+          curl -s http://localhost:11434/api/generate -d '{"model":"${{ env.OLLAMA_MODEL }}","prompt":"test","stream":false,"options":{"num_predict":1}}' | head -c 200
+          echo ""
 
       - name: Restore CTI Cache
         if: ${{ inputs.use_cache }}

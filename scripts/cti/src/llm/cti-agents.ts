@@ -25,8 +25,10 @@ import {
 } from '../types/index.js';
 
 const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
-// Use mistral:7b-instruct for CTI - good balance of capability and size
-const CTI_MODEL = process.env.OLLAMA_MODEL || 'mistral:7b-instruct';
+// Use qwen2.5:3b for CTI in CI - fast inference, good reasoning
+const CTI_MODEL = process.env.OLLAMA_MODEL || 'qwen2.5:3b';
+// Longer timeout for CPU inference (10 minutes)
+const REQUEST_TIMEOUT = parseInt(process.env.CTI_REQUEST_TIMEOUT || '600000', 10);
 
 // MITRE ATT&CK Tactics for mapping
 const MITRE_TACTICS = [
@@ -144,10 +146,46 @@ export class CTIAgentSystem {
   }
 
   /**
+   * Warmup the model before analysis (pre-loads into memory)
+   */
+  private async warmupModel(): Promise<boolean> {
+    console.log(`[CTI-Agents] Warming up model ${CTI_MODEL}...`);
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 120000); // 2 min for warmup
+      
+      const res = await fetch(`${OLLAMA_HOST}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: CTI_MODEL,
+          prompt: 'Respond with OK',
+          stream: false,
+          options: { num_predict: 5 }
+        })
+      });
+      
+      clearTimeout(timeout);
+      if (res.ok) {
+        console.log('[CTI-Agents] Model warmed up successfully');
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('[CTI-Agents] Warmup failed:', err);
+      return false;
+    }
+  }
+
+  /**
    * Run the full multi-agent CTI analysis pipeline
    */
   async analyze(): Promise<CTIAnalysis> {
     console.log(`[CTI-Agents] Starting multi-agent analysis with ${CTI_MODEL}`);
+    
+    // Warmup model first (loads into memory)
+    await this.warmupModel();
     
     // Load all available data
     const processedData = await this.loadJson<ProcessedData>('processed-data.json');
@@ -528,8 +566,9 @@ Write for a non-technical executive audience while maintaining technical accurac
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 180000); // 3 min timeout
+        const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
+        console.log(`[CTI-Agents] Calling Ollama (timeout: ${REQUEST_TIMEOUT/1000}s)...`);
         const res = await fetch(`${OLLAMA_HOST}/api/generate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -540,7 +579,7 @@ Write for a non-technical executive audience while maintaining technical accurac
             stream: false,
             options: {
               temperature: 0.3,      // Lower for more factual output
-              num_predict: 2000,     // Allow longer responses
+              num_predict: 1500,     // Balanced response length
               top_p: 0.9,
               top_k: 40
             }
