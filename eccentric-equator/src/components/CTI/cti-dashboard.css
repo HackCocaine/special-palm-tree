@@ -833,3 +833,364 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ================================================
+   INFRASTRUCTURE & SOCIAL INTEL SECTIONS
+   ================================================ */
+
+.cti-intel-sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 968px) {
+  .cti-intel-sections {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Infrastructure Panel */
+.cti-infrastructure {
+  background: linear-gradient(145deg, #0f1115 0%, #0a0a0a 100%);
+  border: 1px solid #1a1f25;
+}
+
+.cti-infra-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.cti-infra-stats {
+  display: flex;
+  gap: 10px;
+}
+
+.cti-stat-badge {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.cti-stat-hosts {
+  background: rgba(0, 210, 106, 0.15);
+  color: #00D26A;
+}
+
+.cti-stat-vuln {
+  background: rgba(227, 27, 35, 0.15);
+  color: #E31B23;
+}
+
+.cti-stat-posts {
+  background: rgba(29, 155, 240, 0.15);
+  color: #1D9BF0;
+}
+
+.cti-stat-sentiment {
+  background: transparent;
+  border: 1px solid;
+  text-transform: capitalize;
+}
+
+.cti-infra-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cti-infra-ports h4,
+.cti-infra-countries h4,
+.cti-infra-samples h4,
+.cti-social-topics h4,
+.cti-social-posts h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6a6a6a;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+/* Port List */
+.cti-port-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cti-port-item {
+  display: grid;
+  grid-template-columns: 60px 1fr 100px 40px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.cti-port-item:last-child {
+  border-bottom: none;
+}
+
+.cti-port-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: #00D26A;
+}
+
+.cti-port-service {
+  font-size: 12px;
+  color: #9a9a9a;
+}
+
+.cti-port-bar {
+  height: 4px;
+  background: #1a1a1a;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.cti-port-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00D26A, #00a854);
+  border-radius: 2px;
+}
+
+.cti-port-count {
+  font-size: 11px;
+  color: #6a6a6a;
+  text-align: right;
+}
+
+/* Country Chips */
+.cti-country-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cti-country-chip {
+  font-size: 12px;
+  padding: 6px 12px;
+  background: #1a1a1a;
+  border-radius: 16px;
+  color: #c0c0c0;
+}
+
+.cti-country-count {
+  color: #6a6a6a;
+}
+
+/* Sample Hosts */
+.cti-sample-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cti-sample-host {
+  padding: 12px;
+  background: #0d0d0d;
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+}
+
+.cti-host-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cti-host-ip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #00D26A;
+}
+
+.cti-host-service {
+  font-size: 11px;
+  color: #6a6a6a;
+}
+
+.cti-host-vulns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cti-vuln-tag {
+  font-size: 10px;
+  padding: 3px 8px;
+  background: rgba(227, 27, 35, 0.15);
+  color: #E31B23;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.cti-vuln-tag:hover {
+  background: rgba(227, 27, 35, 0.3);
+}
+
+.cti-infra-note,
+.cti-social-note {
+  font-size: 11px;
+  color: #4a4a4a;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #1a1a1a;
+}
+
+.cti-infra-note a,
+.cti-social-note a {
+  color: #00D26A;
+  text-decoration: none;
+}
+
+/* Social Panel */
+.cti-social {
+  background: linear-gradient(145deg, #0f1115 0%, #0a0a0a 100%);
+  border: 1px solid #1a1f25;
+}
+
+.cti-social-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.cti-social-stats {
+  display: flex;
+  gap: 10px;
+}
+
+.cti-social-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Topic List */
+.cti-topic-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cti-topic-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.cti-topic-item:last-child {
+  border-bottom: none;
+}
+
+.cti-topic-name {
+  flex: 1;
+  font-size: 13px;
+  color: #1D9BF0;
+}
+
+.cti-topic-count {
+  font-size: 11px;
+  color: #6a6a6a;
+}
+
+.cti-topic-engagement {
+  font-size: 11px;
+  color: #E31B23;
+}
+
+/* Post List */
+.cti-post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cti-post-item {
+  display: block;
+  padding: 14px;
+  background: #0d0d0d;
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.cti-post-item:hover {
+  border-color: #1D9BF0;
+  background: #111;
+}
+
+.cti-post-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cti-post-author {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1D9BF0;
+}
+
+.cti-post-time {
+  font-size: 11px;
+  color: #4a4a4a;
+}
+
+.cti-post-excerpt {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #c0c0c0;
+  margin: 0 0 10px 0;
+}
+
+.cti-post-engagement {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #6a6a6a;
+}
+
+.cti-post-link-icon {
+  color: #1D9BF0;
+}
+
+/* CVE Link Styles */
+.cti-tag-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.cti-tag-link:hover {
+  background: rgba(227, 27, 35, 0.3);
+  transform: translateY(-1px);
+}
+
+.cti-link-icon {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.cti-tag-link:hover .cti-link-icon {
+  opacity: 1;
+}

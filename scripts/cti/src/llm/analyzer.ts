@@ -1,6 +1,13 @@
 /**
- * LLM Analyzer - Ollama Local (modelo ligero ~500MB)
- * Optimizado para GitHub Actions con prompts compactos
+ * LLM Analyzer - Ollama Local
+ * 
+ * Modelos recomendados para CTI (por capacidad):
+ * - llama3.2:3b  (~2GB)  - Recomendado para análisis de amenazas, mejor comprensión
+ * - phi3:mini    (~2GB)  - Buena alternativa, rápido
+ * - qwen2:1.5b   (~1GB)  - Balance velocidad/capacidad
+ * - qwen2:0.5b   (~500MB)- Solo si memoria es muy limitada
+ * 
+ * Para containers GitHub Actions: llama3.2:3b funciona con 4GB+ RAM
  */
 
 import * as fs from 'fs/promises';
@@ -8,7 +15,8 @@ import * as path from 'path';
 import { ProcessedData, LLMAnalysisResult } from '../types/index.js';
 
 const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'qwen2:0.5b';
+// Default to more capable model - override with OLLAMA_MODEL env var if needed
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3.2:3b';
 
 export class LLMAnalyzer {
   private outputDir: string;

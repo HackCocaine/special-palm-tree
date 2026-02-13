@@ -5,7 +5,7 @@
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { ProcessedData, LLMAnalysisResult, ThreatSeverity, ThreatCategory, DataSource, EvidenceLink, CorrelationSignal } from '../types/index.js';
+import { ProcessedData, LLMAnalysisResult, ThreatSeverity, ThreatCategory, DataSource, EvidenceLink, CorrelationSignal, ShodanScrapedData, XScrapedData } from '../types/index.js';
 
 // Frontend-optimized dashboard format with evidence and correlation
 export interface PublicDashboard {
@@ -70,6 +70,44 @@ export interface PublicDashboard {
       };
     }>;
   };
+  // NEW: Infrastructure exposure summary
+  infrastructure?: {
+    totalHosts: number;
+    exposedPorts: Array<{
+      port: number;
+      service: string;
+      count: number;
+      percentage: number;
+    }>;
+    topCountries: Array<{
+      country: string;
+      count: number;
+    }>;
+    vulnerableHosts: number;
+    sampleHosts: Array<{
+      ip: string;
+      port: number;
+      service: string;
+      vulns: string[];
+    }>;
+  };
+  // NEW: Social intelligence summary
+  socialIntel?: {
+    totalPosts: number;
+    topTopics: Array<{
+      topic: string;
+      count: number;
+      engagement: number;
+    }>;
+    recentPosts: Array<{
+      excerpt: string;
+      author: string;
+      timestamp: string;
+      engagement: number;
+      url: string;
+    }>;
+    sentiment: 'alarming' | 'neutral' | 'informational';
+  };
 }
 
 export class DashboardGenerator {
@@ -86,8 +124,11 @@ export class DashboardGenerator {
     
     const processedData = await this.loadJson<ProcessedData>('processed-data.json');
     const llmAnalysis = await this.loadJson<LLMAnalysisResult>('llm-analysis.json');
+    // Load raw source data for detailed sections
+    const shodanData = await this.loadJson<ShodanScrapedData>('shodan-data.json');
+    const xData = await this.loadJson<XScrapedData>('x-data.json');
 
-    const dashboard = this.buildDashboard(processedData, llmAnalysis);
+    const dashboard = this.buildDashboard(processedData, llmAnalysis, shodanData, xData);
     
     await this.saveDashboard(dashboard);
     console.log(`[Dashboard] Generated - Risk: ${dashboard.status.riskLevel}, Signals: ${dashboard.metrics.totalSignals}`);
@@ -95,7 +136,12 @@ export class DashboardGenerator {
     return dashboard;
   }
 
-  private buildDashboard(data: ProcessedData | null, llm: LLMAnalysisResult | null): PublicDashboard {
+  private buildDashboard(
+    data: ProcessedData | null, 
+    llm: LLMAnalysisResult | null,
+    shodanData?: ShodanScrapedData | null,
+    xData?: XScrapedData | null
+  ): PublicDashboard {
     const now = new Date();
     const validUntil = new Date(now.getTime() + 6 * 60 * 60 * 1000); // 6 hours validity
 
@@ -156,6 +202,10 @@ export class DashboardGenerator {
     // Build correlation section with evidence
     const correlation = this.buildCorrelationSection(data);
 
+    // Build infrastructure and social intel sections
+    const infrastructure = this.buildInfrastructureSection(shodanData);
+    const socialIntel = this.buildSocialIntelSection(xData);
+
     return {
       meta: {
         version: '2.0.0',
@@ -180,8 +230,165 @@ export class DashboardGenerator {
       timeline,
       sources,
       indicators: displayIndicators,
-      correlation
+      correlation,
+      infrastructure,
+      socialIntel
     };
+  }
+
+  /**
+   * Build infrastructure exposure section from Shodan data
+   */
+  private buildInfrastructureSection(shodanData?: ShodanScrapedData | null): PublicDashboard['infrastructure'] | undefined {
+    if (!shodanData || shodanData.hosts.length === 0) return undefined;
+
+    const hosts = shodanData.hosts;
+    const totalHosts = hosts.length;
+
+    // Count ports
+    const portCounts = new Map<number, { service: string; count: number }>();
+    for (const host of hosts) {
+      const existing = portCounts.get(host.port);
+      const service = host.product || this.getDefaultService(host.port);
+      portCounts.set(host.port, {
+        service,
+        count: (existing?.count || 0) + 1
+      });
+    }
+
+    const exposedPorts = Array.from(portCounts.entries())
+      .map(([port, data]) => ({
+        port,
+        service: data.service,
+        count: data.count,
+        percentage: Math.round((data.count / totalHosts) * 100)
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    // Count countries
+    const countryCounts = new Map<string, number>();
+    for (const host of hosts) {
+      if (host.country) {
+        countryCounts.set(host.country, (countryCounts.get(host.country) || 0) + 1);
+      }
+    }
+
+    const topCountries = Array.from(countryCounts.entries())
+      .map(([country, count]) => ({ country, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    // Find vulnerable hosts
+    const vulnerableHosts = hosts.filter(h => h.vulns && h.vulns.length > 0).length;
+
+    // Sample hosts (masked IPs for privacy)
+    const sampleHosts = hosts
+      .filter(h => h.vulns && h.vulns.length > 0)
+      .slice(0, 5)
+      .map(h => ({
+        ip: this.maskIp(h.ip),
+        port: h.port,
+        service: h.product || this.getDefaultService(h.port),
+        vulns: (h.vulns || []).slice(0, 3)
+      }));
+
+    return {
+      totalHosts,
+      exposedPorts,
+      topCountries,
+      vulnerableHosts,
+      sampleHosts
+    };
+  }
+
+  /**
+   * Build social intelligence section from X.com data
+   */
+  private buildSocialIntelSection(xData?: XScrapedData | null): PublicDashboard['socialIntel'] | undefined {
+    if (!xData || xData.posts.length === 0) return undefined;
+
+    const posts = xData.posts;
+    const totalPosts = posts.length;
+
+    // Extract topics from hashtags and keywords
+    const topicCounts = new Map<string, { count: number; engagement: number }>();
+    const ctiKeywords = ['ransomware', 'cve', 'vulnerability', 'breach', 'malware', 'apt', 'exploit', 'attack'];
+
+    for (const post of posts) {
+      const engagement = post.metrics.likes + post.metrics.reposts;
+      const text = post.text.toLowerCase();
+      
+      // Count hashtags as topics
+      for (const hashtag of post.hashtags) {
+        const topic = hashtag.toLowerCase();
+        const existing = topicCounts.get(topic);
+        topicCounts.set(topic, {
+          count: (existing?.count || 0) + 1,
+          engagement: (existing?.engagement || 0) + engagement
+        });
+      }
+
+      // Count CTI keywords
+      for (const keyword of ctiKeywords) {
+        if (text.includes(keyword)) {
+          const existing = topicCounts.get(keyword);
+          topicCounts.set(keyword, {
+            count: (existing?.count || 0) + 1,
+            engagement: (existing?.engagement || 0) + engagement
+          });
+        }
+      }
+    }
+
+    const topTopics = Array.from(topicCounts.entries())
+      .map(([topic, data]) => ({ topic, count: data.count, engagement: data.engagement }))
+      .sort((a, b) => b.engagement - a.engagement)
+      .slice(0, 5);
+
+    // Get recent posts with URLs
+    const recentPosts = posts
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, 5)
+      .map(post => ({
+        excerpt: post.text.substring(0, 120) + (post.text.length > 120 ? '...' : ''),
+        author: `@${post.author.username}`,
+        timestamp: post.timestamp,
+        engagement: post.metrics.likes + post.metrics.reposts,
+        url: post.id ? `https://x.com/${post.author.username}/status/${post.id}` : `https://x.com/search?q=${encodeURIComponent(post.text.substring(0, 30))}`
+      }));
+
+    // Determine sentiment based on content
+    const alarmingKeywords = ['critical', 'urgent', 'zero-day', 'active exploitation', 'emergency'];
+    const alarmingPosts = posts.filter(p => 
+      alarmingKeywords.some(k => p.text.toLowerCase().includes(k))
+    ).length;
+    
+    const sentiment = alarmingPosts > totalPosts * 0.3 ? 'alarming' : 
+      alarmingPosts > 0 ? 'neutral' : 'informational';
+
+    return {
+      totalPosts,
+      topTopics,
+      recentPosts,
+      sentiment
+    };
+  }
+
+  private getDefaultService(port: number): string {
+    const services: Record<number, string> = {
+      22: 'SSH',
+      23: 'Telnet',
+      80: 'HTTP',
+      443: 'HTTPS',
+      445: 'SMB',
+      3389: 'RDP',
+      3306: 'MySQL',
+      5432: 'PostgreSQL',
+      6379: 'Redis',
+      27017: 'MongoDB'
+    };
+    return services[port] || `Port ${port}`;
   }
 
   /**

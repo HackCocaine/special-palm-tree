@@ -79,6 +79,44 @@ interface DashboardData {
     keywords: string[];
   };
   correlation?: CorrelationData;
+  // Infrastructure exposure data
+  infrastructure?: {
+    totalHosts: number;
+    exposedPorts: Array<{
+      port: number;
+      service: string;
+      count: number;
+      percentage: number;
+    }>;
+    topCountries: Array<{
+      country: string;
+      count: number;
+    }>;
+    vulnerableHosts: number;
+    sampleHosts: Array<{
+      ip: string;
+      port: number;
+      service: string;
+      vulns: string[];
+    }>;
+  };
+  // Social intelligence data
+  socialIntel?: {
+    totalPosts: number;
+    topTopics: Array<{
+      topic: string;
+      count: number;
+      engagement: number;
+    }>;
+    recentPosts: Array<{
+      excerpt: string;
+      author: string;
+      timestamp: string;
+      engagement: number;
+      url: string;
+    }>;
+    sentiment: 'alarming' | 'neutral' | 'informational';
+  };
 }
 
 const RISK_COLORS = {
@@ -160,6 +198,12 @@ const CTIDashboard: React.FC = () => {
         
         {/* Correlation Analysis - Cross-source intelligence */}
         {data.correlation && <CorrelationPanel correlation={data.correlation} />}
+        
+        {/* Infrastructure and Social Intelligence */}
+        <div className="cti-intel-sections">
+          {data.infrastructure && <InfrastructurePanel infrastructure={data.infrastructure} />}
+          {data.socialIntel && <SocialIntelPanel socialIntel={data.socialIntel} />}
+        </div>
         
         {/* Two Column Layout */}
         <div className="cti-columns">
@@ -377,6 +421,10 @@ const IndicatorsPanel: React.FC<{ indicators: DashboardData['indicators'] }> = (
   const hasKeywords = indicators.keywords.length > 0;
   
   if (!hasCves && !hasKeywords) return null;
+
+  // Helper para generar URL de CVE a NIST NVD
+  const getCveUrl = (cve: string) => 
+    `https://nvd.nist.gov/vuln/detail/${cve.toUpperCase()}`;
   
   return (
     <section className="cti-section cti-indicators">
@@ -387,7 +435,17 @@ const IndicatorsPanel: React.FC<{ indicators: DashboardData['indicators'] }> = (
           <h4>CVE References</h4>
           <div className="cti-indicator-tags">
             {indicators.cves.map((cve, i) => (
-              <span key={i} className="cti-indicator-tag cti-tag-cve">{cve}</span>
+              <a 
+                key={i} 
+                href={getCveUrl(cve)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cti-indicator-tag cti-tag-cve cti-tag-link"
+                title={`View ${cve} on NIST NVD`}
+              >
+                {cve}
+                <span className="cti-link-icon">↗</span>
+              </a>
             ))}
           </div>
         </div>
@@ -403,6 +461,175 @@ const IndicatorsPanel: React.FC<{ indicators: DashboardData['indicators'] }> = (
           </div>
         </div>
       )}
+    </section>
+  );
+};
+
+/**
+ * Infrastructure Panel - Shows exposed infrastructure from Shodan
+ */
+const InfrastructurePanel: React.FC<{ infrastructure: NonNullable<DashboardData['infrastructure']> }> = ({ infrastructure }) => {
+  return (
+    <section className="cti-section cti-infrastructure">
+      <div className="cti-infra-header">
+        <h2 className="cti-section-title">🖥️ Infrastructure Exposure</h2>
+        <div className="cti-infra-stats">
+          <span className="cti-stat-badge cti-stat-hosts">{infrastructure.totalHosts} hosts</span>
+          {infrastructure.vulnerableHosts > 0 && (
+            <span className="cti-stat-badge cti-stat-vuln">{infrastructure.vulnerableHosts} vulnerable</span>
+          )}
+        </div>
+      </div>
+      
+      <div className="cti-infra-content">
+        {/* Exposed Ports */}
+        <div className="cti-infra-ports">
+          <h4>Exposed Services</h4>
+          <div className="cti-port-list">
+            {infrastructure.exposedPorts.map((item, i) => (
+              <div key={i} className="cti-port-item">
+                <span className="cti-port-number">{item.port}</span>
+                <span className="cti-port-service">{item.service}</span>
+                <div className="cti-port-bar">
+                  <div className="cti-port-fill" style={{ width: `${item.percentage}%` }} />
+                </div>
+                <span className="cti-port-count">{item.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Top Countries */}
+        {infrastructure.topCountries.length > 0 && (
+          <div className="cti-infra-countries">
+            <h4>Geographic Distribution</h4>
+            <div className="cti-country-chips">
+              {infrastructure.topCountries.map((item, i) => (
+                <span key={i} className="cti-country-chip">
+                  {item.country} <span className="cti-country-count">({item.count})</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Sample Vulnerable Hosts */}
+        {infrastructure.sampleHosts.length > 0 && (
+          <div className="cti-infra-samples">
+            <h4>Sample Vulnerable Hosts</h4>
+            <div className="cti-sample-list">
+              {infrastructure.sampleHosts.map((host, i) => (
+                <div key={i} className="cti-sample-host">
+                  <div className="cti-host-info">
+                    <span className="cti-host-ip">{host.ip}:{host.port}</span>
+                    <span className="cti-host-service">{host.service}</span>
+                  </div>
+                  <div className="cti-host-vulns">
+                    {host.vulns.map((vuln, j) => (
+                      <a 
+                        key={j}
+                        href={`https://nvd.nist.gov/vuln/detail/${vuln}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="cti-vuln-tag"
+                      >
+                        {vuln}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      
+      <p className="cti-infra-note">
+        Data collected via <a href="https://www.shodan.io" target="_blank" rel="noopener noreferrer">Shodan</a>. 
+        IP addresses are partially masked for privacy.
+      </p>
+    </section>
+  );
+};
+
+/**
+ * Social Intelligence Panel - Shows social media threat discussions
+ */
+const SocialIntelPanel: React.FC<{ socialIntel: NonNullable<DashboardData['socialIntel']> }> = ({ socialIntel }) => {
+  const sentimentColors = {
+    alarming: '#E31B23',
+    neutral: '#FFB800',
+    informational: '#00D26A'
+  };
+
+  return (
+    <section className="cti-section cti-social">
+      <div className="cti-social-header">
+        <h2 className="cti-section-title">💬 Social Intelligence</h2>
+        <div className="cti-social-stats">
+          <span className="cti-stat-badge cti-stat-posts">{socialIntel.totalPosts} posts</span>
+          <span 
+            className="cti-stat-badge cti-stat-sentiment" 
+            style={{ borderColor: sentimentColors[socialIntel.sentiment] }}
+          >
+            {socialIntel.sentiment}
+          </span>
+        </div>
+      </div>
+      
+      <div className="cti-social-content">
+        {/* Top Topics */}
+        {socialIntel.topTopics.length > 0 && (
+          <div className="cti-social-topics">
+            <h4>Trending Topics</h4>
+            <div className="cti-topic-list">
+              {socialIntel.topTopics.map((item, i) => (
+                <div key={i} className="cti-topic-item">
+                  <span className="cti-topic-name">#{item.topic}</span>
+                  <span className="cti-topic-count">{item.count}x</span>
+                  <span className="cti-topic-engagement">❤️ {item.engagement}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Recent Posts */}
+        <div className="cti-social-posts">
+          <h4>Recent Discussions</h4>
+          <div className="cti-post-list">
+            {socialIntel.recentPosts.map((post, i) => (
+              <a 
+                key={i} 
+                href={post.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cti-post-item"
+              >
+                <div className="cti-post-meta">
+                  <span className="cti-post-author">{post.author}</span>
+                  <span className="cti-post-time">
+                    {new Date(post.timestamp).toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric' 
+                    })}
+                  </span>
+                </div>
+                <p className="cti-post-excerpt">{post.excerpt}</p>
+                <div className="cti-post-engagement">
+                  <span>❤️ {post.engagement}</span>
+                  <span className="cti-post-link-icon">↗</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <p className="cti-social-note">
+        Intelligence gathered from <a href="https://x.com" target="_blank" rel="noopener noreferrer">X.com</a>. 
+        Posts sorted by engagement and relevance.
+      </p>
     </section>
   );
 };
