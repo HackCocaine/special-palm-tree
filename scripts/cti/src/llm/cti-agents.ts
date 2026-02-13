@@ -29,6 +29,8 @@ const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
 const CTI_MODEL = process.env.OLLAMA_MODEL || 'qwen2.5:3b';
 // Longer timeout for CPU inference (10 minutes)
 const REQUEST_TIMEOUT = parseInt(process.env.CTI_REQUEST_TIMEOUT || '600000', 10);
+// Max context size in characters (to avoid overwhelming the model)
+const MAX_CONTEXT_SIZE = 8000;
 
 // MITRE ATT&CK Tactics for mapping
 const MITRE_TACTICS = [
@@ -183,14 +185,23 @@ export class CTIAgentSystem {
    */
   async analyze(): Promise<CTIAnalysis> {
     console.log(`[CTI-Agents] Starting multi-agent analysis with ${CTI_MODEL}`);
+    console.log(`[CTI-Agents] Ollama host: ${OLLAMA_HOST}`);
+    console.log(`[CTI-Agents] Request timeout: ${REQUEST_TIMEOUT/1000}s`);
     
     // Warmup model first (loads into memory)
     await this.warmupModel();
     
     // Load all available data
+    console.log('[CTI-Agents] Loading data files...');
     const processedData = await this.loadJson<ProcessedData>('processed-data.json');
     const shodanData = await this.loadJson<ShodanScrapedData>('shodan-data.json');
     const xData = await this.loadJson<XScrapedData>('x-data.json');
+    
+    // Log data sizes
+    console.log(`[CTI-Agents] Data loaded:`);
+    console.log(`  - Shodan: ${shodanData?.hosts?.length || 0} hosts`);
+    console.log(`  - X.com: ${xData?.posts?.length || 0} posts`);
+    console.log(`  - Processed: ${processedData?.summary?.totalThreats || 0} threats, ${processedData?.indicators?.length || 0} IOCs`);
 
     if (!processedData && !shodanData && !xData) {
       console.log('[CTI-Agents] No data available for analysis');
@@ -198,7 +209,9 @@ export class CTIAgentSystem {
     }
 
     // Build comprehensive context
+    console.log('[CTI-Agents] Building context for LLM...');
     const context = this.buildContext(processedData, shodanData, xData);
+    console.log(`[CTI-Agents] Context size: ${context.length} chars (max: ${MAX_CONTEXT_SIZE})`);
     
     // Run agents sequentially (each builds on previous)
     console.log('[CTI-Agents] Running extraction agent...');
@@ -228,6 +241,7 @@ export class CTIAgentSystem {
 
   /**
    * Build comprehensive context from all sources
+   * Pre-processes and summarizes data for efficient LLM analysis
    */
   private buildContext(
     processed: ProcessedData | null,
@@ -236,25 +250,33 @@ export class CTIAgentSystem {
   ): string {
     const sections: string[] = [];
 
-    // Infrastructure Intelligence (Shodan)
+    // Infrastructure Intelligence (Shodan) - summarized
     if (shodan && shodan.hosts.length > 0) {
       const infraSummary = this.summarizeInfrastructure(shodan);
       sections.push(`=== INFRASTRUCTURE INTELLIGENCE (Shodan) ===\n${infraSummary}`);
     }
 
-    // Social Intelligence (X.com)
+    // Social Intelligence (X.com) - summarized
     if (xData && xData.posts.length > 0) {
       const socialSummary = this.summarizeSocialIntel(xData);
       sections.push(`=== SOCIAL INTELLIGENCE (X.com) ===\n${socialSummary}`);
     }
 
-    // Processed Threats and Indicators
+    // Processed Threats and Indicators - summarized
     if (processed) {
       const processedSummary = this.summarizeProcessedData(processed);
       sections.push(`=== PROCESSED THREAT DATA ===\n${processedSummary}`);
     }
 
-    return sections.join('\n\n');
+    let context = sections.join('\n\n');
+    
+    // Truncate if too large (to avoid overwhelming the model)
+    if (context.length > MAX_CONTEXT_SIZE) {
+      console.log(`[CTI-Agents] Context too large (${context.length}), truncating to ${MAX_CONTEXT_SIZE}`);
+      context = context.substring(0, MAX_CONTEXT_SIZE) + '\n\n[... truncated for brevity ...]';
+    }
+
+    return context;
   }
 
   private summarizeInfrastructure(shodan: ShodanScrapedData): string {
@@ -300,27 +322,26 @@ export class CTIAgentSystem {
     const posts = xData.posts;
     const lines: string[] = [];
     
-    lines.push(`Total posts analyzed: ${posts.length}`);
-    lines.push(`Search query: ${xData.searchQuery || 'CTI keywords'}`);
+    lines.push(`Total posts: ${posts.length}`);
     
-    // Sort by engagement
+    // Sort by engagement, take top 5 only (concise)
     const sortedPosts = [...posts].sort((a, b) => 
       (b.metrics.likes + b.metrics.reposts) - (a.metrics.likes + a.metrics.reposts)
-    );
+    ).slice(0, 5);
     
-    lines.push(`\nTop posts by engagement:`);
-    for (const post of sortedPosts.slice(0, 10)) {
+    lines.push(`\\nTop posts:`);
+    for (const post of sortedPosts) {
       const engagement = post.metrics.likes + post.metrics.reposts;
       const url = post.id 
         ? `https://x.com/${post.author.username}/status/${post.id}`
-        : `https://x.com/search?q=${encodeURIComponent(post.text.substring(0, 30))}`;
+        : '';
       
-      lines.push(`\n[${new Date(post.timestamp).toISOString()}] @${post.author.username} (${engagement} engagement)`);
-      lines.push(`"${post.text.substring(0, 300)}${post.text.length > 300 ? '...' : ''}"`);
-      lines.push(`Link: ${url}`);
+      // Concise format: one line per post
+      const text = post.text.substring(0, 150).replace(/\\n/g, ' ');
+      lines.push(`- @${post.author.username}: "${text}..." (${engagement} eng) ${url}`.trim());
     }
     
-    return lines.join('\n');
+    return lines.join('\\n');
   }
 
   private summarizeProcessedData(data: ProcessedData): string {
@@ -560,15 +581,23 @@ Write for a non-technical executive audience while maintaining technical accurac
   }
 
   /**
-   * Call Ollama API with retry logic
+   * Call Ollama API with streaming (avoids HeadersTimeout) and retry logic
    */
   private async callOllama(prompt: string, retries = 2): Promise<string> {
+    const promptSize = prompt.length;
+    const estimatedTokens = Math.ceil(promptSize / 4);
+    
+    console.log(`[CTI-Agents] Prompt: ${promptSize} chars (~${estimatedTokens} tokens)`);
+    
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
-        console.log(`[CTI-Agents] Calling Ollama (timeout: ${REQUEST_TIMEOUT/1000}s)...`);
+        console.log(`[CTI-Agents] Attempt ${attempt + 1}/${retries + 1}: Calling Ollama (streaming)...`);
+        const startTime = Date.now();
+        
+        // Use streaming to avoid headers timeout - model responds immediately
         const res = await fetch(`${OLLAMA_HOST}/api/generate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -576,25 +605,63 @@ Write for a non-technical executive audience while maintaining technical accurac
           body: JSON.stringify({
             model: CTI_MODEL,
             prompt,
-            stream: false,
+            stream: true,  // Stream to avoid timeout waiting for full response
             options: {
-              temperature: 0.3,      // Lower for more factual output
-              num_predict: 1500,     // Balanced response length
+              temperature: 0.3,
+              num_predict: 1500,
               top_p: 0.9,
               top_k: 40
             }
           })
         });
 
-        clearTimeout(timeout);
-
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          const errorText = await res.text().catch(() => 'no body');
+          throw new Error(`HTTP ${res.status}: ${errorText}`);
+        }
         
-        const json = await res.json() as { response: string };
-        console.log(`[CTI-Agents] Response: ${json.response.length} chars`);
-        return json.response;
-      } catch (err) {
-        console.error(`[CTI-Agents] Attempt ${attempt + 1} failed:`, err);
+        // Accumulate streaming response
+        const reader = res.body?.getReader();
+        if (!reader) throw new Error('No response body');
+        
+        const decoder = new TextDecoder();
+        let fullResponse = '';
+        let tokenCount = 0;
+        
+        console.log('[CTI-Agents] Receiving stream...');
+        
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value, { stream: true });
+          // Each line is a JSON object with "response" field
+          for (const line of chunk.split('\\n')) {
+            if (!line.trim()) continue;
+            try {
+              const json = JSON.parse(line) as { response?: string; done?: boolean; eval_count?: number };
+              if (json.response) {
+                fullResponse += json.response;
+              }
+              if (json.eval_count) tokenCount = json.eval_count;
+            } catch {
+              // Ignore parse errors for incomplete lines
+            }
+          }
+        }
+        
+        clearTimeout(timeout);
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+        console.log(`[CTI-Agents] ✓ Response: ${fullResponse.length} chars in ${elapsed}s (tokens: ${tokenCount || 'N/A'})`);
+        
+        return fullResponse;
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        const errCause = err instanceof Error && 'cause' in err ? (err.cause as Error)?.message : '';
+        console.error(`[CTI-Agents] ✗ Attempt ${attempt + 1} failed:`);
+        console.error(`  Error: ${errMsg}`);
+        if (errCause) console.error(`  Cause: ${errCause}`);
+        
         if (attempt === retries) throw err;
         await this.sleep(2000);
       }
