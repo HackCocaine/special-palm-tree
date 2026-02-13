@@ -22,7 +22,7 @@ import DataProcessor from './processors/data-processor.js';
 import LLMAnalyzer from './llm/analyzer.js';
 import DashboardGenerator from './dashboard/generate-dashboard.js';
 import QueryGenerator from './llm/query-generator.js';
-import CTIAgentSystem from './llm/cti-agents.js';
+import CTIAgentSystem from './llm/cti-agents-v2.js';
 
 const OUTPUT_DIR = process.env.CTI_OUTPUT_DIR || './DATA/cti-output';
 const COMMANDS = ['scrape', 'process', 'analyze', 'agents', 'dashboard', 'query', 'smart', 'all'] as const;
@@ -87,19 +87,19 @@ async function runAnalyzer(): Promise<void> {
 }
 
 /**
- * Run multi-agent CTI analysis system
- * Uses specialized agents for extraction, correlation, analysis, and reporting
+ * Run CTI analysis system (v2 - efficient single-pass analysis)
+ * Extracts indicators in code, single LLM call for narrative
  */
 async function runCTIAgents(): Promise<void> {
-  console.log('\n========== CTI MULTI-AGENT SYSTEM ==========\n');
+  console.log('\n========== CTI ANALYSIS SYSTEM ==========\n');
   const agents = new CTIAgentSystem();
   const analysis = await agents.analyze();
   console.log(`[CTI-Agents] ✓ Analysis complete`);
-  console.log(`  - IOCs: ${analysis.extraction.iocs.cves.length} CVEs, ${analysis.extraction.iocs.ips.length} IPs`);
-  console.log(`  - TTPs: ${analysis.extraction.ttps.length} techniques identified`);
-  console.log(`  - Correlations: ${analysis.correlation.temporalPatterns.length} patterns, ${analysis.correlation.crossSourceLinks.length} cross-source links`);
-  console.log(`  - Risk: ${analysis.analysis.riskAssessment.level} (score: ${analysis.analysis.riskAssessment.score})`);
-  console.log(`  - Findings: ${analysis.report.keyFindings.length} key findings`);
+  console.log(`  - IPs: ${analysis.extraction.ips.length}`);
+  console.log(`  - CVEs: ${analysis.extraction.cves.length}`);
+  console.log(`  - TTPs: ${analysis.extraction.ttps.length}`);
+  console.log(`  - Risk: ${analysis.analysis.riskLevel} (score: ${analysis.analysis.riskScore})`);
+  console.log(`  - Findings: ${analysis.analysis.keyFindings.length}`);
 }
 
 async function runDashboard(): Promise<void> {

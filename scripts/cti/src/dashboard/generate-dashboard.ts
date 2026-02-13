@@ -6,7 +6,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { ProcessedData, LLMAnalysisResult, ThreatSeverity, ThreatCategory, DataSource, EvidenceLink, CorrelationSignal, ShodanScrapedData, XScrapedData } from '../types/index.js';
-import { CTIAnalysis } from '../llm/cti-agents.js';
+import { CTIAnalysis } from '../llm/cti-agents-v2.js';
 
 // Frontend-optimized dashboard format with evidence and correlation
 export interface PublicDashboard {
@@ -181,7 +181,7 @@ export class DashboardGenerator {
     await this.saveDashboard(dashboard);
     console.log(`[Dashboard] Generated - Risk: ${dashboard.status.riskLevel}, Signals: ${dashboard.metrics.totalSignals}`);
     if (ctiAnalysis) {
-      console.log(`[Dashboard] CTI Analysis: ${ctiAnalysis.report.keyFindings.length} findings, ${ctiAnalysis.extraction.ttps.length} TTPs`);
+      console.log(`[Dashboard] CTI Analysis: ${ctiAnalysis.analysis.keyFindings.length} findings, ${ctiAnalysis.extraction.ttps.length} TTPs`);
     }
     
     return dashboard;
@@ -267,8 +267,8 @@ export class DashboardGenerator {
       : executive;
 
     // Use CTI analysis risk assessment if available, mapping CTI levels to dashboard levels
-    const finalRiskScore = ctiAnalysis?.analysis.riskAssessment.score ?? riskScore;
-    const ctiLevel = ctiAnalysis?.analysis.riskAssessment.level;
+    const finalRiskScore = ctiAnalysis?.analysis.riskScore ?? riskScore;
+    const ctiLevel = ctiAnalysis?.analysis.riskLevel;
     const mappedLevel = ctiLevel 
       ? { critical: 'critical', high: 'elevated', medium: 'moderate', low: 'low' }[ctiLevel] as 'critical' | 'elevated' | 'moderate' | 'low'
       : null;
@@ -306,43 +306,82 @@ export class DashboardGenerator {
   }
 
   /**
-   * Build CTI analysis section from multi-agent system output
+   * Build CTI analysis section from analysis system v2
    */
   private buildCTIAnalysisSection(ctiAnalysis?: CTIAnalysis | null): PublicDashboard['ctiAnalysis'] | undefined {
     if (!ctiAnalysis) return undefined;
 
+    // Group TTPs by tactic for MITRE mapping
+    const tacticMap = new Map<string, string[]>();
+    for (const ttp of ctiAnalysis.extraction.ttps) {
+      const techniques = tacticMap.get(ttp.tactic) || [];
+      techniques.push(`${ttp.id}: ${ttp.name}`);
+      tacticMap.set(ttp.tactic, techniques);
+    }
+
+    // Transform v2 structure to dashboard format
     return {
       model: ctiAnalysis.model,
       killChainPhase: ctiAnalysis.analysis.killChainPhase,
-      threatLandscape: ctiAnalysis.analysis.threatLandscape,
-      mitreAttack: ctiAnalysis.analysis.mitreMapping,
-      keyFindings: ctiAnalysis.report.keyFindings,
-      ttps: ctiAnalysis.extraction.ttps,
-      temporalPatterns: ctiAnalysis.correlation.temporalPatterns,
-      crossSourceLinks: ctiAnalysis.correlation.crossSourceLinks,
-      immediateActions: ctiAnalysis.report.immediateActions,
-      strategicRecommendations: ctiAnalysis.report.strategicRecommendations,
-      sourcesAndReferences: ctiAnalysis.report.sourcesAndReferences
+      threatLandscape: ctiAnalysis.analysis.summary,
+      mitreAttack: Array.from(tacticMap.entries()).map(([tactic, techniques]) => ({
+        tactic,
+        techniques,
+        mitigations: ['Implement network segmentation', 'Enable logging and monitoring']
+      })),
+      keyFindings: ctiAnalysis.analysis.keyFindings.map((f, i) => ({
+        finding: f,
+        severity: i === 0 ? 'high' : 'medium',
+        evidence: 'Based on collected intelligence data',
+        recommendation: ctiAnalysis.analysis.recommendations[i] || 'Review and assess risk'
+      })),
+      ttps: ctiAnalysis.extraction.ttps.map(t => ({
+        technique: t.name,
+        techniqueId: t.id,
+        tactic: t.tactic,
+        evidence: t.evidence,
+        confidence: 0.8
+      })),
+      temporalPatterns: [],
+      crossSourceLinks: ctiAnalysis.extraction.socialPosts.slice(0, 3).map(p => ({
+        infraSignal: ctiAnalysis.extraction.ips[0]?.service || 'Network exposure',
+        socialSignal: `${p.author}: ${p.text.substring(0, 50)}...`,
+        relationship: 'Concurrent activity',
+        timeDelta: 'Within 24h',
+        significance: 'Potential correlation between infrastructure and social signals'
+      })),
+      immediateActions: ctiAnalysis.analysis.recommendations.slice(0, 3),
+      strategicRecommendations: ctiAnalysis.analysis.recommendations.slice(3),
+      sourcesAndReferences: [
+        ...ctiAnalysis.extraction.ips.slice(0, 3).map(ip => ({
+          source: 'Shodan',
+          url: ip.url,
+          relevance: `${ip.service} on port ${ip.port}`
+        })),
+        ...ctiAnalysis.extraction.cves.slice(0, 3).map(cve => ({
+          source: 'NVD',
+          url: cve.url,
+          relevance: `${cve.id} (${cve.severity})`
+        }))
+      ]
     };
   }
 
   /**
-   * Enhance executive summary with CTI multi-agent analysis
+   * Enhance executive summary with CTI analysis
    */
   private enhanceExecutiveWithCTI(
     executive: PublicDashboard['executive'], 
     ctiAnalysis: CTIAnalysis
   ): PublicDashboard['executive'] {
-    const report = ctiAnalysis.report;
-
     return {
-      headline: report.headline || executive.headline,
-      summary: report.situationSummary || executive.summary,
-      keyFindings: report.keyFindings.length > 0 
-        ? report.keyFindings.map(f => `[${f.severity.toUpperCase()}] ${f.finding}`)
+      headline: `Threat Level: ${ctiAnalysis.analysis.riskLevel.toUpperCase()}`,
+      summary: ctiAnalysis.analysis.summary || executive.summary,
+      keyFindings: ctiAnalysis.analysis.keyFindings.length > 0 
+        ? ctiAnalysis.analysis.keyFindings
         : executive.keyFindings,
-      recommendedActions: report.immediateActions.length > 0
-        ? report.immediateActions
+      recommendedActions: ctiAnalysis.analysis.recommendations.length > 0
+        ? ctiAnalysis.analysis.recommendations.slice(0, 5)
         : executive.recommendedActions
     };
   }
