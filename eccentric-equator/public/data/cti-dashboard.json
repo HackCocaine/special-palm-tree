@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "version": "2.0.0",
+    "generatedAt": "2026-02-13T12:00:00.000Z",
+    "validUntil": "2026-02-13T18:00:00.000Z"
+  },
+  "status": {
+    "riskLevel": "moderate",
+    "riskScore": 35,
+    "trend": "stable",
+    "confidenceLevel": 65
+  },
+  "executive": {
+    "headline": "Moderate Security Signals Observed",
+    "summary": "Analysis identified security-related signals across social and technical intelligence sources. Social discussion mentions ongoing security concerns, while infrastructure reconnaissance detected standard exposure patterns. No confirmed critical incidents at this time. Assessment is based on automated aggregation from public sources.",
+    "keyFindings": [
+      "Multiple CVE references detected in current discussions",
+      "Standard exposure levels observed in infrastructure scans",
+      "No active exploitation campaigns confirmed"
+    ],
+    "recommendedActions": [
+      "Continue routine vulnerability management",
+      "Monitor for escalation indicators",
+      "Update threat intelligence feeds"
+    ]
+  },
+  "metrics": {
+    "totalSignals": 12,
+    "criticalCount": 0,
+    "highCount": 3,
+    "mediumCount": 5,
+    "lowCount": 4,
+    "categories": [
+      { "name": "Vulnerability", "count": 5, "percentage": 42 },
+      { "name": "Infrastructure", "count": 4, "percentage": 33 },
+      { "name": "Data Breach", "count": 2, "percentage": 17 },
+      { "name": "Ransomware", "count": 1, "percentage": 8 }
+    ]
+  },
+  "timeline": [
+    {
+      "id": "sig-001",
+      "title": "Vulnerability discussion spike detected in security community",
+      "severity": "high",
+      "category": "Vulnerability",
+      "timestamp": "2026-02-13T10:30:00.000Z"
+    },
+    {
+      "id": "sig-002",
+      "title": "Infrastructure exposure identified in routine scan",
+      "severity": "medium",
+      "category": "Infrastructure",
+      "timestamp": "2026-02-13T09:45:00.000Z"
+    },
+    {
+      "id": "sig-003",
+      "title": "Data breach claims under investigation - unverified",
+      "severity": "medium",
+      "category": "Data Breach",
+      "timestamp": "2026-02-13T08:15:00.000Z"
+    }
+  ],
+  "sources": [
+    {
+      "name": "Social Intelligence (X)",
+      "signalCount": 7,
+      "lastUpdate": "2026-02-13T12:00:00.000Z"
+    },
+    {
+      "name": "Technical Reconnaissance",
+      "signalCount": 5,
+      "lastUpdate": "2026-02-13T12:00:00.000Z"
+    }
+  ],
+  "indicators": {
+    "cves": ["CVE-2024-1234", "CVE-2024-5678", "CVE-2025-0001"],
+    "domains": [],
+    "ips": [],
+    "keywords": ["vulnerability", "security", "breach", "patch", "exploit"]
+  }
+}

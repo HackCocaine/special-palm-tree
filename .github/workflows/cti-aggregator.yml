@@ -1,0 +1,122 @@
+name: CTI Aggregator - Threat Intelligence Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_scrapers:
+        description: 'Ejecutar scrapers (X + Shodan)'
+        required: true
+        default: 'true'
+        type: boolean
+      use_cache:
+        description: 'Usar cache si existe (24h TTL)'
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "cti-aggregator"
+  cancel-in-progress: false
+
+env:
+  CTI_CACHE_DIR: ./DATA/cti-cache
+  CTI_OUTPUT_DIR: ./DATA/cti-output
+  OLLAMA_MODEL: qwen2:0.5b
+
+jobs:
+  cti-pipeline:
+    name: CTI Pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache Ollama Model
+        uses: actions/cache@v4
+        with:
+          path: ~/.ollama
+          key: ollama-${{ env.OLLAMA_MODEL }}
+
+      - name: Install Ollama
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          ollama serve &
+          sleep 5
+          ollama pull ${{ env.OLLAMA_MODEL }}
+
+      - name: Restore CTI Cache
+        if: ${{ inputs.use_cache }}
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CTI_CACHE_DIR }}
+          key: cti-data-${{ github.run_id }}
+          restore-keys: cti-data-
+
+      - name: Setup Directories
+        run: mkdir -p ${{ env.CTI_CACHE_DIR }} ${{ env.CTI_OUTPUT_DIR }}
+
+      - name: Install Dependencies
+        working-directory: ./scripts/cti
+        run: npm ci
+
+      - name: Install Playwright (Chromium only)
+        if: ${{ inputs.run_scrapers }}
+        run: npx playwright install chromium --with-deps
+
+      - name: Run Scrapers
+        if: ${{ inputs.run_scrapers }}
+        working-directory: ./scripts/cti
+        env:
+          SHODAN_API_KEY: ${{ secrets.SHODAN_API_KEY }}
+          X_COOKIES_PATH: ${{ github.workspace }}/DATA/x.com_13-02-2026.json
+          USE_CACHE: ${{ inputs.use_cache }}
+        run: npx tsx src/index.ts scrape
+
+      - name: Process Data
+        working-directory: ./scripts/cti
+        run: npx tsx src/index.ts process
+
+      - name: LLM Analysis (Local Ollama)
+        working-directory: ./scripts/cti
+        env:
+          OLLAMA_HOST: http://localhost:11434
+          OLLAMA_MODEL: ${{ env.OLLAMA_MODEL }}
+        run: npx tsx src/index.ts analyze
+
+      - name: Generate Dashboard
+        working-directory: ./scripts/cti
+        env:
+          CTI_PUBLIC_DIR: ${{ github.workspace }}/eccentric-equator/public/data
+        run: npx tsx src/index.ts dashboard
+
+      - name: Save Cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: ${{ env.CTI_CACHE_DIR }}
+          key: cti-data-${{ github.run_id }}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cti-report-${{ github.run_number }}
+          path: ${{ env.CTI_OUTPUT_DIR }}/
+          retention-days: 14
+
+      - name: Commit Dashboard Update
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add ./eccentric-equator/public/data/cti-dashboard.json || true
+          git diff --staged --quiet || git commit -m "chore: update CTI intelligence dashboard [skip ci]"
+          git push || true

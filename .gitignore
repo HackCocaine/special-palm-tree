@@ -63,3 +63,7 @@ eccentric-equator/src/components/DashboardBuilder/styles.css
 # Misc
 *.bak
 *.orig
+
+# CTI Pipeline cache (auto-generated)
+DATA/cti-cache/
+DATA/cti-output/

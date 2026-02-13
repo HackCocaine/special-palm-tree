@@ -1,0 +1,25 @@
+{
+  "name": "hfdev-cti-pipeline",
+  "version": "1.0.0",
+  "description": "CTI Aggregation Pipeline - Local LLM",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "scrape": "tsx src/index.ts scrape",
+    "process": "tsx src/index.ts process",
+    "analyze": "tsx src/index.ts analyze",
+    "dashboard": "tsx src/index.ts dashboard"
+  },
+  "dependencies": {
+    "playwright": "^1.42.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

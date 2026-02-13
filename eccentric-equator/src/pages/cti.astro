@@ -1,0 +1,17 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CTIDashboard from '../components/CTI/CTIDashboard';
+---
+
+<Layout 
+  title="Security Intelligence Dashboard — Hackfluency"
+  description="Real-time cyber threat intelligence dashboard. Automated collection and analysis of security signals from multiple sources."
+>
+  <CTIDashboard client:load />
+</Layout>
+
+<style>
+  :global(body) {
+    background: linear-gradient(180deg, #0a0a0a 0%, #0d0d0d 50%, #0a0a0a 100%);
+  }
+</style>
