@@ -1,8 +1,8 @@
 {
   "meta": {
     "version": "3.0.0",
-    "generatedAt": "2026-02-14T21:13:25.168Z",
-    "validUntil": "2026-02-15T03:13:25.168Z"
+    "generatedAt": "2026-02-14T21:58:25.063Z",
+    "validUntil": "2026-02-15T03:58:25.063Z"
   },
   "status": {
     "riskLevel": "low",
@@ -12,16 +12,16 @@
   },
   "executive": {
     "headline": "LOW: Routine monitoring active",
-    "summary": "**EXECUTIVE SUMMARY:**\nThe current cybersecurity environment is characterized by an elevated risk of exploitation due to zero-day vulnerabilities, ransomware attacks targeting web services like Pure-FTPd and Apache httpd on our infrastructure.\n\n**KEY FINDING:**\nOur critical observation includes six hosts with known vulnerability exposures that align directly with the discussed social intelligence themes.",
+    "summary": "**EXECUTIVE SUMMARY:**\nThe current threat landscape presents a moderate opportunistic attack scenario with weak correlation to our infrastructure vulnerabilities and stale data, warranting only routine monitoring.\n\n**KEY FINDING:**\nOur systems are exposed through six vulnerable hosts using services like Pure-FTPd; however, the assessed risk remains low due to lack of targeted attacks against these specific assets.",
     "keyFindings": [
       "20 CVE references identified in infrastructure",
       "6 vulnerable hosts detected (6.0%)",
-      "Active social discussion: Zero-day vulnerabilities, Ransomware attacks"
+      "Active social discussion: Data breaches and social engineering attacks, Ransomware campaigns (Conti, Phorpiex)"
     ],
     "recommendedActions": [
-      ". Immediate patching cycle to address zero-day vulnerabilities across all hosts.",
-      ". Enhanced monitoring around Pure-FTPd and Apache httpd servers with intrusion detection/prevention measures in place for suspicious activities indicative of targeted attacks, such as unusual traffic patterns that could signal phishing or ransomware attempts.",
-      ". Conduct a comprehensive security awareness training program focused on social engineering tactics to bolster defenses against potential exploitation through human error."
+      ". Conduct regular vulnerability assessments for all hosts (currently 6) using services like Pure-FTPd, Apache httpd, Jetty to ensure they are up-to-date with the latest patches.",
+      ". Implement continuous monitoring solutions that can detect anomalies indicative of social engineering or ransomware campaigns; this will help in early identification and mitigation efforts even though current risk is low.",
+      ". Refresh threat intelligence data sources for a more accurate correlation analysis between identified threats (e.g., CVEs, APT groups) to improve the reliability on stale information currently available."
     ]
   },
   "metrics": {
@@ -34,63 +34,63 @@
       {
         "name": "Vulnerability",
         "count": 20,
-        "percentage": 69
+        "percentage": 67
       },
       {
         "name": "Infrastructure",
         "count": 6,
-        "percentage": 21
+        "percentage": 20
       },
       {
         "name": "Threat Intel",
-        "count": 3,
-        "percentage": 10
+        "count": 4,
+        "percentage": 13
       }
     ]
   },
   "timeline": [
     {
-      "id": "infra_1771103605168",
+      "id": "infra_1771106305063",
       "title": "Vulnerable Infrastructure Detected (6 hosts)",
       "severity": "high",
       "category": "Infrastructure",
-      "timestamp": "2026-02-14T21:13:25.168Z"
+      "timestamp": "2026-02-14T21:58:25.063Z"
     },
     {
-      "id": "social_1771103605168_0",
-      "title": " Apple 0-Day Vulnerability Actively Exploited in Sophisticat...",
+      "id": "social_1771106305063_0",
+      "title": "Publicly traded blockchain lender Figure confirmed a custome...",
       "severity": "medium",
       "category": "Social Intel",
-      "timestamp": "2026-02-14T21:13:25.168Z",
-      "sourceUrl": "https://x.com/The_Cyber_News/status/2021822072339804492"
+      "timestamp": "2026-02-14T21:58:25.063Z",
+      "sourceUrl": "https://x.com/WuBlockchain/status/2022490305338183963"
     },
     {
-      "id": "social_1771103605168_1",
-      "title": "Forcepoint researchers look into a high-volume Phorpiex camp...",
+      "id": "social_1771106305063_1",
+      "title": "BREAKING: Blockchain lending firm @Figure confirms data brea...",
       "severity": "medium",
       "category": "Social Intel",
-      "timestamp": "2026-02-14T21:13:25.168Z",
-      "sourceUrl": "https://x.com/virusbtn/status/2021902568323265019"
+      "timestamp": "2026-02-14T21:58:25.063Z",
+      "sourceUrl": "https://x.com/SolanaFloor/status/2022426653666975996"
     },
     {
-      "id": "social_1771103605168_2",
-      "title": "#Breaking #Millcreek #ApartmentFire 4434 Lemans Drive. #UFA ...",
+      "id": "social_1771106305063_2",
+      "title": "If you’re just catching up, $LinhMai is the first Asian elep...",
       "severity": "medium",
       "category": "Social Intel",
-      "timestamp": "2026-02-14T21:13:25.168Z",
-      "sourceUrl": "https://x.com/SLCScanner/status/2021393477712707622"
+      "timestamp": "2026-02-14T21:58:25.063Z",
+      "sourceUrl": "https://x.com/ponzibaron/status/2022426489543938131"
     }
   ],
   "sources": [
     {
       "name": "X.com Social Intel",
       "signalCount": 5,
-      "lastUpdate": "2026-02-14T21:13:25.168Z"
+      "lastUpdate": "2026-02-14T21:58:25.063Z"
     },
     {
       "name": "Shodan Infrastructure",
       "signalCount": 100,
-      "lastUpdate": "2026-02-14T21:13:25.168Z"
+      "lastUpdate": "2026-02-14T21:58:25.063Z"
     }
   ],
   "indicators": {
@@ -112,21 +112,22 @@
       "CVE-2010-1623"
     ],
     "domains": [
-      "cybersecuritynews.com",
-      "forcepoint.com",
-      "msrc.microsoft",
+      "hackers-arise.com",
+      "stake.amnis",
       "4w42197.msi",
       "dreamgroup.com",
       "arcticwolf.com",
-      "stake.amnis",
-      "hackers-arise.com",
-      "medium.com"
+      "forcepoint.com",
+      "medium.com",
+      "cybersecuritynews.com",
+      "msrc.microsoft"
     ],
     "ips": [],
     "keywords": [
-      "Zero-day vulnerabilities",
-      "Ransomware attacks",
-      "Phishing and social engineering exploits"
+      "Data breaches and social engineering attacks",
+      "Ransomware campaigns (Conti, Phorpiex)",
+      "Zero-day vulnerabilities in Apple products",
+      "APT groups operations"
     ]
   },
   "infrastructure": {
@@ -242,51 +243,52 @@
   "socialIntel": {
     "totalPosts": 5,
     "themes": [
-      "Zero-day vulnerabilities",
-      "Ransomware attacks",
-      "Phishing and social engineering exploits"
+      "Data breaches and social engineering attacks",
+      "Ransomware campaigns (Conti, Phorpiex)",
+      "Zero-day vulnerabilities in Apple products",
+      "APT groups operations"
     ],
     "tone": "confirmed",
     "topPosts": [
       {
-        "author": "The_Cyber_News",
-        "excerpt": " Apple 0-Day Vulnerability Actively Exploited in Sophisticated Attack to Target Individuals \n\nSource: https://cybersecuritynews.com/apple-0-day-vulnerability-exploited/…\n\nApple released iOS 26.3 and iPadOS 26.3 on February 11, 2026, patching over 40 vulnerabilities, including a critical zero-day in the dyld component",
-        "engagement": 324,
-        "url": "https://x.com/The_Cyber_News/status/2021822072339804492"
+        "author": "WuBlockchain",
+        "excerpt": "Publicly traded blockchain lender Figure confirmed a customer data breach after a social engineering attack on an employee. Hacker group ShinyHunters claimed it stole and published about 2.5GB of data, potentially including customer names, addresses, dates of birth, and phone",
+        "engagement": 42,
+        "url": "https://x.com/WuBlockchain/status/2022490305338183963"
       },
       {
-        "author": "virusbtn",
-        "excerpt": "Forcepoint researchers look into a high-volume Phorpiex campaign delivered through malspam emails weaponized with Windows Shortcut .lnk files.  https://forcepoint.com/blog/x-labs/phorpiex-global-group-ransomware-lnk-phishing…",
-        "engagement": 56,
-        "url": "https://x.com/virusbtn/status/2021902568323265019"
+        "author": "SolanaFloor",
+        "excerpt": "BREAKING: Blockchain lending firm @Figure confirms data breach after an employee fell victim to a social engineering attack, allowing hackers to access a limited number of internal files, according to TechCrunch.\n\nShinyHunters claims responsibility, publishing 2.5GB of",
+        "engagement": 31,
+        "url": "https://x.com/SolanaFloor/status/2022426653666975996"
       },
       {
-        "author": "SLCScanner",
-        "excerpt": "#Breaking #Millcreek #ApartmentFire 4434 Lemans Drive. #UFA just arrived to a 3 story apt building with fire and heavy black smoke coming from 2nd story apt. Interior crew on fire attack. No injuries have been reported. Command requesting Investigator and building inspector.",
-        "engagement": 51,
-        "url": "https://x.com/SLCScanner/status/2021393477712707622"
+        "author": "ponzibaron",
+        "excerpt": "If you’re just catching up, $LinhMai is the first Asian elephant born at the National Zoo in 25 years.\n\nWe raised over $60k for her naming campaign. \n\nShe’s the result of decades of work at the Zoo and incredibly rare. Her name means Spirit Blossom and is particularly apt with",
+        "engagement": 43,
+        "url": "https://x.com/ponzibaron/status/2022426489543938131"
       },
       {
-        "author": "HaifeiLi",
-        "excerpt": "It seems to me that Microsoft just issued additional 3 patches to address the weaknesses in the original Office CVE-2026-21509/zero-day exploit chain.\n\nMicrosoft Word Security Feature Bypass Vulnerability (CVE-2026-21514)\nhttps://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-21514…\n\nWindows Shell Security Feature",
-        "engagement": 49,
-        "url": "https://x.com/HaifeiLi/status/2021302536263827748"
+        "author": "_aircorridor",
+        "excerpt": "Breach. Spread & Encrypt\n\nConti ransomware exploited Exchange, dumped credentials from LSASS, and spread via WMI. Learn to investigate ransomware attacks with Splunk by tracing web shells and reconstructing attack timelines step by step.\nhttps://hackers-arise.com/digital-forensics-investigating-conti-ransomware-with-splunk/…\n@three_cube",
+        "engagement": 36,
+        "url": "https://x.com/_aircorridor/status/2022294698241482941"
       },
       {
-        "author": "PrakkiSathwik",
-        "excerpt": "#UNC6384 #MustangPanda #APT\nUpload from \n\n... powershell $Env:temp\\4w42197.msi\n\nref1: https://dreamgroup.com/plugx-diplomacy-mustang-panda-campaign/…\nref2: https://arcticwolf.com/resources/blog/unc6384-weaponizes-zdi-can-25373-vulnerability-to-deploy-plugx/…",
-        "engagement": 44,
-        "url": "https://x.com/PrakkiSathwik/status/2022197848696291643"
+        "author": "AmnisFinance",
+        "excerpt": "𝐒𝐞𝐚𝐬𝐨𝐧 𝟏𝟑 𝐒𝐩𝐞𝐜𝐢𝐚𝐥 𝐀𝐏𝐑 𝐢𝐬 𝐥𝐢𝐯𝐞.\n\nEarn from a 300 amAPT reward pool with boosted returns for new stakers - up to 20% APR.\n\n Stake here: https://stake.amnis.finance/special-APR-offer…\n\n Campaign period: 13th Feb, 2026 – 28th Feb, 2026\n Reward pool: 300 amAPT\n\nStake fresh APT",
+        "engagement": 42,
+        "url": "https://x.com/AmnisFinance/status/2022249640188649845"
       }
     ]
   },
   "ctiAnalysis": {
     "model": "ALIENTELLIGENCE/cybersecuritythreatanalysisv2",
     "killChainPhase": "Weaponization",
-    "threatLandscape": "**EXECUTIVE SUMMARY:**\nThe current cybersecurity environment is characterized by an elevated risk of exploitation due to zero-day vulnerabilities, ransomware attacks targeting web services like Pure-FTPd and Apache httpd on our infrastructure.\n\n**KEY FINDING:**\nOur critical observation includes six hosts with known vulnerability exposures that align directly with the discussed social intelligence themes.",
-    "analystBrief": "Classification: targeted. Confidence: moderate. Correlation: weak.",
+    "threatLandscape": "**EXECUTIVE SUMMARY:**\nThe current threat landscape presents a moderate opportunistic attack scenario with weak correlation to our infrastructure vulnerabilities and stale data, warranting only routine monitoring.\n\n**KEY FINDING:**\nOur systems are exposed through six vulnerable hosts using services like Pure-FTPd; however, the assessed risk remains low due to lack of targeted attacks against these specific assets.",
+    "analystBrief": "Classification: opportunistic. Confidence: 30%. Correlation: weak. Data freshness: stale.",
     "correlationStrength": "weak",
-    "technicalAssessment": "**Analysis**\n\nBased on the provided social signals and infrastructure data, here are my findings:\n\n1. **CVE-SERVICE ALIGNMENT**: Yes, CVEs match exposed services.\n\t* The top ports (21/Pure-FTPd, 443/Apache httpd, 8081/Jetty) are vulnerable to known exploits (CVE-2023-44487, CVE-2021-3618, CVE-2021-23017).\n\t* This suggests that the exposed services are likely being targeted by attackers.\n2. **TACTICAL CLASSIFICATION**: Opportunistic scanning with a focus on exploiting zero-day vulnerabilities and",
+    "technicalAssessment": "**Analysis**\n\nBased on the provided information, here are my findings:\n\n1. **CVE-SERVICE ALIGNMENT**: Yes, CVEs match exposed services.\n\t* The top ports (21/Pure-FTPd, 443/Apache httpd, 8081/Jetty) are vulnerable to known exploits (CVE-2023-44487, CVE-2021-3618).\n\t* This suggests that the infrastructure is potentially exploitable through these services.\n2. **TACTICAL CLASSIFICATION**: Opportunistic scanning with a potential targeted campaign.\n\t* The presence of IoCs (9 domains) and exploitation ",
     "methodologies": [
       "Deterministic risk scoring (vulnerability ratio)",
       "Code-based IoC extraction",
@@ -2757,7 +2759,7 @@
       "trendDirection": "decreasing"
     },
     "freshness": {
-      "socialAgeHours": 70,
+      "socialAgeHours": 70.8,
       "infraAgeHours": 1,
       "freshnessScore": 0,
       "status": "stale"
@@ -2781,7 +2783,7 @@
       "duplicates": 0,
       "duplicationRatio": 0
     },
-    "narrative": "Today we observed confirmed activity related to Data Breach, Phishing. The correlation strength is weak (14%), primarily driven by temporal proximity. This pattern is consistent with opportunistic scanning."
+    "narrative": "Today we observed confirmed activity related to Data Breach, Phishing. The correlation strength is weak (14%), primarily driven by temporal proximity. Note: Data is stale (71h old), reducing confidence. This pattern is consistent with opportunistic scanning."
   },
   "modelMetadata": {
     "strategic": "phi4-mini",
