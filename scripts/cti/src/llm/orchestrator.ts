@@ -626,23 +626,48 @@ Under 400 words.`;
     const now = new Date();
     const validUntil = new Date(now.getTime() + 6 * 60 * 60 * 1000);
 
-    // Deterministic Risk Level (Refactor 4)
-    const vulnerabilityRatio = shodanDigest.vulnerableHosts / Math.max(shodanDigest.totalHosts, 1);
+    // Use assessment layer scoring if available, otherwise compute
     let riskLevel: 'critical' | 'elevated' | 'moderate' | 'low';
     let riskScore: number;
+    let confidenceLevel: number;
+    let trend: 'increasing' | 'stable' | 'decreasing';
     
-    if (vulnerabilityRatio > 0.5 || xSignals.tone === 'confirmed') {
-      riskLevel = 'critical';
-      riskScore = 85 + Math.min(vulnerabilityRatio * 15, 15);
-    } else if (vulnerabilityRatio > 0.25 || technical.tacticalClassification === 'targeted') {
-      riskLevel = 'elevated';
-      riskScore = 60 + vulnerabilityRatio * 40;
-    } else if (vulnerabilityRatio > 0.1 || xSignals.cves.length > 3) {
-      riskLevel = 'moderate';
-      riskScore = 40 + vulnerabilityRatio * 40;
+    if (assessmentLayer) {
+      // Derive from assessment layer to ensure consistency
+      riskScore = assessmentLayer.scoring.computedScore;
+      confidenceLevel = assessmentLayer.scoring.confidenceLevel;
+      trend = assessmentLayer.baselineComparison.trendDirection;
+      
+      // Risk level based on computed score
+      if (riskScore >= 75) {
+        riskLevel = 'critical';
+      } else if (riskScore >= 50) {
+        riskLevel = 'elevated';
+      } else if (riskScore >= 25) {
+        riskLevel = 'moderate';
+      } else {
+        riskLevel = 'low';
+      }
     } else {
-      riskLevel = 'low';
-      riskScore = 20 + vulnerabilityRatio * 40;
+      // Fallback to deterministic calculation
+      const vulnerabilityRatio = shodanDigest.vulnerableHosts / Math.max(shodanDigest.totalHosts, 1);
+      
+      if (vulnerabilityRatio > 0.5 || xSignals.tone === 'confirmed') {
+        riskLevel = 'critical';
+        riskScore = 85 + Math.min(vulnerabilityRatio * 15, 15);
+      } else if (vulnerabilityRatio > 0.25 || technical.tacticalClassification === 'targeted') {
+        riskLevel = 'elevated';
+        riskScore = 60 + vulnerabilityRatio * 40;
+      } else if (vulnerabilityRatio > 0.1 || xSignals.cves.length > 3) {
+        riskLevel = 'moderate';
+        riskScore = 40 + vulnerabilityRatio * 40;
+      } else {
+        riskLevel = 'low';
+        riskScore = 20 + vulnerabilityRatio * 40;
+      }
+      
+      confidenceLevel = 50;
+      trend = 'stable';
     }
 
     // Deterministic Correlation Strength (Refactor 4)
@@ -656,9 +681,12 @@ Under 400 words.`;
       correlationStrength = 'weak';
     }
 
-    // Deterministic Confidence (based on technical assessment)
-    const confidenceMap = { high: 85, moderate: 60, low: 35 };
-    const confidenceLevel = confidenceMap[technical.confidenceLevel];
+
+
+    // Compute vulnerability ratio for findings
+    const vulnerabilityRatio = shodanDigest.totalHosts > 0 
+      ? shodanDigest.vulnerableHosts / shodanDigest.totalHosts 
+      : 0;
 
     // Build key findings
     const keyFindings: string[] = [];
@@ -681,9 +709,57 @@ Under 400 words.`;
     // Build timeline events
     const timeline = this.buildTimeline(xSignals, shodanDigest);
 
-    // Calculate metrics
-    const totalSignals = xSignals.cves.length + shodanDigest.vulnerableHosts + xSignals.exploitationClaims.length;
-    const severityDist = this.calculateSeverityDistribution(riskLevel, totalSignals);
+    // Calculate metrics - derive from actual data and assessment layer
+    let totalSignals: number;
+    let criticalCount: number;
+    let highCount: number;
+    let mediumCount: number;
+    let lowCount: number;
+
+    if (assessmentLayer) {
+      // Derive from assessment layer scoring components for consistency
+      const vulnScore = assessmentLayer.scoring.components.vulnerabilityRatio;
+      const socialScore = assessmentLayer.scoring.components.socialIntensity;
+      const corrScore = assessmentLayer.scoring.components.correlationScore;
+
+      // Total signals based on actual indicator count
+      totalSignals = assessmentLayer.iocStats.totalIndicators;
+
+      // Severity distribution based on risk score and component analysis
+      if (riskScore >= 75) {
+        // Critical risk: mostly critical and high
+        criticalCount = Math.max(1, Math.round(totalSignals * 0.4));
+        highCount = Math.max(1, Math.round(totalSignals * 0.3));
+        mediumCount = Math.max(1, Math.round(totalSignals * 0.2));
+        lowCount = Math.max(0, totalSignals - criticalCount - highCount - mediumCount);
+      } else if (riskScore >= 50) {
+        // Elevated risk: mix of high and medium
+        criticalCount = Math.round(totalSignals * 0.15);
+        highCount = Math.max(1, Math.round(totalSignals * 0.35));
+        mediumCount = Math.max(1, Math.round(totalSignals * 0.35));
+        lowCount = Math.max(1, totalSignals - criticalCount - highCount - mediumCount);
+      } else if (riskScore >= 25) {
+        // Moderate risk: mostly medium
+        criticalCount = Math.round(totalSignals * 0.05);
+        highCount = Math.round(totalSignals * 0.2);
+        mediumCount = Math.max(1, Math.round(totalSignals * 0.5));
+        lowCount = Math.max(1, totalSignals - criticalCount - highCount - mediumCount);
+      } else {
+        // Low risk: mostly low
+        criticalCount = 0;
+        highCount = Math.round(totalSignals * 0.1);
+        mediumCount = Math.round(totalSignals * 0.3);
+        lowCount = Math.max(1, totalSignals - highCount - mediumCount);
+      }
+    } else {
+      // Fallback calculation
+      totalSignals = xSignals.cves.length + shodanDigest.vulnerableHosts + xSignals.exploitationClaims.length;
+      const severityDist = this.calculateSeverityDistribution(riskLevel, totalSignals);
+      criticalCount = severityDist.criticalCount;
+      highCount = severityDist.highCount;
+      mediumCount = severityDist.mediumCount;
+      lowCount = severityDist.lowCount;
+    }
 
     // Build categories
     const categories: Array<{ name: string; count: number; percentage: number }> = [];
@@ -727,7 +803,7 @@ Under 400 words.`;
       status: {
         riskLevel,
         riskScore: Math.round(riskScore),
-        trend: this.inferTrend(xSignals, shodanDigest),
+        trend,
         confidenceLevel
       },
       executive: {
@@ -738,7 +814,10 @@ Under 400 words.`;
       },
       metrics: {
         totalSignals: Math.max(totalSignals, 1),
-        ...severityDist,
+        criticalCount,
+        highCount,
+        mediumCount,
+        lowCount,
         categories
       },
       timeline,
@@ -816,13 +895,65 @@ Under 400 words.`;
   }
 
   /**
+   * Filter posts for cybersecurity relevance
+   */
+  private filterRelevantPosts(posts: XPost[]): XPost[] {
+    const securityKeywords = [
+      'cve', 'vulnerability', 'exploit', 'exploitation', 'ransomware', 'malware',
+      'apt', 'threat', 'attack', 'breach', 'security', 'cyber', 'hacking',
+      'zero-day', '0day', 'backdoor', 'phishing', 'dox', 'leak', 'exposed',
+      'sql injection', 'xss', 'csrf', 'rce', 'privilege escalation',
+      'lpe', 'remote code', 'buffer overflow', 'sqli', 'bug bounty',
+      'patch', 'fix', 'update', 'advisory', 'bulletin', 'security notice',
+      'critical', 'high severity', 'cvss', 'nvd', 'mitre', 'cisa',
+      'infosec', 'appsec', 'netsec', 'blueteam', 'redteam', 'purpleteam',
+      'defender', 'sentinel', 'siem', 'edr', 'xdr', 'mdr', 'soc',
+      'pentest', 'penetration test', 'audit', 'assessment', 'scan'
+    ];
+
+    const irrelevantPatterns = [
+      /apartment\s+fire/i,
+      /elephant\s+birth/i,
+      /staking\s+campaign/i,
+      /quiz\s+about/i,
+      /birthday\s+party/i,
+      /weather\s+forecast/i,
+      /sports\s+game/i,
+      /crypto\s+price/i,
+      /nft\s+drop/i,
+      /airdrop/i,
+      /giveaway/i,
+      /^rt\s+@/i,
+      /^retweet/i
+    ];
+
+    return posts.filter(post => {
+      const text = post.text.toLowerCase();
+
+      // Check for security relevance
+      const hasSecurityKeyword = securityKeywords.some(kw => text.includes(kw.toLowerCase()));
+
+      // Check for irrelevant content
+      const isIrrelevant = irrelevantPatterns.some(pattern => pattern.test(post.text));
+
+      // Must have security keyword AND not be irrelevant
+      return hasSecurityKeyword && !isIrrelevant;
+    });
+  }
+
+  /**
    * Build structured signals from raw data
    */
   private buildStructuredSignals(
     xPosts: XPost[],
     shodanHosts: any[]
   ): StructuredSignals {
-    const allText = xPosts.map(p => p.text).join(' ');
+    // Filter posts for relevance first
+    const relevantPosts = this.filterRelevantPosts(xPosts);
+
+    // If no relevant posts, use empty arrays
+    const postsToProcess = relevantPosts.length > 0 ? relevantPosts : [];
+    const allText = postsToProcess.map(p => p.text).join(' ');
 
     // Extract CVEs
     const extractedCVEs = [...new Set((allText.match(/CVE-\d{4}-\d{4,7}/gi) || []))];
@@ -850,8 +981,8 @@ Under 400 words.`;
     // Determine tone
     const tone = this.calculateTone(xPosts, allText);
 
-    // Top posts
-    const topPosts = xPosts
+    // Top posts - from filtered relevant posts only
+    const topPosts = postsToProcess
       .sort((a, b) => (b.metrics.likes + b.metrics.reposts * 2) - (a.metrics.likes + a.metrics.reposts * 2))
       .slice(0, 5)
       .map(p => ({
@@ -1143,13 +1274,20 @@ Under 400 words.`;
     };
 
     // Compute weighted score (0-100)
-    const computedScore = Math.round(
+    let computedScore = Math.round(
       (vulnerabilityRatio * weights.vulnerabilityRatio +
        socialIntensity * weights.socialIntensity +
        correlationScore * weights.correlationScore +
        freshnessScore * weights.freshnessScore +
        baselineDelta * weights.baselineDelta) * 100
     );
+
+    // Cap risk if data is stale - stale data cannot support critical risk
+    if (freshness.status === 'stale') {
+      computedScore = Math.min(computedScore, 50); // Max moderate risk with stale data
+    } else if (freshness.status === 'moderate') {
+      computedScore = Math.min(computedScore, 75); // Max elevated risk with moderate freshness
+    }
 
     // Confidence based on data quality
     const confidenceLevel = Math.round(
@@ -1184,34 +1322,63 @@ Under 400 words.`;
     let indicators: string[] = [];
     let rationale: string;
 
-    // Classification heuristics
+    // Classification heuristics - must respect correlation data
     const highExposedServices = shodanDigest.totalHosts > 100;
     const lowCVESpecificity = signals.extractedCVEs.length < 3;
-    const weakTemporalAlignment = correlation.factors.temporalProximity < 0.5;
     const specificCVE = signals.extractedCVEs.length >= 3;
     const specificService = shodanDigest.topPorts.length > 0 && signals.keywords.length > 0;
-    const strongCorrelation = correlation.score > 0.6;
-    const narrowInfraScope = shodanDigest.totalHosts < 50;
+    const narrowInfraScope = shodanDigest.totalHosts < 50 && shodanDigest.totalHosts > 0;
     const repeatedSignals = signals.exploitationClaims.length > 3;
-    const strongTemporalClustering = correlation.factors.temporalProximity > 0.8;
-    const multiIndicatorOverlap = correlation.factors.cveOverlap > 0.3 && correlation.factors.serviceMatch > 0.3;
+    
+    // Correlation-based checks - cannot claim strong correlation if score is low
+    const hasStrongCorrelation = correlation.score > 0.6 && correlation.strength === 'strong';
+    const hasModerateCorrelation = correlation.score > 0.3 && correlation.strength === 'moderate';
+    const hasWeakCorrelation = correlation.score < 0.3 || correlation.strength === 'weak';
+    const hasActualOverlap = correlation.factors.cveOverlap > 0 || correlation.factors.serviceMatch > 0.3;
+    
+    // Targeted requires: specific CVE, narrow scope, AND actual correlation evidence
+    const isTargetedCandidate = specificCVE && narrowInfraScope && hasActualOverlap;
+    
+    // Campaign requires: repeated signals AND moderate+ correlation
+    const isCampaignCandidate = repeatedSignals && (hasModerateCorrelation || hasStrongCorrelation);
 
-    if (technical.tacticalClassification === 'targeted' || 
-        (specificCVE && specificService && strongCorrelation && narrowInfraScope)) {
+    if (isTargetedCandidate && technical.tacticalClassification === 'targeted') {
       type = 'targeted';
-      confidence = 75;
-      indicators = ['Specific CVE targeting', 'Narrow infrastructure scope', 'Strong cross-source correlation'];
-      rationale = 'Indicators suggest targeted attack pattern with specific CVE and infrastructure focus.';
-    } else if (repeatedSignals && strongTemporalClustering && multiIndicatorOverlap) {
+      confidence = hasStrongCorrelation ? 75 : hasModerateCorrelation ? 60 : 40;
+      indicators = [];
+      if (specificCVE) indicators.push('Specific CVE targeting');
+      if (narrowInfraScope) indicators.push('Narrow infrastructure scope');
+      if (hasStrongCorrelation) indicators.push('Strong cross-source correlation');
+      else if (hasModerateCorrelation) indicators.push('Moderate cross-source correlation');
+      else indicators.push('Limited correlation evidence');
+      
+      rationale = hasStrongCorrelation 
+        ? 'Indicators suggest targeted attack pattern with specific CVE and strong infrastructure correlation.'
+        : 'Some indicators suggest targeting but correlation evidence is limited.';
+    } else if (isCampaignCandidate) {
       type = 'campaign';
-      confidence = 80;
-      indicators = ['Repeated exploitation signals', 'Strong temporal clustering', 'Multi-indicator overlap'];
+      confidence = hasStrongCorrelation ? 80 : 65;
+      indicators = ['Repeated exploitation signals'];
+      if (hasStrongCorrelation) indicators.push('Strong temporal clustering');
+      if (hasActualOverlap) indicators.push('Multi-indicator overlap');
       rationale = 'Pattern consistent with coordinated campaign activity.';
     } else {
+      // Default: opportunistic - especially when correlation is weak
       type = 'opportunistic';
-      confidence = highExposedServices && lowCVESpecificity ? 70 : 50;
-      indicators = ['Broad infrastructure exposure', 'Low CVE specificity'];
-      rationale = 'Pattern consistent with opportunistic scanning rather than targeted exploitation.';
+      
+      // Confidence based on data quality
+      if (hasWeakCorrelation || correlation.score === 0) {
+        confidence = 30; // Low confidence due to lack of correlation
+        indicators = ['No significant cross-source correlation'];
+        if (lowCVESpecificity) indicators.push('Low CVE specificity');
+        rationale = 'Pattern suggests opportunistic scanning. No strong correlation between social and infrastructure indicators.';
+      } else {
+        confidence = highExposedServices && lowCVESpecificity ? 70 : 50;
+        indicators = ['Broad infrastructure exposure'];
+        if (lowCVESpecificity) indicators.push('Low CVE specificity');
+        if (!hasStrongCorrelation) indicators.push('Weak cross-source correlation');
+        rationale = 'Pattern consistent with opportunistic scanning rather than targeted exploitation.';
+      }
     }
 
     return {
