@@ -27,9 +27,12 @@ concurrency:
 env:
   CTI_CACHE_DIR: ${{ github.workspace }}/DATA/cti-cache
   CTI_OUTPUT_DIR: ${{ github.workspace }}/DATA/cti-output
-  # Prefer cybersecurity-specialized model; fallback to qwen2.5:3b if unavailable
-  OLLAMA_MODEL_PRIMARY: WhoIsShe/Llama3.2-3b-cybersecurity-abliterated
-  OLLAMA_MODEL_FALLBACK: qwen2.5:3b
+  # Use only the cybersecurity-specialized model; abort if unavailable.
+  # NOTE: The specialist model lives on Hugging Face as a GGUF file.
+  # We import it into Ollama via `ollama create` (see Install Ollama step).
+  OLLAMA_MODEL_PRIMARY: cti-cybersecurity:latest
+  OLLAMA_MODEL_PRIMARY_GGUF_URL: https://huggingface.co/WhoIsShe/Llama3.2-3b-cybersecurity-abliterated/resolve/main/unsloth.Q4_K_M.gguf?download=true
+  # No fallback model: if import fails, abort the workflow.
 
 jobs:
   cti-pipeline:
@@ -50,23 +53,26 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.ollama
-          key: ollama-${{ env.OLLAMA_MODEL_PRIMARY }}-${{ env.OLLAMA_MODEL_FALLBACK }}
+          key: ollama-${{ env.OLLAMA_MODEL_PRIMARY }}
 
       - name: Install Ollama
         run: |
           curl -fsSL https://ollama.com/install.sh | sh
           ollama serve &
           sleep 10
-          RESOLVED_MODEL="${{ env.OLLAMA_MODEL_FALLBACK }}"
-          if ollama pull "${{ env.OLLAMA_MODEL_PRIMARY }}"; then
-            RESOLVED_MODEL="${{ env.OLLAMA_MODEL_PRIMARY }}"
-          else
-            echo "Primary model unavailable, using fallback"
-            ollama pull "${{ env.OLLAMA_MODEL_FALLBACK }}"
-          fi
-          echo "OLLAMA_MODEL=${RESOLVED_MODEL}" >> "$GITHUB_ENV"
+
+          echo "Attempting to import specialist model from Hugging Face GGUF..."
+          mkdir -p ./DATA/models
+          curl -fL "${{ env.OLLAMA_MODEL_PRIMARY_GGUF_URL }}" -o ./DATA/models/unsloth.Q4_K_M.gguf
+          cat > ./DATA/models/Modelfile << 'EOF'
+FROM ./DATA/models/unsloth.Q4_K_M.gguf
+EOF
+          ollama create "${{ env.OLLAMA_MODEL_PRIMARY }}" -f ./DATA/models/Modelfile
+
+          echo "OLLAMA_MODEL=${{ env.OLLAMA_MODEL_PRIMARY }}" >> "$GITHUB_ENV"
+          echo "Specialist model imported as: ${{ env.OLLAMA_MODEL_PRIMARY }}"
           echo "Testing model availability..."
-          curl -s http://localhost:11434/api/generate -d "{\"model\":\"${RESOLVED_MODEL}\",\"prompt\":\"test\",\"stream\":false,\"options\":{\"num_predict\":1}}" | head -c 200
+          curl -s http://localhost:11434/api/generate -d "{\"model\":\"${{ env.OLLAMA_MODEL_PRIMARY }}\",\"prompt\":\"test\",\"stream\":false,\"options\":{\"num_predict\":1}}" | head -c 200
           echo ""
 
       - name: Restore CTI Cache
