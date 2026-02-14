@@ -31,7 +31,7 @@ env:
   # REASONER (Mistral 7B): Social context, correlation, strategic analysis
   # SPECIALIST (Qwen Cybersecurity): Shodan queries, CVEs, ports, technical IOCs
   OLLAMA_MODEL_REASONER: mistral:7b-instruct-q4_0
-  OLLAMA_MODEL_SPECIALIST: ferhatcil/Cybersecurity-LLM-Qwen2.5-3B-GGUF
+  OLLAMA_MODEL_SPECIALIST: saki007ster/CybersecurityRiskAnalyst
   # No fallback: pipeline aborts if models are unavailable
 
 jobs:
