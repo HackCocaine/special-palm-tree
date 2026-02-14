@@ -3,6 +3,11 @@
  * Aligned with Hackfluency brand identity
  */
 
+/* ========================================
+   CTI DASHBOARD REDESIGN v2.0
+   3-Column Grid Layout with Interactive Concept Mapping
+   ======================================== */
+
 /* Container & Loading */
 .cti-container {
   min-height: 100vh;
@@ -11,6 +16,1913 @@
   background: #0a0a0a;
   color: #ffffff;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ========================================
+   NEW 3-COLUMN GRID LAYOUT
+   ======================================== */
+
+.cti-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 300px;
+  grid-template-rows: auto 1fr auto;
+  gap: 16px;
+  height: 100vh;
+  padding: 16px;
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+/* Header spanning full width */
+.cti-header {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: #111111;
+  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+}
+
+/* Left Panel - Technical IoCs */
+.cti-left-panel {
+  grid-row: 2 / 3;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Center Panel - Analysis & Concept Nodes */
+.cti-center-panel {
+  grid-row: 2 / 3;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  padding: 0 8px;
+}
+
+/* Right Panel - Social Intel */
+.cti-right-panel {
+  grid-row: 2 / 3;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding-left: 8px;
+}
+
+/* Bottom Panel - Historical */
+.cti-bottom-panel {
+  grid-column: 1 / -1;
+  border-top: 1px solid #1f1f1f;
+  padding-top: 16px;
+}
+
+/* Overlay Panels (MITRE, Recommendations) */
+.cti-overlay-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 450px;
+  height: 100vh;
+  background: #111111;
+  border-left: 1px solid #30363d;
+  z-index: 1000;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+}
+
+.cti-overlay-panel.open {
+  transform: translateX(0);
+}
+
+/* Concept Node Graph SVG */
+.cti-concept-graph {
+  width: 100%;
+  height: 400px;
+  background: #0d0d0d;
+  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+}
+
+.cti-concept-node {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cti-concept-node:hover {
+  filter: brightness(1.2);
+}
+
+.cti-concept-node.selected {
+  stroke: #00D26A;
+  stroke-width: 3;
+}
+
+.cti-connection-line {
+  stroke: #30363d;
+  stroke-width: 2;
+  fill: none;
+}
+
+.cti-connection-line.active {
+  stroke: #00D26A;
+  stroke-width: 3;
+  stroke-dasharray: 5, 5;
+  animation: dash 1s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+/* MITRE Matrix Styles */
+.cti-mitre-matrix {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 16px;
+}
+
+.cti-mitre-cell {
+  background: #1a1a1a;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cti-mitre-cell:hover {
+  border-color: #f85149;
+  background: rgba(248, 81, 73, 0.1);
+}
+
+.cti-mitre-cell.active {
+  border-color: #00D26A;
+  background: rgba(0, 210, 106, 0.1);
+}
+
+.cti-mitre-tactic {
+  font-size: 11px;
+  font-weight: 600;
+  color: #f85149;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.cti-mitre-technique {
+  font-size: 12px;
+  color: #c9d1d9;
+}
+
+/* Recommendations Panel */
+.cti-recommendations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.cti-recommendation-item {
+  background: #1a1a1a;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.cti-recommendation-item.immediate {
+  border-left: 3px solid #E31B23;
+}
+
+.cti-recommendation-item.strategic {
+  border-left: 3px solid #FFB800;
+}
+
+.cti-recommendation-priority {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.cti-recommendation-item.immediate .cti-recommendation-priority {
+  color: #E31B23;
+}
+
+.cti-recommendation-item.strategic .cti-recommendation-priority {
+  color: #FFB800;
+}
+
+.cti-recommendation-text {
+  font-size: 13px;
+  color: #c9d1d9;
+  line-height: 1.5;
+}
+
+.cti-recommendation-why {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #30363d;
+  font-size: 12px;
+  color: #6e7681;
+}
+
+/* Interactive Highlight States */
+.cti-highlight-left {
+  background: rgba(0, 210, 106, 0.1);
+  border-color: #00D26A;
+}
+
+.cti-highlight-right {
+  background: rgba(29, 155, 240, 0.1);
+  border-color: #1D9BF0;
+}
+
+/* Toggle Buttons */
+.cti-toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #1a1a1a;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  color: #c9d1d9;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cti-toggle-button:hover {
+  background: #222222;
+  border-color: #484f58;
+}
+
+.cti-toggle-button.active {
+  background: #00D26A;
+  border-color: #00D26A;
+  color: #000000;
+}
+
+.cti-toggle-icon {
+  font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+  .cti-layout {
+    grid-template-columns: 250px 1fr 280px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .cti-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    height: auto;
+  }
+  
+  .cti-left-panel,
+  .cti-center-panel,
+  .cti-right-panel {
+    grid-row: auto;
+    overflow: visible;
+  }
+}
+
+/* ========================================
+   LEFT PANEL - TECHNICAL IoCs
+   ======================================== */
+
+.cti-left-panel {
+  background: #111111;
+  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+  padding: 16px;
+}
+
+.cti-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #1f1f1f;
+}
+
+.cti-panel-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cti-panel-icon {
+  font-size: 18px;
+}
+
+.cti-panel-toggle {
+  background: none;
+  border: none;
+  color: #6a6a6a;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.cti-panel-toggle:hover {
+  color: #ffffff;
+  background: #1a1a1a;
+}
+
+/* IoC Summary Stats */
+.cti-ioc-summary {
+  background: #0d0d0d;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.cti-ioc-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cti-ioc-stat-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: #00D26A;
+}
+
+.cti-ioc-stat-label {
+  font-size: 11px;
+  color: #6a6a6a;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cti-ioc-stat-breakdown {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  font-size: 11px;
+  color: #888;
+}
+
+.cti-ioc-stat-breakdown span.highlighted {
+  color: #00D26A;
+  font-weight: 600;
+}
+
+/* Section Cards */
+.cti-section-card {
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #1f1f1f;
+  transition: all 0.2s ease;
+}
+
+.cti-section-card:hover {
+  border-color: #30363d;
+}
+
+.cti-section-card.cti-highlight-left {
+  border-color: #00D26A;
+  background: rgba(0, 210, 106, 0.05);
+}
+
+.cti-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.cti-section-icon {
+  font-size: 14px;
+}
+
+.cti-section-header h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: #aaaaaa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+/* CVE Tags */
+.cti-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cti-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cve-tag {
+  background: rgba(227, 27, 35, 0.15);
+  color: #FF6B6B;
+  border: 1px solid rgba(227, 27, 35, 0.3);
+}
+
+.cve-tag:hover {
+  background: rgba(227, 27, 35, 0.25);
+}
+
+.cve-tag a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Domain List */
+.cti-domain-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cti-domain-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: #0d0d0d;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.cti-domain-item:hover {
+  border-color: #30363d;
+  background: #111111;
+}
+
+.cti-domain-icon {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.cti-domain-name {
+  font-size: 12px;
+  color: #c0c0c0;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.cti-more-button {
+  background: none;
+  border: none;
+  color: #6a6a6a;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 8px;
+  text-align: center;
+}
+
+.cti-more-button:hover {
+  color: #00D26A;
+}
+
+/* IP List */
+.cti-ip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cti-ip-item {
+  padding: 6px 10px;
+  background: #0d0d0d;
+  border: 1px solid #1f1f1f;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cti-ip-item:hover {
+  border-color: #30363d;
+  background: #111111;
+}
+
+.cti-ip-code {
+  font-size: 11px;
+  color: #00D26A;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Keyword Cloud */
+.cti-keyword-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cti-keyword-chip {
+  padding: 4px 12px;
+  background: rgba(0, 210, 106, 0.1);
+  border: 1px solid rgba(0, 210, 106, 0.2);
+  border-radius: 16px;
+  font-size: 11px;
+  color: #00D26A;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cti-keyword-chip:hover,
+.cti-keyword-chip.highlighted {
+  background: rgba(0, 210, 106, 0.2);
+  border-color: #00D26A;
+}
+
+/* Infrastructure Stats */
+.cti-infra-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.cti-infra-stat {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  background: #0d0d0d;
+  border-radius: 6px;
+}
+
+.cti-infra-stat-value {
+  display: block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #00D26A;
+}
+
+.cti-infra-stat-label {
+  font-size: 10px;
+  color: #6a6a6a;
+  text-transform: uppercase;
+}
+
+.cti-ports-list h5 {
+  font-size: 11px;
+  color: #6a6a6a;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+}
+
+.cti-port-item {
+  display: grid;
+  grid-template-columns: 40px 1fr 60px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.cti-port-item:last-child {
+  border-bottom: none;
+}
+
+.cti-port-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #00D26A;
+  font-weight: 600;
+}
+
+.cti-port-service {
+  font-size: 11px;
+  color: #888;
+}
+
+.cti-port-bar {
+  height: 4px;
+  background: #1a1a1a;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.cti-port-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00D26A, #00a854);
+  border-radius: 2px;
+}
+
+.cti-infra-clean {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(0, 210, 106, 0.05);
+  border: 1px solid rgba(0, 210, 106, 0.2);
+  border-radius: 8px;
+}
+
+.cti-clean-icon {
+  font-size: 16px;
+}
+
+.cti-clean-text {
+  font-size: 12px;
+  color: #00D26A;
+}
+
+.cti-panel-footer {
+  text-align: center;
+  padding-top: 12px;
+  border-top: 1px solid #1f1f1f;
+  font-size: 10px;
+  color: #4a4a4a;
+}
+
+/* ========================================
+   CENTER PANEL - ANALYSIS & CONCEPTS
+   ======================================== */
+
+.cti-center-panel {
+  background: #111111;
+  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+  padding: 16px;
+}
+
+/* Risk Banner Mini */
+.cti-risk-mini {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, #0f1a14 0%, #0a0a0a 100%);
+  border: 1px solid #1a3326;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.cti-risk-circle-mini {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0a0a;
+}
+
+.cti-risk-score-mini {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #00D26A;
+}
+
+.cti-risk-info-mini {
+  flex: 1;
+}
+
+.cti-risk-level-mini {
+  font-size: 18px;
+  font-weight: 700;
+  color: #00D26A;
+  margin-bottom: 4px;
+}
+
+.cti-risk-meta-mini {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: #6a6a6a;
+}
+
+/* Analysis Summary */
+.cti-analysis-summary {
+  background: #1a1a1a;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #1f1f1f;
+}
+
+.cti-analysis-summary h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cti-analysis-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #c0c0c0;
+}
+
+/* Concept Nodes */
+.cti-concept-section {
+  background: #1a1a1a;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #1f1f1f;
+}
+
+.cti-concept-section h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cti-concept-nodes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cti-concept-node {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #0d0d0d;
+  border: 1px solid #30363d;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #c0c0c0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cti-concept-node:hover {
+  border-color: #00D26A;
+  color: #ffffff;
+}
+
+.cti-concept-node.selected {
+  background: rgba(0, 210, 106, 0.1);
+  border-color: #00D26A;
+  color: #00D26A;
+}
+
+.cti-concept-count {
+  background: #1a1a1a;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  color: #6a6a6a;
+}
+
+/* Why Panel */
+.cti-why-panel {
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.cti-why-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.cti-why-icon {
+  font-size: 16px;
+}
+
+.cti-why-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #58a6ff;
+}
+
+.cti-why-content {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #c9d1d9;
+}
+
+.cti-why-evidence {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #21262d;
+}
+
+.cti-why-evidence-title {
+  font-size: 11px;
+  color: #6e7681;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.cti-why-evidence-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  text-decoration: none;
+  color: #58a6ff;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.cti-why-evidence-link:hover {
+  background: rgba(88, 166, 255, 0.1);
+}
+
+/* Correlation Visualization */
+.cti-correlation-viz {
+  background: #1a1a1a;
+  border-radius: 10px;
+  padding: 16px;
+  border: 1px solid #1f1f1f;
+}
+
+.cti-correlation-viz h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cti-correlation-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cti-correlation-label {
+  font-size: 11px;
+  color: #6a6a6a;
+  width: 100px;
+}
+
+.cti-correlation-track {
+  flex: 1;
+  height: 8px;
+  background: #2a2a2a;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.cti-correlation-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.cti-correlation-fill.weak {
+  background: #E31B23;
+  width: 14%;
+}
+
+.cti-correlation-fill.moderate {
+  background: #FFB800;
+  width: 50%;
+}
+
+.cti-correlation-fill.strong {
+  background: #00D26A;
+  width: 80%;
+}
+
+.cti-correlation-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  width: 40px;
+  text-align: right;
+}
+
+/* ========================================
+   RIGHT PANEL - SOCIAL INTELLIGENCE
+   ======================================== */
+
+.cti-right-panel {
+  background: #111111;
+  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+  padding: 16px;
+}
+
+.cti-social-summary {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cti-social-stat {
+  flex: 1;
+  text-align: center;
+  padding: 12px;
+  background: #0d0d0d;
+  border-radius: 8px;
+}
+
+.cti-social-stat-value {
+  display: block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1D9BF0;
+}
+
+.cti-social-stat-label {
+  font-size: 10px;
+  color: #6a6a6a;
+  text-transform: uppercase;
+}
+
+.cti-social-tone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.cti-tone-icon {
+  font-size: 14px;
+}
+
+.cti-theme-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cti-theme-chip {
+  padding: 6px 12px;
+  background: rgba(227, 27, 35, 0.1);
+  border: 1px solid rgba(227, 27, 35, 0.2);
+  border-radius: 16px;
+  font-size: 11px;
+  color: #FF6B6B;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cti-theme-chip:hover,
+.cti-theme-chip.highlighted {
+  background: rgba(227, 27, 35, 0.2);
+  border-color: #FF6B6B;
+}
+
+.cti-posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cti-post-item {
+  background: #0d0d0d;
+  border: 1px solid #1f1f1f;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cti-post-item:hover {
+  border-color: #1D9BF0;
+}
+
+.cti-post-item.cti-highlight-right {
+  border-color: #1D9BF0;
+  background: rgba(29, 155, 240, 0.05);
+}
+
+.cti-post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cti-post-author {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1D9BF0;
+}
+
+.cti-post-engagement {
+  font-size: 11px;
+  color: #E31B23;
+}
+
+.cti-post-excerpt {
+  font-size: 12px;
+  color: #888;
+  line-height: 1.5;
+  margin: 0 0 8px 0;
+}
+
+.cti-post-link {
+  font-size: 11px;
+  color: #1D9BF0;
+  text-decoration: none;
+}
+
+.cti-post-link:hover {
+  text-decoration: underline;
+}
+
+/* ========================================
+   MITRE OVERLAY PANEL
+   ======================================== */
+
+.cti-overlay-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #30363d;
+  background: linear-gradient(135deg, #da3633 0%, #f85149 100%);
+}
+
+.cti-overlay-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cti-overlay-title h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.cti-overlay-icon {
+  font-size: 24px;
+}
+
+.cti-overlay-close {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ffffff;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cti-overlay-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.cti-mitre-content {
+  padding: 20px;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+}
+
+.cti-mitre-section {
+  margin-bottom: 24px;
+}
+
+.cti-section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cti-section-icon {
+  font-size: 16px;
+}
+
+.cti-mitre-matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.cti-mitre-cell {
+  background: #1a1a1a;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.2s;
+}
+
+.cti-mitre-cell:hover {
+  border-color: #f85149;
+  background: rgba(248, 81, 73, 0.1);
+}
+
+.cti-mitre-tactic {
+  font-size: 10px;
+  font-weight: 700;
+  color: #f85149;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.cti-mitre-techniques {
+  font-size: 11px;
+  color: #888;
+  line-height: 1.4;
+}
+
+.cti-ttps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cti-ttp-card {
+  background: #1a1a1a;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.cti-ttp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cti-ttp-id {
+  background: linear-gradient(135deg, #da3633 0%, #f85149 100%);
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  text-decoration: none;
+}
+
+.cti-ttp-id:hover {
+  opacity: 0.9;
+}
+
+.cti-ttp-confidence {
+  font-size: 10px;
+  color: #FFB800;
+}
+
+.cti-ttp-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.cti-ttp-tactic-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  background: rgba(248, 81, 73, 0.15);
+  border-radius: 4px;
+  font-size: 10px;
+  color: #f85149;
+  margin-bottom: 8px;
+}
+
+.cti-ttp-evidence {
+  font-size: 12px;
+  color: #888;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.cti-mitigations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cti-mitigation-group {
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 14px;
+  border: 1px solid #30363d;
+}
+
+.cti-mitigation-tactic {
+  margin-bottom: 10px;
+}
+
+.cti-tactic-badge {
+  background: rgba(0, 210, 106, 0.15);
+  color: #00D26A;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.cti-mitigation-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cti-mitigation-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #1f1f1f;
+}
+
+.cti-mitigation-item:last-child {
+  border-bottom: none;
+}
+
+.cti-mitigation-icon {
+  color: #00D26A;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.cti-mitigation-text {
+  font-size: 12px;
+  color: #c0c0c0;
+  line-height: 1.5;
+}
+
+.cti-quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cti-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #1a1a1a;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  color: #c0c0c0;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cti-action-btn:hover {
+  border-color: #00D26A;
+  color: #ffffff;
+  background: rgba(0, 210, 106, 0.05);
+}
+
+.cti-action-icon {
+  font-size: 16px;
+}
+
+/* ========================================
+   RECOMMENDATIONS PANEL
+   ======================================== */
+
+.cti-recommendations-content {
+  padding: 20px;
+}
+
+.cti-recommendations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #30363d;
+  background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+}
+
+.cti-recommendations-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cti-recommendations-title h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.cti-recommendation-group {
+  margin-bottom: 24px;
+}
+
+.cti-recommendation-group-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cti-recommendation-group-title.immediate {
+  color: #E31B23;
+}
+
+.cti-recommendation-group-title.strategic {
+  color: #58a6ff;
+}
+
+.cti-recommendation-item {
+  background: #1a1a1a;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.cti-recommendation-item.immediate {
+  border-left: 3px solid #E31B23;
+}
+
+.cti-recommendation-item.strategic {
+  border-left: 3px solid #58a6ff;
+}
+
+.cti-recommendation-text {
+  font-size: 13px;
+  color: #c0c0c0;
+  line-height: 1.5;
+  margin: 0 0 10px 0;
+}
+
+.cti-recommendation-why {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 12px;
+  color: #6e7681;
+}
+
+.cti-recommendation-why-title {
+  font-size: 10px;
+  color: #6e7681;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.cti-recommendation-why-text {
+  color: #8b949e;
+  line-height: 1.5;
+}
+
+/* ========================================
+   HISTORICAL PANEL (BOTTOM)
+   ======================================== */
+
+.cti-historical-panel {
+  background: #111111;
+  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+  margin-top: 16px;
+}
+
+.cti-historical-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #1f1f1f;
+  cursor: pointer;
+}
+
+.cti-historical-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cti-historical-toggle {
+  background: none;
+  border: none;
+  color: #6a6a6a;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.cti-historical-toggle:hover {
+  color: #ffffff;
+  background: #1a1a1a;
+}
+
+.cti-historical-content {
+  padding: 20px;
+}
+
+.cti-timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cti-timeline-item {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  border: 1px solid #1f1f1f;
+}
+
+.cti-timeline-severity {
+  width: 4px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.cti-timeline-content {
+  flex: 1;
+}
+
+.cti-timeline-title {
+  font-size: 14px;
+  color: #ffffff;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.cti-timeline-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 11px;
+  color: #6a6a6a;
+}
+
+.cti-timeline-category {
+  background: #2a2a2a;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.cti-sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cti-source-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #1a1a1a;
+  border-radius: 8px;
+}
+
+.cti-source-indicator {
+  width: 8px;
+  height: 8px;
+  background: #00D26A;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(0, 210, 106, 0.5);
+}
+
+.cti-source-info {
+  flex: 1;
+}
+
+.cti-source-name {
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.cti-source-count {
+  font-size: 11px;
+  color: #6a6a6a;
+}
+
+/* ========================================
+   METRICS GRID (SEVERITY BARS)
+   ======================================== */
+
+.cti-metrics-grid {
+  background: #1a1a1a;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.cti-metrics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.cti-metrics-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.cti-metrics-total {
+  text-align: right;
+}
+
+.cti-metrics-total-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: #00D26A;
+}
+
+.cti-metrics-total-label {
+  font-size: 10px;
+  color: #6a6a6a;
+  text-transform: uppercase;
+}
+
+.cti-severity-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cti-severity-bar {
+  display: grid;
+  grid-template-columns: 80px 1fr 40px;
+  align-items: center;
+  gap: 12px;
+}
+
+.cti-severity-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #aaaaaa;
+}
+
+.cti-severity-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.cti-severity-track {
+  height: 6px;
+  background: #2a2a2a;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.cti-severity-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.cti-severity-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: right;
+}
+
+/* ========================================
+   CONCEPT NODE GRAPH (SVG)
+   ======================================== */
+
+.cti-concept-graph-container {
+  background: #1a1a1a;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.cti-concept-graph-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.cti-concept-graph-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.cti-concept-svg {
+  width: 100%;
+  height: 300px;
+  background: #0d0d0d;
+  border-radius: 8px;
+}
+
+/* ========================================
+   HEADER COMPONENT
+   ======================================== */
+
+.cti-main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.cti-header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cti-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cti-logo-icon {
+  color: #00D26A;
+  font-size: 20px;
+}
+
+.cti-logo-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #ffffff;
+}
+
+.cti-header-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.cti-header-subtitle {
+  font-size: 12px;
+  color: #6a6a6a;
+}
+
+.cti-header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Priority Legend */
+.cti-priority-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cti-priority-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cti-priority-badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.cti-priority-badge.critical {
+  background: #E31B23;
+}
+
+.cti-priority-badge.high {
+  background: #FF6B35;
+}
+
+.cti-priority-badge.medium {
+  background: #FFB800;
+  color: #000000;
+}
+
+.cti-priority-desc {
+  font-size: 12px;
+  color: #888;
+}
+
+/* Baseline Display */
+.cti-baseline-summary {
+  margin-bottom: 24px;
+}
+
+.cti-baseline-display {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #1a1a1a;
+  border-radius: 8px;
+}
+
+.cti-baseline-item {
+  text-align: center;
+  padding: 12px 20px;
+  background: #0d0d0d;
+  border-radius: 8px;
+}
+
+.cti-baseline-item.current {
+  background: rgba(0, 210, 106, 0.1);
+  border: 1px solid rgba(0, 210, 106, 0.3);
+}
+
+.cti-baseline-label {
+  display: block;
+  font-size: 10px;
+  color: #6a6a6a;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.cti-baseline-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.cti-baseline-arrow {
+  font-size: 20px;
+  color: #6a6a6a;
+}
+
+.cti-baseline-delta {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cti-baseline-delta.positive {
+  background: rgba(0, 210, 106, 0.15);
+  color: #00D26A;
+}
+
+.cti-baseline-delta.negative {
+  background: rgba(227, 27, 35, 0.15);
+  color: #E31B23;
+}
+
+/* Timeline Section */
+.cti-timeline-section {
+  margin-bottom: 24px;
+}
+
+/* Sources Section */
+.cti-sources-section {
+  margin-bottom: 16px;
+}
+
+.cti-source-time {
+  font-size: 11px;
+  color: #6a6a6a;
+}
+
+/* Empty State */
+.cti-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6a6a6a;
+}
+
+.cti-empty-icon {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.cti-empty-text {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Highlight states for concept mapping */
+.highlighted {
+  box-shadow: 0 0 0 2px currentColor;
+}
+
+/* Metrics Categories */
+.cti-metrics-categories {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #1f1f1f;
+}
+
+.cti-categories-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6a6a6a;
+  text-transform: uppercase;
+  margin: 0 0 10px 0;
+}
+
+.cti-categories-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cti-category-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(0, 210, 106, 0.1);
+  border: 1px solid rgba(0, 210, 106, 0.2);
+  border-radius: 16px;
+  font-size: 11px;
+}
+
+.cti-category-name {
+  color: #ffffff;
+}
+
+.cti-category-count {
+  color: #00D26A;
+  font-weight: 600;
+}
+
+.cti-category-percentage {
+  color: #6a6a6a;
+  font-size: 10px;
 }
 
 .cti-loading {
