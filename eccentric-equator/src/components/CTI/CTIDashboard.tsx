@@ -100,22 +100,17 @@ interface DashboardData {
       vulns: string[];
     }>;
   };
-  // Social intelligence data
+  // Social intelligence data (aligned with new orchestrator output)
   socialIntel?: {
     totalPosts: number;
-    topTopics: Array<{
-      topic: string;
-      count: number;
-      engagement: number;
-    }>;
-    recentPosts: Array<{
+    themes: string[];
+    tone: 'speculative' | 'confirmed' | 'mixed';
+    topPosts: Array<{
       excerpt: string;
       author: string;
-      timestamp: string;
       engagement: number;
-      url: string;
+      url?: string;
     }>;
-    sentiment: 'alarming' | 'neutral' | 'informational';
   };
   // Multi-agent CTI analysis
   ctiAnalysis?: {
@@ -241,14 +236,33 @@ const CTIDashboard: React.FC = () => {
       <Header />
       
       <main className="cti-main">
-        {/* CTI Analysis Report - The core value: temporal correlation analysis */}
-        {data.ctiAnalysis ? (
+        {/* Risk Banner - Overall threat status */}
+        <RiskBanner status={data.status} meta={data.meta} />
+        
+        {/* Executive Summary */}
+        <ExecutiveSummary executive={data.executive} />
+        
+        {/* CTI Analysis - Correlation insights */}
+        {data.ctiAnalysis && (
           <CTIAnalysisPanel analysis={data.ctiAnalysis} />
-        ) : (
-          <div className="cti-section cti-no-analysis">
-            <h2>Intelligence Analysis</h2>
-            <p>Analysis data is being collected. CTI correlation will appear when social and infrastructure data are available.</p>
-          </div>
+        )}
+        
+        {/* Two-column layout for Infrastructure and Social Intel */}
+        <div className="cti-intel-grid">
+          {/* Infrastructure Exposure */}
+          {data.infrastructure && data.infrastructure.totalHosts > 0 && (
+            <InfrastructurePanel infrastructure={data.infrastructure} />
+          )}
+          
+          {/* Social Intelligence */}
+          {data.socialIntel && data.socialIntel.topPosts.length > 0 && (
+            <SocialIntelPanel socialIntel={data.socialIntel} />
+          )}
+        </div>
+        
+        {/* Indicators of Compromise */}
+        {data.indicators && (
+          <IndicatorsPanel indicators={data.indicators} />
         )}
       </main>
       
@@ -462,55 +476,6 @@ const SourcesPanel: React.FC<{ sources: DashboardData['sources'] }> = ({ sources
   </section>
 );
 
-const IndicatorsPanel: React.FC<{ indicators: DashboardData['indicators'] }> = ({ indicators }) => {
-  const hasCves = indicators.cves.length > 0;
-  const hasKeywords = indicators.keywords.length > 0;
-  
-  if (!hasCves && !hasKeywords) return null;
-
-  // Helper para generar URL de CVE a NIST NVD
-  const getCveUrl = (cve: string) => 
-    `https://nvd.nist.gov/vuln/detail/${cve.toUpperCase()}`;
-  
-  return (
-    <section className="cti-section cti-indicators">
-      <h2 className="cti-section-title">Key Indicators</h2>
-      
-      {hasCves && (
-        <div className="cti-indicator-group">
-          <h4>CVE References</h4>
-          <div className="cti-indicator-tags">
-            {indicators.cves.map((cve, i) => (
-              <a 
-                key={i} 
-                href={getCveUrl(cve)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cti-indicator-tag cti-tag-cve cti-tag-link"
-                title={`View ${cve} on NIST NVD`}
-              >
-                {cve}
-                <span className="cti-link-icon">↗</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-      
-      {hasKeywords && (
-        <div className="cti-indicator-group">
-          <h4>Trending Keywords</h4>
-          <div className="cti-indicator-tags">
-            {indicators.keywords.map((keyword, i) => (
-              <span key={i} className="cti-indicator-tag cti-tag-keyword">{keyword}</span>
-            ))}
-          </div>
-        </div>
-      )}
-    </section>
-  );
-};
-
 /**
  * Infrastructure Panel - Shows exposed infrastructure from Shodan
  */
@@ -602,10 +567,10 @@ const InfrastructurePanel: React.FC<{ infrastructure: NonNullable<DashboardData[
  * Social Intelligence Panel - Shows social media threat discussions
  */
 const SocialIntelPanel: React.FC<{ socialIntel: NonNullable<DashboardData['socialIntel']> }> = ({ socialIntel }) => {
-  const sentimentColors = {
-    alarming: '#E31B23',
-    neutral: '#FFB800',
-    informational: '#00D26A'
+  const toneColors: Record<string, string> = {
+    confirmed: '#E31B23',
+    mixed: '#FFB800',
+    speculative: '#00D26A'
   };
 
   return (
@@ -616,55 +581,47 @@ const SocialIntelPanel: React.FC<{ socialIntel: NonNullable<DashboardData['socia
           <span className="cti-stat-badge cti-stat-posts">{socialIntel.totalPosts} posts</span>
           <span 
             className="cti-stat-badge cti-stat-sentiment" 
-            style={{ borderColor: sentimentColors[socialIntel.sentiment] }}
+            style={{ borderColor: toneColors[socialIntel.tone] || '#FFB800' }}
           >
-            {socialIntel.sentiment}
+            {socialIntel.tone}
           </span>
         </div>
       </div>
       
       <div className="cti-social-content">
-        {/* Top Topics */}
-        {socialIntel.topTopics.length > 0 && (
+        {/* Themes */}
+        {socialIntel.themes.length > 0 && (
           <div className="cti-social-topics">
-            <h4>Trending Topics</h4>
-            <div className="cti-topic-list">
-              {socialIntel.topTopics.map((item, i) => (
-                <div key={i} className="cti-topic-item">
-                  <span className="cti-topic-name">#{item.topic}</span>
-                  <span className="cti-topic-count">{item.count}x</span>
-                  <span className="cti-topic-engagement">❤️ {item.engagement}</span>
-                </div>
+            <h4>Detected Themes</h4>
+            <div className="cti-theme-chips">
+              {socialIntel.themes.map((theme, i) => (
+                <span key={i} className="cti-theme-chip">
+                  {theme}
+                </span>
               ))}
             </div>
           </div>
         )}
         
-        {/* Recent Posts */}
+        {/* Top Posts */}
         <div className="cti-social-posts">
-          <h4>Recent Discussions</h4>
+          <h4>Top Discussions</h4>
           <div className="cti-post-list">
-            {socialIntel.recentPosts.map((post, i) => (
+            {socialIntel.topPosts.map((post, i) => (
               <a 
                 key={i} 
-                href={post.url}
+                href={post.url || '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="cti-post-item"
               >
                 <div className="cti-post-meta">
-                  <span className="cti-post-author">{post.author}</span>
-                  <span className="cti-post-time">
-                    {new Date(post.timestamp).toLocaleDateString('en-US', { 
-                      month: 'short', 
-                      day: 'numeric' 
-                    })}
-                  </span>
+                  <span className="cti-post-author">@{post.author}</span>
                 </div>
                 <p className="cti-post-excerpt">{post.excerpt}</p>
                 <div className="cti-post-engagement">
                   <span>❤️ {post.engagement}</span>
-                  <span className="cti-post-link-icon">↗</span>
+                  {post.url && <span className="cti-post-link-icon">↗</span>}
                 </div>
               </a>
             ))}
@@ -676,6 +633,78 @@ const SocialIntelPanel: React.FC<{ socialIntel: NonNullable<DashboardData['socia
         Intelligence gathered from <a href="https://x.com" target="_blank" rel="noopener noreferrer">X.com</a>. 
         Posts sorted by engagement and relevance.
       </p>
+    </section>
+  );
+};
+
+/**
+ * Indicators Panel - Shows CVEs, IPs, domains, keywords
+ */
+const IndicatorsPanel: React.FC<{ indicators: DashboardData['indicators'] }> = ({ indicators }) => {
+  if (!indicators) return null;
+  
+  const hasIndicators = indicators.cves.length > 0 || indicators.ips.length > 0 || 
+                        indicators.domains.length > 0 || indicators.keywords.length > 0;
+  
+  if (!hasIndicators) return null;
+
+  return (
+    <section className="cti-section cti-indicators">
+      <h2 className="cti-section-title">🎯 Indicators of Compromise</h2>
+      
+      <div className="cti-indicators-grid">
+        {indicators.cves.length > 0 && (
+          <div className="cti-indicator-group">
+            <h4>CVEs ({indicators.cves.length})</h4>
+            <div className="cti-indicator-list">
+              {indicators.cves.map((cve, i) => (
+                <a 
+                  key={i}
+                  href={`https://nvd.nist.gov/vuln/detail/${cve}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="cti-indicator-tag cti-indicator-cve"
+                >
+                  {cve}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {indicators.ips.length > 0 && (
+          <div className="cti-indicator-group">
+            <h4>IP Addresses ({indicators.ips.length})</h4>
+            <div className="cti-indicator-list">
+              {indicators.ips.map((ip, i) => (
+                <span key={i} className="cti-indicator-tag cti-indicator-ip">{ip}</span>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {indicators.domains.length > 0 && (
+          <div className="cti-indicator-group">
+            <h4>Domains ({indicators.domains.length})</h4>
+            <div className="cti-indicator-list">
+              {indicators.domains.map((domain, i) => (
+                <span key={i} className="cti-indicator-tag cti-indicator-domain">{domain}</span>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {indicators.keywords.length > 0 && (
+          <div className="cti-indicator-group">
+            <h4>Keywords ({indicators.keywords.length})</h4>
+            <div className="cti-indicator-list">
+              {indicators.keywords.map((kw, i) => (
+                <span key={i} className="cti-indicator-tag cti-indicator-keyword">{kw}</span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </section>
   );
 };
