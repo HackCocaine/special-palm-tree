@@ -1,27 +1,28 @@
 {
   "meta": {
     "version": "2.0.0",
-    "generatedAt": "2026-02-14T01:17:11.134Z",
-    "validUntil": "2026-02-14T07:17:11.134Z"
+    "generatedAt": "2026-02-14T02:01:38.582Z",
+    "validUntil": "2026-02-14T08:01:38.582Z"
   },
   "status": {
-    "riskLevel": "critical",
-    "riskScore": 75,
+    "riskLevel": "moderate",
+    "riskScore": 50,
     "trend": "decreasing",
     "confidenceLevel": 85
   },
   "executive": {
-    "headline": "Threat Level: CRITICAL",
-    "summary": "The current threat landscape indicates a complex interplay of social media discussions and infrastructure exposure, with multiple high-risk activities being discussed concurrently or preceding actual findings. This suggests ongoing malicious activity that could be indicative of an active cyberattack.",
+    "headline": "Threat Level: MEDIUM",
+    "summary": "Analysis completed. See key findings for details.",
     "keyFindings": [
-      "Critical Threats*: There are three critical threats identified, including one from the Qilin hacking group targeting Anabuki Kosan Inc., which is a significant concern.",
-      "Data Encryption and Ransomware Discussion*: Multiple posts discuss ransomware activities, specifically Reynolds ransomware embedding its own evasion techniques, highlighting ongoing data encryption for impact.",
-      "Vulnerability Exploitation*: There are multiple CVEs being actively exploited, including CVE-2026-1731 and CVE-2026-1281."
+      "29 CVE references identified in collected intelligence",
+      "3 critical severity signals require immediate attention",
+      "Ransomware represents primary threat vector"
     ],
     "recommendedActions": [
-      "Implement Immediate Patching*: Address vulnerabilities such as CVE-2026-1731 to prevent further exploitation.",
-      "Enhance Monitoring for Known Vulnerabilities*: Increase monitoring of known vulnerabilities like CVE-2025-26465 and CVE-2026-1731, especially in high-risk environments.",
-      "Investigate Social Media"
+      "Initiate incident response procedures",
+      "Review and patch critical vulnerabilities immediately",
+      "Increase monitoring on affected systems",
+      "Brief security leadership on current threat status"
     ]
   },
   "metrics": {
@@ -50,56 +51,56 @@
   },
   "timeline": [
     {
-      "id": "threat_mllmhgtv_927eir",
+      "id": "threat_mllnpckb_ndqjhx",
       "title": "Vulnerable Infrastructure Detected (29 hosts)",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-13T21:31:06.180Z"
     },
     {
-      "id": "threat_mllmhgtz_2ze0qx",
+      "id": "threat_mllnpckg_daxsg1",
       "title": "Threat: CVE-2026-21509",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-10T19:17:33.000Z"
     },
     {
-      "id": "threat_mllmhgty_onx2ca",
+      "id": "threat_mllnpckf_mi25v2",
       "title": "Apple 0-Day Vulnerability Actively Exploited Sophisticated...",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-12T05:42:00.000Z"
     },
     {
-      "id": "threat_mllmhgty_18y3cz",
+      "id": "threat_mllnpckf_les1jo",
       "title": "Forcepoint researchers look into high-volume Phorpiex...",
       "severity": "high",
       "category": "APT",
       "timestamp": "2026-02-12T11:01:52.000Z"
     },
     {
-      "id": "threat_mllmhgtz_up4kkr",
+      "id": "threat_mllnpckh_zlhktq",
       "title": "Threat: CVE-2026-1731",
       "severity": "medium",
       "category": "Vulnerability",
       "timestamp": "2026-02-10T17:19:25.000Z"
     },
     {
-      "id": "threat_mllmhgtz_ub427w",
+      "id": "threat_mllnpckh_r6iqhp",
       "title": "Threat: CVE-2025-68947",
       "severity": "medium",
       "category": "Ransomware",
       "timestamp": "2026-02-10T14:42:11.000Z"
     },
     {
-      "id": "threat_mllmhgty_m57lzt",
+      "id": "threat_mllnpckf_ug638q",
       "title": "According S2W, DragonForce operates ransomware cartel...",
       "severity": "medium",
       "category": "Ransomware",
       "timestamp": "2026-02-12T09:29:33.000Z"
     },
     {
-      "id": "threat_mllmhgtx_w2iqki",
+      "id": "threat_mllnpcke_ydiegd",
       "title": "#UNC6384 #MustangPanda #APTUpload from powershell $Env:temp\\4w42197.msiref1:...",
       "severity": "low",
       "category": "APT",
@@ -110,12 +111,12 @@
     {
       "name": "Technical Reconnaissance",
       "signalCount": 1,
-      "lastUpdate": "2026-02-14T01:17:11.134Z"
+      "lastUpdate": "2026-02-14T02:01:38.582Z"
     },
     {
       "name": "Social Intelligence (X)",
       "signalCount": 11,
-      "lastUpdate": "2026-02-14T01:17:11.134Z"
+      "lastUpdate": "2026-02-14T02:01:38.582Z"
     }
   ],
   "indicators": {
@@ -289,17 +290,17 @@
   },
   "ctiAnalysis": {
     "model": "qwen2.5:3b",
-    "killChainPhase": "Exploitation",
-    "threatLandscape": "The current threat landscape indicates a complex interplay of social media discussions and infrastructure exposure, with multiple high-risk activities being discussed concurrently or preceding actual findings. This suggests ongoing malicious activity that could be indicative of an active cyberattack.",
-    "analystBrief": "Situation: Active INFRA-FIRST threat behavior observed with temporal window 24-48 hours. Evidence: Social: : [Discussion around CVE-2026-1731](https://example.com/cve-2026-1731-discussion) | Infra: : [Vulnerability found on host with CVE-2026-1731](https://example.com/vuln-cve-2026-1731-infrastructure-findi | Delta: : 4 hours Impact: Observable focus: CVEs in current cycle: CVE-2008-3844, CVE-2019-16905, CVE-2016-20012, CVE-2021-36368. This indicates potential ongoing exploitation pressure in the current cycle. Actions: P1: Implement Immediate Patching*: Address vulnerabilities such as CVE-2026-1731 to prevent further exploitation. | P2: Enhance Monitoring for Known Vulnerabilities*: Increase monitoring of known vulnerabilities like CVE-2025-26465 and CVE-2026-1731, especially in high-risk environments. | P3: Investigate Social Media",
+    "killChainPhase": "Reconnaissance",
+    "threatLandscape": "Analysis completed. See key findings for details.",
+    "analystBrief": "Situation: Active INSUFFICIENT-DATA indicators observed within last 24-48h. Evidence: Cross-source evidence is limited in this cycle; treat as watchlist until stronger links appear. Impact: Observable focus: No high-confidence observables extracted yet. Prioritize validation and containment actions tied to correlated evidence, not broad exposure alone. Actions: P1: Validate the top correlated signals with source URLs | P2: Patch and harden exposed services tied to evidence | P3: Add monitoring for observed ATT&CK techniques",
     "analystExecutive": {
-      "situation": "Active INFRA-FIRST threat behavior observed with temporal window 24-48 hours.",
-      "evidence": "Social: : [Discussion around CVE-2026-1731](https://example.com/cve-2026-1731-discussion) | Infra: : [Vulnerability found on host with CVE-2026-1731](https://example.com/vuln-cve-2026-1731-infrastructure-findi | Delta: : 4 hours",
-      "impact": "Observable focus: CVEs in current cycle: CVE-2008-3844, CVE-2019-16905, CVE-2016-20012, CVE-2021-36368. This indicates potential ongoing exploitation pressure in the current cycle.",
+      "situation": "Active INSUFFICIENT-DATA indicators observed within last 24-48h.",
+      "evidence": "Cross-source evidence is limited in this cycle; treat as watchlist until stronger links appear.",
+      "impact": "Observable focus: No high-confidence observables extracted yet. Prioritize validation and containment actions tied to correlated evidence, not broad exposure alone.",
       "actions": [
-        "P1: Implement Immediate Patching*: Address vulnerabilities such as CVE-2026-1731 to prevent further exploitation.",
-        "P2: Enhance Monitoring for Known Vulnerabilities*: Increase monitoring of known vulnerabilities like CVE-2025-26465 and CVE-2026-1731, especially in high-risk environments.",
-        "P3: Investigate Social Media"
+        "P1: Validate the top correlated signals with source URLs",
+        "P2: Patch and harden exposed services tied to evidence",
+        "P3: Add monitoring for observed ATT&CK techniques"
       ]
     },
     "methodologies": [
@@ -308,255 +309,14 @@
       "Temporal correlation analysis (social ↔ infrastructure)",
       "Source reliability weighting (social engagement + technical evidence)"
     ],
-    "observableSummary": [
-      "CVEs in current cycle: CVE-2008-3844, CVE-2019-16905, CVE-2016-20012, CVE-2021-36368",
-      "Infrastructure observables: SMB (98.142.218.43:445) | SMB (98.142.218.224:445) | SMB (38.60.163.61:445) | SMB (149.69.118.24:445)",
-      "Social observables: @The_Cyber_News: Apple 0-Day Vulnerability Actively Exploited in Sophisticated Attack t... || @rootxharsh: The exploit for CVE-2026-1731 is out. The APT of CVE-2026-1281 missed ... || @TheHackersNews: Reynolds ransomware embeds its own BYOVD evasion, bundling a vulnerabl..."
-    ],
-    "mitreAttack": [
-      {
-        "tactic": "Initial Access",
-        "techniques": [
-          "T1190: Exploit Public-Facing Application",
-          "T1566: Phishing"
-        ],
-        "mitigations": [
-          "Implement network segmentation",
-          "Enable logging and monitoring"
-        ]
-      },
-      {
-        "tactic": "Impact",
-        "techniques": [
-          "T1486: Data Encrypted for Impact"
-        ],
-        "mitigations": [
-          "Implement network segmentation",
-          "Enable logging and monitoring"
-        ]
-      },
-      {
-        "tactic": "Defense Evasion",
-        "techniques": [
-          "T1078: Valid Accounts"
-        ],
-        "mitigations": [
-          "Implement network segmentation",
-          "Enable logging and monitoring"
-        ]
-      },
-      {
-        "tactic": "Execution",
-        "techniques": [
-          "T1204: User Execution"
-        ],
-        "mitigations": [
-          "Implement network segmentation",
-          "Enable logging and monitoring"
-        ]
-      },
-      {
-        "tactic": "Credential Access",
-        "techniques": [
-          "T1110: Brute Force"
-        ],
-        "mitigations": [
-          "Implement network segmentation",
-          "Enable logging and monitoring"
-        ]
-      },
-      {
-        "tactic": "Exfiltration",
-        "techniques": [
-          "T1041: Exfiltration Over C2"
-        ],
-        "mitigations": [
-          "Implement network segmentation",
-          "Enable logging and monitoring"
-        ]
-      }
-    ],
-    "keyFindings": [
-      {
-        "finding": "Critical Threats*: There are three critical threats identified, including one from the Qilin hacking group targeting Anabuki Kosan Inc., which is a significant concern.",
-        "severity": "high",
-        "evidence": "Based on collected intelligence data",
-        "recommendation": "Implement Immediate Patching*: Address vulnerabilities such as CVE-2026-1731 to prevent further exploitation."
-      },
-      {
-        "finding": "Data Encryption and Ransomware Discussion*: Multiple posts discuss ransomware activities, specifically Reynolds ransomware embedding its own evasion techniques, highlighting ongoing data encryption for impact.",
-        "severity": "medium",
-        "evidence": "Based on collected intelligence data",
-        "recommendation": "Enhance Monitoring for Known Vulnerabilities*: Increase monitoring of known vulnerabilities like CVE-2025-26465 and CVE-2026-1731, especially in high-risk environments."
-      },
-      {
-        "finding": "Vulnerability Exploitation*: There are multiple CVEs being actively exploited, including CVE-2026-1731 and CVE-2026-1281.",
-        "severity": "medium",
-        "evidence": "Based on collected intelligence data",
-        "recommendation": "Investigate Social Media"
-      }
-    ],
-    "ttps": [
-      {
-        "technique": "Exploit Public-Facing Application",
-        "techniqueId": "T1190",
-        "tactic": "Initial Access",
-        "evidence": "Mentioned in X.com post: \" Apple 0-Day Vulnerability Actively Exploited in S...\"",
-        "confidence": 0.8
-      },
-      {
-        "technique": "Data Encrypted for Impact",
-        "techniqueId": "T1486",
-        "tactic": "Impact",
-        "evidence": "Mentioned in X.com post: \" Reynolds ransomware embeds its own BYOVD evasion,...\"",
-        "confidence": 0.8
-      },
-      {
-        "technique": "Valid Accounts",
-        "techniqueId": "T1078",
-        "tactic": "Defense Evasion",
-        "evidence": "Mentioned in X.com post: \" Ransomware Persists — But Encryption Is No Longer...\"",
-        "confidence": 0.8
-      },
-      {
-        "technique": "User Execution",
-        "techniqueId": "T1204",
-        "tactic": "Execution",
-        "evidence": "Mentioned in X.com post: \" Ransomware Persists — But Encryption Is No Longer...\"",
-        "confidence": 0.8
-      },
-      {
-        "technique": "Brute Force",
-        "techniqueId": "T1110",
-        "tactic": "Credential Access",
-        "evidence": "Mentioned in X.com post: \" DFIR Labs | BlueSky Ransomware Lab\n\nDive into a r...\"",
-        "confidence": 0.8
-      },
-      {
-        "technique": "Phishing",
-        "techniqueId": "T1566",
-        "tactic": "Initial Access",
-        "evidence": "Mentioned in X.com post: \"Forcepoint researchers look into a high-volume Pho...\"",
-        "confidence": 0.8
-      },
-      {
-        "technique": "Exfiltration Over C2",
-        "techniqueId": "T1041",
-        "tactic": "Exfiltration",
-        "evidence": "Mentioned in X.com post: \"Cyberattack Update\n\nJapan - Anabuki Kosan Inc.\n\nQi...\"",
-        "confidence": 0.8
-      }
-    ],
-    "temporalPatterns": [
-      {
-        "pattern": "INFRA-FIRST correlation detected",
-        "description": "Relationship Between Social Media Discussions and Infrastructure Findings:\n- Social Discussion Preceding Infrastructure Exposure: There are instances where social discussions about specific threats or vulnerabilities precede the actual findings of those same vulnerabilities in infrastructure. For example, the discussion around CVE-2026-1731 (outdated exploit) occurred 4 hours before the vulnerability was found on a host.\n- Time Window Between Events: The time window between social discussions and infrastructure findings is generally within 5 days, with some instances as short as 4 hours. This suggests that malicious actors are actively exploiting vulnerabilities in real-time or shortly after they become known.\n- CVEs Being Discussed vs. Infrastructure Vulnerabilities: There are multiple CVEs being discussed on social media platforms (e.g., CVE-2026-1731, CVE-2025-26465) that match the vulnerabilities found in infrastructure scans.",
-        "timeframe": "24-48 hours",
-        "confidence": 0.75,
-        "evidence": [
-          {
-            "source": "X.com",
-            "excerpt": "Apple 0-Day Vulnerability Actively Exploited in Sophisticated Attack to Target Individuals \n\nSource: https://cybersecuritynews.com/apple-0-day-vulnerability-exploited/…\n\nApple released iOS 26.3 and i",
-            "url": "https://x.com/The_Cyber_News/status/2021822072339804492"
-          },
-          {
-            "source": "X.com",
-            "excerpt": "The exploit for CVE-2026-1731 is out.\n\nThe APT of CVE-2026-1281 missed a major target . Props to watchTowr for the blog on it. The moment I read it, my instinct said there had to be a variant in remot",
-            "url": "https://x.com/rootxharsh/status/2021272807980880294"
-          },
-          {
-            "source": "Shodan",
-            "excerpt": "OpenSSH 198.20.133.130:22",
-            "url": "https://www.shodan.io/host/198.20.133.130"
-          },
-          {
-            "source": "Shodan",
-            "excerpt": "OpenSSH 72.167.204.70:22",
-            "url": "https://www.shodan.io/host/72.167.204.70"
-          }
-        ]
-      },
-      {
-        "pattern": "Emerging Threat",
-        "description": "APT Activity with Phorpiex Campaign*: The ongoing discussion around high-volume Phorpiex campaigns suggests that APT groups are continuing to use this method of delivery.",
-        "timeframe": "Active",
-        "confidence": 0.7,
-        "evidence": []
-      },
-      {
-        "pattern": "Emerging Threat",
-        "description": "Microsoft Patching Efforts*: The mention of additional Microsoft patches issued in response to vulnerabilities indicates a continued need for proactive patch management.",
-        "timeframe": "Active",
-        "confidence": 0.7,
-        "evidence": []
-      }
-    ],
-    "crossSourceLinks": [
-      {
-        "infraSignal": ": [Vulnerability found on host with CVE-2026-1731](https://example.com/vuln-cve-2026-1731-infrastructure-findings)",
-        "socialSignal": ": [Discussion around CVE-2026-1731](https://example.com/cve-2026-1731-discussion)",
-        "relationship": "infra-first",
-        "timeDelta": ": 4 hours",
-        "significance": ": This indicates that the exploit for CVE-2026-1731 was actively used by attackers within a short timeframe, highlighting the need for immediate patching and monitoring."
-      }
-    ],
-    "immediateActions": [
-      "*Implement Immediate Patching**: Address vulnerabilities such as CVE-2026-1731 to prevent further exploitation.",
-      "*Enhance Monitoring for Known Vulnerabilities**: Increase monitoring of known vulnerabilities like CVE-2025-26465 and CVE-2026-1731, especially in high-risk environments.",
-      "*Investigate Social Media"
-    ],
+    "observableSummary": [],
+    "mitreAttack": [],
+    "keyFindings": [],
+    "ttps": [],
+    "temporalPatterns": [],
+    "crossSourceLinks": [],
+    "immediateActions": [],
     "strategicRecommendations": [],
-    "sourcesAndReferences": [
-      {
-        "source": "X.com",
-        "url": "https://x.com/The_Cyber_News/status/2021822072339804492",
-        "relevance": "@The_Cyber_News (257 engagement)"
-      },
-      {
-        "source": "X.com",
-        "url": "https://x.com/rootxharsh/status/2021272807980880294",
-        "relevance": "@rootxharsh (110 engagement)"
-      },
-      {
-        "source": "X.com",
-        "url": "https://x.com/TheHackersNews/status/2021233237570236835",
-        "relevance": "@TheHackersNews (110 engagement)"
-      },
-      {
-        "source": "X.com",
-        "url": "https://x.com/TheHackersNews/status/2021223318461047175",
-        "relevance": "@TheHackersNews (81 engagement)"
-      },
-      {
-        "source": "Shodan",
-        "url": "https://www.shodan.io/host/198.20.133.130",
-        "relevance": "OpenSSH on port 22"
-      },
-      {
-        "source": "Shodan",
-        "url": "https://www.shodan.io/host/72.167.204.70",
-        "relevance": "OpenSSH on port 22"
-      },
-      {
-        "source": "Shodan",
-        "url": "https://www.shodan.io/host/98.142.218.43",
-        "relevance": "SMB on port 445"
-      },
-      {
-        "source": "NVD",
-        "url": "https://nvd.nist.gov/vuln/detail/CVE-2008-3844",
-        "relevance": "CVE-2008-3844 (medium)"
-      },
-      {
-        "source": "NVD",
-        "url": "https://nvd.nist.gov/vuln/detail/CVE-2019-16905",
-        "relevance": "CVE-2019-16905 (medium)"
-      },
-      {
-        "source": "NVD",
-        "url": "https://nvd.nist.gov/vuln/detail/CVE-2016-20012",
-        "relevance": "CVE-2016-20012 (medium)"
-      }
-    ]
+    "sourcesAndReferences": []
   }
 }
