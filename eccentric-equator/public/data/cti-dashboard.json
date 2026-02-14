@@ -1,83 +1,64 @@
 {
   "meta": {
     "version": "3.0.0",
-    "generatedAt": "2026-02-14T17:24:46.844Z",
-    "validUntil": "2026-02-14T23:24:46.844Z"
+    "generatedAt": "2026-02-14T19:41:37.510Z",
+    "validUntil": "2026-02-15T01:41:37.510Z"
   },
   "status": {
     "riskLevel": "critical",
-    "riskScore": 88,
+    "riskScore": 85,
     "trend": "increasing",
     "confidenceLevel": 60
   },
   "executive": {
     "headline": "CRITICAL: Immediate action required",
-    "summary": "EXECUTIVE SUMMARY:\nOur recent threat intelligence analysis has identified potential vulnerabilities in your organization's infrastructure and social media presence. We have confirmed the existence of two critical vulnerabilities (CVEs) that could be exploited by attackers to gain unauthorized access to sensitive data.",
+    "summary": "EXECUTIVE SUMMARY:\nThe social intelligence analysis has identified potential threats to the organization's systems and infrastructure, with a moderate level of confidence in the classification of the assessment as targeted. The technical assessment has not found any vulnerabilities in the infrastructure or hosts, but it is important to note that social engineering attacks can bypass these security measures.",
     "keyFindings": [
-      "20 CVE references identified in infrastructure",
-      "22 vulnerable hosts detected (22.0%)",
       "Active social discussion: theme1, theme2"
     ],
     "recommendedActions": [
-      "Monitor threat indicators",
-      "Review exposed services",
-      "Update security controls"
+      ". Implement a comprehensive social engineering awareness training program for all employees to increase their ability to identify and respond to potential threats.",
+      ". Conduct regular security audits and penetration testing to identify vulnerabilities in the organization's infrastructure and systems.",
+      ". Establish incident response procedures to quickly detect and respond to any successful attacks on the organization's systems or infrastructure."
     ]
   },
   "metrics": {
-    "totalSignals": 25,
-    "criticalCount": 10,
-    "highCount": 8,
-    "mediumCount": 5,
-    "lowCount": 2,
+    "totalSignals": 3,
+    "criticalCount": 2,
+    "highCount": 1,
+    "mediumCount": 1,
+    "lowCount": 0,
     "categories": [
-      {
-        "name": "Vulnerability",
-        "count": 20,
-        "percentage": 45
-      },
-      {
-        "name": "Infrastructure",
-        "count": 22,
-        "percentage": 50
-      },
       {
         "name": "Threat Intel",
         "count": 2,
-        "percentage": 5
+        "percentage": 100
       }
     ]
   },
   "timeline": [
     {
-      "id": "infra_1771089886844",
-      "title": "Vulnerable Infrastructure Detected (22 hosts)",
-      "severity": "critical",
-      "category": "Infrastructure",
-      "timestamp": "2026-02-14T17:24:46.844Z"
-    },
-    {
-      "id": "social_1771089886844_0",
+      "id": "social_1771098097510_0",
       "title": " Apple 0-Day Vulnerability Actively Exploited in Sophisticat...",
       "severity": "medium",
       "category": "Social Intel",
-      "timestamp": "2026-02-14T17:24:46.844Z",
+      "timestamp": "2026-02-14T19:41:37.510Z",
       "sourceUrl": "https://x.com/The_Cyber_News/status/2021822072339804492"
     },
     {
-      "id": "social_1771089886844_1",
+      "id": "social_1771098097510_1",
       "title": "Forcepoint researchers look into a high-volume Phorpiex camp...",
       "severity": "medium",
       "category": "Social Intel",
-      "timestamp": "2026-02-14T17:24:46.844Z",
+      "timestamp": "2026-02-14T19:41:37.510Z",
       "sourceUrl": "https://x.com/virusbtn/status/2021902568323265019"
     },
     {
-      "id": "social_1771089886844_2",
+      "id": "social_1771098097510_2",
       "title": "#Breaking #Millcreek #ApartmentFire 4434 Lemans Drive. #UFA ...",
       "severity": "medium",
       "category": "Social Intel",
-      "timestamp": "2026-02-14T17:24:46.844Z",
+      "timestamp": "2026-02-14T19:41:37.510Z",
       "sourceUrl": "https://x.com/SLCScanner/status/2021393477712707622"
     }
   ],
@@ -85,31 +66,18 @@
     {
       "name": "X.com Social Intel",
       "signalCount": 5,
-      "lastUpdate": "2026-02-14T17:24:46.844Z"
+      "lastUpdate": "2026-02-14T19:41:37.510Z"
     },
     {
       "name": "Shodan Infrastructure",
-      "signalCount": 100,
-      "lastUpdate": "2026-02-14T17:24:46.844Z"
+      "signalCount": 0,
+      "lastUpdate": "2026-02-14T19:41:37.510Z"
     }
   ],
   "indicators": {
     "cves": [
       "CVE-2026-21509",
-      "CVE-2026-21514",
-      "CVE-2016-20012",
-      "CVE-2017-15906",
-      "CVE-2015-6563",
-      "CVE-2015-5352",
-      "CVE-2015-6564",
-      "CVE-2016-0777",
-      "CVE-2015-5600",
-      "CVE-2007-2768",
-      "CVE-2016-0778",
-      "CVE-2014-2532",
-      "CVE-2014-2653",
-      "CVE-2020-14145",
-      "CVE-2021-41617"
+      "CVE-2026-21514"
     ],
     "domains": [
       "cybersecuritynews.com",
@@ -129,98 +97,11 @@
     ]
   },
   "infrastructure": {
-    "totalHosts": 100,
-    "exposedPorts": [
-      {
-        "port": 22,
-        "service": "OpenSSH",
-        "count": 85,
-        "percentage": 85
-      },
-      {
-        "port": 3389,
-        "service": "Remote Desktop Protocol",
-        "count": 11,
-        "percentage": 11
-      },
-      {
-        "port": 445,
-        "service": "unknown",
-        "count": 4,
-        "percentage": 4
-      }
-    ],
-    "topCountries": [
-      {
-        "country": "US",
-        "count": 25
-      },
-      {
-        "country": "DE",
-        "count": 14
-      },
-      {
-        "country": "CN",
-        "count": 11
-      },
-      {
-        "country": "FR",
-        "count": 7
-      },
-      {
-        "country": "SG",
-        "count": 4
-      }
-    ],
-    "vulnerableHosts": 22,
-    "sampleHosts": [
-      {
-        "ip": "102.208.xxx.xxx",
-        "port": 22,
-        "service": "OpenSSH",
-        "vulns": [
-          "CVE-2016-20012",
-          "CVE-2017-15906",
-          "CVE-2015-6563"
-        ]
-      },
-      {
-        "ip": "210.153.xxx.xxx",
-        "port": 22,
-        "service": "OpenSSH",
-        "vulns": [
-          "CVE-2008-3844",
-          "CVE-2016-20012",
-          "CVE-2021-36368"
-        ]
-      },
-      {
-        "ip": "85.215.xxx.xxx",
-        "port": 445,
-        "service": "unknown",
-        "vulns": [
-          "CVE-2020-0796"
-        ]
-      },
-      {
-        "ip": "43.136.xxx.xxx",
-        "port": 22,
-        "service": "OpenSSH",
-        "vulns": [
-          "CVE-2008-3844",
-          "CVE-2019-16905",
-          "CVE-2016-20012"
-        ]
-      },
-      {
-        "ip": "14.190.xxx.xxx",
-        "port": 445,
-        "service": "unknown",
-        "vulns": [
-          "CVE-2020-0796"
-        ]
-      }
-    ]
+    "totalHosts": 0,
+    "exposedPorts": [],
+    "topCountries": [],
+    "vulnerableHosts": 0,
+    "sampleHosts": []
   },
   "socialIntel": {
     "totalPosts": 5,
@@ -265,15 +146,455 @@
   "ctiAnalysis": {
     "model": "saki007ster/CybersecurityRiskAnalyst",
     "killChainPhase": "Weaponization",
-    "threatLandscape": "EXECUTIVE SUMMARY:\nOur recent threat intelligence analysis has identified potential vulnerabilities in your organization's infrastructure and social media presence. We have confirmed the existence of two critical vulnerabilities (CVEs) that could be exploited by attackers to gain unauthorized access to sensitive data.",
+    "threatLandscape": "EXECUTIVE SUMMARY:\nThe social intelligence analysis has identified potential threats to the organization's systems and infrastructure, with a moderate level of confidence in the classification of the assessment as targeted. The technical assessment has not found any vulnerabilities in the infrastructure or hosts, but it is important to note that social engineering attacks can bypass these security measures.",
     "analystBrief": "Classification: targeted. Confidence: moderate. Correlation: weak.",
     "correlationStrength": "weak",
-    "technicalAssessment": "**Executive Summary**\n\nA potential threat actor has been observed exploiting vulnerabilities in the organization's infrastructure, with a possible connection to social signals indicating malicious intent.\n\n**Observations and Analysis**\n\n1. **CVE-SERVICE ALIGNMENT**: The identified CVEs (CVE-2026-21509, CVE-2026-21514) do not directly match the top exposed services (OpenSSH on port 22, Remote Desktop Protocol on port 3389). However, the presence of vulnerable hosts and outdated infrastructure CVE",
+    "technicalAssessment": "**Executive Summary**\n\nA potential security incident has been identified, with social signals indicating exploitation claims and IoCs (Indicators of Compromise) detected. However, the infrastructure analysis reveals no exposed hosts or vulnerable services.\n\n**Analysis**\n\n1. **CVE-SERVICE ALIGNMENT**: No matching CVEs were found in the infrastructure analysis, suggesting that the exploited vulnerabilities may not be directly related to exposed services.\n2. **TACTICAL CLASSIFICATION**: The lack of",
     "methodologies": [
       "Deterministic risk scoring (vulnerability ratio)",
       "Code-based IoC extraction",
       "Cross-source CVE correlation",
-      "Structured signal analysis"
+      "Structured signal analysis",
+      "Quantified correlation model",
+      "Baseline comparison tracking"
     ]
+  },
+  "signalLayer": {
+    "raw": {
+      "xPosts": [
+        {
+          "id": "2021822072339804492",
+          "text": " Apple 0-Day Vulnerability Actively Exploited in Sophisticated Attack to Target Individuals \n\nSource: https://cybersecuritynews.com/apple-0-day-vulnerability-exploited/…\n\nApple released iOS 26.3 and iPadOS 26.3 on February 11, 2026, patching over 40 vulnerabilities, including a critical zero-day in the dyld component",
+          "author": {
+            "username": "The_Cyber_News",
+            "displayName": "Cyber Security News",
+            "verified": false
+          },
+          "metrics": {
+            "likes": 196,
+            "reposts": 64,
+            "replies": 8,
+            "views": 8
+          },
+          "timestamp": "2026-02-12T05:42:00.000Z",
+          "hashtags": [],
+          "mentions": [],
+          "urls": [
+            "https://cybersecuritynews.com/apple-0-day-vulnerability-exploited/…"
+          ],
+          "permalink": "https://x.com/The_Cyber_News/status/2021822072339804492"
+        },
+        {
+          "id": "2021902568323265019",
+          "text": "Forcepoint researchers look into a high-volume Phorpiex campaign delivered through malspam emails weaponized with Windows Shortcut .lnk files.  https://forcepoint.com/blog/x-labs/phorpiex-global-group-ransomware-lnk-phishing…",
+          "author": {
+            "username": "virusbtn",
+            "displayName": "Virus Bulletin",
+            "verified": false
+          },
+          "metrics": {
+            "likes": 40,
+            "reposts": 8,
+            "replies": 0,
+            "views": 0
+          },
+          "timestamp": "2026-02-12T11:01:52.000Z",
+          "hashtags": [],
+          "mentions": [],
+          "urls": [
+            "https://forcepoint.com/blog/x-labs/phorpiex-global-group-ransomware-lnk-phishing…"
+          ],
+          "permalink": "https://x.com/virusbtn/status/2021902568323265019"
+        },
+        {
+          "id": "2021393477712707622",
+          "text": "#Breaking #Millcreek #ApartmentFire 4434 Lemans Drive. #UFA just arrived to a 3 story apt building with fire and heavy black smoke coming from 2nd story apt. Interior crew on fire attack. No injuries have been reported. Command requesting Investigator and building inspector.",
+          "author": {
+            "username": "SLCScanner",
+            "displayName": "SLCScanner",
+            "verified": false
+          },
+          "metrics": {
+            "likes": 43,
+            "reposts": 4,
+            "replies": 1,
+            "views": 1
+          },
+          "timestamp": "2026-02-11T01:18:55.000Z",
+          "hashtags": [
+            "#Breaking",
+            "#Millcreek",
+            "#ApartmentFire",
+            "#UFA"
+          ],
+          "mentions": [],
+          "urls": [],
+          "permalink": "https://x.com/SLCScanner/status/2021393477712707622"
+        },
+        {
+          "id": "2021302536263827748",
+          "text": "It seems to me that Microsoft just issued additional 3 patches to address the weaknesses in the original Office CVE-2026-21509/zero-day exploit chain.\n\nMicrosoft Word Security Feature Bypass Vulnerability (CVE-2026-21514)\nhttps://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-21514…\n\nWindows Shell Security Feature",
+          "author": {
+            "username": "HaifeiLi",
+            "displayName": "Haifei Li",
+            "verified": false
+          },
+          "metrics": {
+            "likes": 33,
+            "reposts": 8,
+            "replies": 1,
+            "views": 1
+          },
+          "timestamp": "2026-02-10T19:17:33.000Z",
+          "hashtags": [],
+          "mentions": [],
+          "urls": [
+            "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-21514…"
+          ],
+          "permalink": "https://x.com/HaifeiLi/status/2021302536263827748"
+        },
+        {
+          "id": "2022197848696291643",
+          "text": "#UNC6384 #MustangPanda #APT\nUpload from \n\n... powershell $Env:temp\\4w42197.msi\n\nref1: https://dreamgroup.com/plugx-diplomacy-mustang-panda-campaign/…\nref2: https://arcticwolf.com/resources/blog/unc6384-weaponizes-zdi-can-25373-vulnerability-to-deploy-plugx/…",
+          "author": {
+            "username": "PrakkiSathwik",
+            "displayName": "Sathwik Ram Prakki",
+            "verified": false
+          },
+          "metrics": {
+            "likes": 28,
+            "reposts": 8,
+            "replies": 1,
+            "views": 1
+          },
+          "timestamp": "2026-02-13T06:35:12.000Z",
+          "hashtags": [
+            "#UNC6384",
+            "#MustangPanda",
+            "#APT"
+          ],
+          "mentions": [],
+          "urls": [
+            "https://dreamgroup.com/plugx-diplomacy-mustang-panda-campaign/…",
+            "https://arcticwolf.com/resources/blog/unc6384-weaponizes-zdi-can-25373-vulnerability-to-deploy-plugx/…"
+          ],
+          "permalink": "https://x.com/PrakkiSathwik/status/2022197848696291643"
+        },
+        {
+          "id": "2022426489543938131",
+          "text": "If you’re just catching up, $LinhMai is the first Asian elephant born at the National Zoo in 25 years.\n\nWe raised over $60k for her naming campaign. \n\nShe’s the result of decades of work at the Zoo and incredibly rare. Her name means Spirit Blossom and is particularly apt with",
+          "author": {
+            "username": "ponzibaron",
+            "displayName": "Đoc ",
+            "verified": false
+          },
+          "metrics": {
+            "likes": 31,
+            "reposts": 6,
+            "replies": 6,
+            "views": 6
+          },
+          "timestamp": "2026-02-13T21:43:44.000Z",
+          "hashtags": [],
+          "mentions": [],
+          "urls": [],
+          "permalink": "https://x.com/ponzibaron/status/2022426489543938131"
+        },
+        {
+          "id": "2022490305338183963",
+          "text": "Publicly traded blockchain lender Figure confirmed a customer data breach after a social engineering attack on an employee. Hacker group ShinyHunters claimed it stole and published about 2.5GB of data, potentially including customer names, addresses, dates of birth, and phone",
+          "author": {
+            "username": "WuBlockchain",
+            "displayName": "Wu Blockchain",
+            "verified": false
+          },
+          "metrics": {
+            "likes": 18,
+            "reposts": 12,
+            "replies": 8,
+            "views": 8
+          },
+          "timestamp": "2026-02-14T01:57:19.000Z",
+          "hashtags": [],
+          "mentions": [],
+          "urls": [],
+          "permalink": "https://x.com/WuBlockchain/status/2022490305338183963"
+        },
+        {
+          "id": "2022249640188649845",
+          "text": "𝐒𝐞𝐚𝐬𝐨𝐧 𝟏𝟑 𝐒𝐩𝐞𝐜𝐢𝐚𝐥 𝐀𝐏𝐑 𝐢𝐬 𝐥𝐢𝐯𝐞.\n\nEarn from a 300 amAPT reward pool with boosted returns for new stakers - up to 20% APR.\n\n Stake here: https://stake.amnis.finance/special-APR-offer…\n\n Campaign period: 13th Feb, 2026 – 28th Feb, 2026\n Reward pool: 300 amAPT\n\nStake fresh APT",
+          "author": {
+            "username": "AmnisFinance",
+            "displayName": "Amnis Finance",
+            "verified": false
+          },
+          "metrics": {
+            "likes": 30,
+            "reposts": 6,
+            "replies": 14,
+            "views": 14
+          },
+          "timestamp": "2026-02-13T10:01:00.000Z",
+          "hashtags": [],
+          "mentions": [],
+          "urls": [
+            "https://stake.amnis.finance/special-APR-offer…"
+          ],
+          "permalink": "https://x.com/AmnisFinance/status/2022249640188649845"
+        },
+        {
+          "id": "2022294698241482941",
+          "text": "Breach. Spread & Encrypt\n\nConti ransomware exploited Exchange, dumped credentials from LSASS, and spread via WMI. Learn to investigate ransomware attacks with Splunk by tracing web shells and reconstructing attack timelines step by step.\nhttps://hackers-arise.com/digital-forensics-investigating-conti-ransomware-with-splunk/…\n@three_cube",
+          "author": {
+            "username": "_aircorridor",
+            "displayName": "Olexander",
+            "verified": false
+          },
+          "metrics": {
+            "likes": 24,
+            "reposts": 6,
+            "replies": 0,
+            "views": 0
+          },
+          "timestamp": "2026-02-13T13:00:03.000Z",
+          "hashtags": [],
+          "mentions": [
+            "@three_cube"
+          ],
+          "urls": [
+            "https://hackers-arise.com/digital-forensics-investigating-conti-ransomware-with-splunk/…"
+          ],
+          "permalink": "https://x.com/_aircorridor/status/2022294698241482941"
+        },
+        {
+          "id": "2022426653666975996",
+          "text": "BREAKING: Blockchain lending firm @Figure confirms data breach after an employee fell victim to a social engineering attack, allowing hackers to access a limited number of internal files, according to TechCrunch.\n\nShinyHunters claims responsibility, publishing 2.5GB of",
+          "author": {
+            "username": "SolanaFloor",
+            "displayName": "SolanaFloor",
+            "verified": false
+          },
+          "metrics": {
+            "likes": 23,
+            "reposts": 4,
+            "replies": 4,
+            "views": 4
+          },
+          "timestamp": "2026-02-13T21:44:23.000Z",
+          "hashtags": [],
+          "mentions": [
+            "@Figure"
+          ],
+          "urls": [],
+          "permalink": "https://x.com/SolanaFloor/status/2022426653666975996"
+        },
+        {
+          "id": "2021646921740505481",
+          "text": "Quiz Time! \n\nWhat is a zero-day vulnerability in cybersecurity? \n\nA) A known bug in software  \nB) A flaw without a patch  \nC) An outdated software version  \nD) A type of phishing attack\n\nComment your answer below!  #CyberSec #ZeroDay #Infosec",
+          "author": {
+            "username": "cyb3rshi3ld",
+            "displayName": "CyberSHIELD | CybersecurityOS",
+            "verified": false
+          },
+          "metrics": {
+            "likes": 16,
+            "reposts": 0,
+            "replies": 10,
+            "views": 10
+          },
+          "timestamp": "2026-02-11T18:06:01.000Z",
+          "hashtags": [
+            "#CyberSec",
+            "#ZeroDay",
+            "#Infosec"
+          ],
+          "mentions": [],
+          "urls": [],
+          "permalink": "https://x.com/cyb3rshi3ld/status/2021646921740505481"
+        },
+        {
+          "id": "2021879339671826682",
+          "text": "According to S2W, DragonForce operates as a ransomware cartel under a RaaS model since Dec 2023, had 363 victims by Jan 2026, peaking Dec 2025, recruits affiliates on BreachForums, RAMP and Exploit, and runs RansomBay for Windows/Linux builders. https://medium.com/s2wblog/inside-the-ecosystem-operations-dragonforce-11048db4cbb0?source=rss----30a8766b5c42---4…",
+          "author": {
+            "username": "Cyber_O51NT",
+            "displayName": "Cyber_OSINT",
+            "verified": false
+          },
+          "metrics": {
+            "likes": 7,
+            "reposts": 2,
+            "replies": 0,
+            "views": 0
+          },
+          "timestamp": "2026-02-12T09:29:33.000Z",
+          "hashtags": [],
+          "mentions": [],
+          "urls": [
+            "https://medium.com/s2wblog/inside-the-ecosystem-operations-dragonforce-11048db4cbb0?source=rss----30a8766b5c42---4…"
+          ],
+          "permalink": "https://x.com/Cyber_O51NT/status/2021879339671826682"
+        },
+        {
+          "id": "2021485664940982291",
+          "text": "18Lv PUC\n465th Zero-Day Exploit(One-Day Fusion Mix) MXM\n\n돌아왔구나",
+          "author": {
+            "username": "A_I_Ri_Su_",
+            "displayName": "IR!S",
+            "verified": false
+          },
+          "metrics": {
+            "likes": 11,
+            "reposts": 0,
+            "replies": 3,
+            "views": 3
+          },
+          "timestamp": "2026-02-11T07:25:14.000Z",
+          "hashtags": [],
+          "mentions": [],
+          "urls": [],
+          "permalink": "https://x.com/A_I_Ri_Su_/status/2021485664940982291"
+        }
+      ],
+      "shodanResults": []
+    },
+    "structured": {
+      "extractedCVEs": [
+        "CVE-2026-21509",
+        "CVE-2026-21514"
+      ],
+      "domains": [
+        "hackers-arise.com",
+        "stake.amnis",
+        "4w42197.msi",
+        "dreamgroup.com",
+        "arcticwolf.com",
+        "forcepoint.com",
+        "medium.com",
+        "cybersecuritynews.com",
+        "msrc.microsoft"
+      ],
+      "ips": [],
+      "ports": [],
+      "services": [],
+      "keywords": [
+        "Data Breach",
+        "Phishing",
+        "APT",
+        "Ransomware",
+        "Vulnerability"
+      ],
+      "exploitationClaims": [
+        "Exploited in Sophisticated Attack to Target Individuals \n\nSource: https://cybersecuritynews"
+      ],
+      "tone": "confirmed",
+      "topPosts": [
+        {
+          "author": "The_Cyber_News",
+          "excerpt": " Apple 0-Day Vulnerability Actively Exploited in Sophisticated Attack to Target Individuals \n\nSource: https://cybersecuritynews.com/apple-0-day-vulnerability-exploited/…\n\nApple released iOS 26.3 and iPadOS 26.3 on February 11, 2026, patching over 40 vulnerabilities, including a critical zero-day in the dyld component",
+          "engagement": 324,
+          "url": "https://x.com/The_Cyber_News/status/2021822072339804492",
+          "timestamp": "2026-02-12T05:42:00.000Z"
+        },
+        {
+          "author": "virusbtn",
+          "excerpt": "Forcepoint researchers look into a high-volume Phorpiex campaign delivered through malspam emails weaponized with Windows Shortcut .lnk files.  https://forcepoint.com/blog/x-labs/phorpiex-global-group-ransomware-lnk-phishing…",
+          "engagement": 56,
+          "url": "https://x.com/virusbtn/status/2021902568323265019",
+          "timestamp": "2026-02-12T11:01:52.000Z"
+        },
+        {
+          "author": "SLCScanner",
+          "excerpt": "#Breaking #Millcreek #ApartmentFire 4434 Lemans Drive. #UFA just arrived to a 3 story apt building with fire and heavy black smoke coming from 2nd story apt. Interior crew on fire attack. No injuries have been reported. Command requesting Investigator and building inspector.",
+          "engagement": 51,
+          "url": "https://x.com/SLCScanner/status/2021393477712707622",
+          "timestamp": "2026-02-11T01:18:55.000Z"
+        },
+        {
+          "author": "HaifeiLi",
+          "excerpt": "It seems to me that Microsoft just issued additional 3 patches to address the weaknesses in the original Office CVE-2026-21509/zero-day exploit chain.\n\nMicrosoft Word Security Feature Bypass Vulnerability (CVE-2026-21514)\nhttps://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-21514…\n\nWindows Shell Security Feature",
+          "engagement": 49,
+          "url": "https://x.com/HaifeiLi/status/2021302536263827748",
+          "timestamp": "2026-02-10T19:17:33.000Z"
+        },
+        {
+          "author": "PrakkiSathwik",
+          "excerpt": "#UNC6384 #MustangPanda #APT\nUpload from \n\n... powershell $Env:temp\\4w42197.msi\n\nref1: https://dreamgroup.com/plugx-diplomacy-mustang-panda-campaign/…\nref2: https://arcticwolf.com/resources/blog/unc6384-weaponizes-zdi-can-25373-vulnerability-to-deploy-plugx/…",
+          "engagement": 44,
+          "url": "https://x.com/PrakkiSathwik/status/2022197848696291643",
+          "timestamp": "2026-02-13T06:35:12.000Z"
+        }
+      ]
+    }
+  },
+  "assessmentLayer": {
+    "correlation": {
+      "score": 0.14,
+      "strength": "weak",
+      "factors": {
+        "cveOverlap": 0,
+        "serviceMatch": 0,
+        "temporalProximity": 0.7,
+        "infraSocialAlignment": 0
+      },
+      "explanation": "Correlation strength weak (14%) based on 0 CVE overlaps and 0 service matches."
+    },
+    "scoring": {
+      "weights": {
+        "vulnerabilityRatio": 0.35,
+        "socialIntensity": 0.25,
+        "correlationScore": 0.25,
+        "freshnessScore": 0.1,
+        "baselineDelta": 0.05
+      },
+      "components": {
+        "vulnerabilityRatio": 0,
+        "socialIntensity": 0.3,
+        "correlationScore": 0.14,
+        "freshnessScore": 0,
+        "baselineDelta": 0
+      },
+      "computedScore": 11,
+      "confidenceLevel": 25
+    },
+    "baselineComparison": {
+      "previousRiskScore": 50,
+      "currentRiskScore": 11,
+      "delta": -39,
+      "anomalyLevel": "severe",
+      "trendDirection": "decreasing"
+    },
+    "freshness": {
+      "socialAgeHours": 68.5,
+      "infraAgeHours": 1,
+      "freshnessScore": 0,
+      "status": "stale"
+    },
+    "classification": {
+      "type": "targeted",
+      "confidence": 75,
+      "rationale": "Indicators suggest targeted attack pattern with specific CVE and infrastructure focus.",
+      "indicators": [
+        "Specific CVE targeting",
+        "Narrow infrastructure scope",
+        "Strong cross-source correlation"
+      ]
+    },
+    "iocStats": {
+      "uniqueCVECount": 2,
+      "uniqueDomainCount": 9,
+      "uniqueIPCount": 0,
+      "uniquePortCount": 0,
+      "uniqueServiceCount": 0,
+      "totalIndicators": 11,
+      "duplicates": 0,
+      "duplicationRatio": 0
+    },
+    "narrative": "Today we observed confirmed activity related to Data Breach, Phishing. The correlation strength is weak (14%), primarily driven by temporal proximity. This pattern is consistent with targeted scanning."
+  },
+  "modelMetadata": {
+    "strategic": "mistral:7b-instruct-q4_0",
+    "technical": "saki007ster/CybersecurityRiskAnalyst",
+    "quantization": "Q4_K_M",
+    "version": "3.0.0"
   }
 }
