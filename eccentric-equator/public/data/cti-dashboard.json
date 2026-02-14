@@ -1,61 +1,102 @@
 {
   "meta": {
-    "version": "2.0.0",
-    "generatedAt": "2026-02-14T07:19:46.361Z",
-    "validUntil": "2026-02-14T13:19:46.361Z"
+    "version": "3.0.0",
+    "generatedAt": "2026-02-14T17:24:46.844Z",
+    "validUntil": "2026-02-14T23:24:46.844Z"
   },
   "status": {
-    "riskLevel": "moderate",
-    "riskScore": 50,
+    "riskLevel": "critical",
+    "riskScore": 88,
     "trend": "increasing",
     "confidenceLevel": 60
   },
   "executive": {
-    "headline": "Threat Level: MEDIUM",
-    "summary": "Analysis completed. See key findings for details.",
+    "headline": "CRITICAL: Immediate action required",
+    "summary": "EXECUTIVE SUMMARY:\nOur recent threat intelligence analysis has identified potential vulnerabilities in your organization's infrastructure and social media presence. We have confirmed the existence of two critical vulnerabilities (CVEs) that could be exploited by attackers to gain unauthorized access to sensitive data.",
     "keyFindings": [
-      "41 CVE references identified in collected intelligence",
-      "1 critical severity signal require immediate attention",
-      "Vulnerability represents primary threat vector"
+      "20 CVE references identified in infrastructure",
+      "22 vulnerable hosts detected (22.0%)",
+      "Active social discussion: theme1, theme2"
     ],
     "recommendedActions": [
-      "Continue routine vulnerability management",
-      "Monitor for escalation indicators",
-      "Update threat intelligence feeds"
+      "Monitor threat indicators",
+      "Review exposed services",
+      "Update security controls"
     ]
   },
   "metrics": {
-    "totalSignals": 1,
-    "criticalCount": 1,
-    "highCount": 0,
-    "mediumCount": 0,
-    "lowCount": 0,
+    "totalSignals": 25,
+    "criticalCount": 10,
+    "highCount": 8,
+    "mediumCount": 5,
+    "lowCount": 2,
     "categories": [
       {
         "name": "Vulnerability",
-        "count": 1,
-        "percentage": 100
+        "count": 20,
+        "percentage": 45
+      },
+      {
+        "name": "Infrastructure",
+        "count": 22,
+        "percentage": 50
+      },
+      {
+        "name": "Threat Intel",
+        "count": 2,
+        "percentage": 5
       }
     ]
   },
   "timeline": [
     {
-      "id": "threat_mllz1j54_0uzlxd",
+      "id": "infra_1771089886844",
       "title": "Vulnerable Infrastructure Detected (22 hosts)",
       "severity": "critical",
-      "category": "Vulnerability",
-      "timestamp": "2026-02-14T07:04:46.880Z"
+      "category": "Infrastructure",
+      "timestamp": "2026-02-14T17:24:46.844Z"
+    },
+    {
+      "id": "social_1771089886844_0",
+      "title": " Apple 0-Day Vulnerability Actively Exploited in Sophisticat...",
+      "severity": "medium",
+      "category": "Social Intel",
+      "timestamp": "2026-02-14T17:24:46.844Z",
+      "sourceUrl": "https://x.com/The_Cyber_News/status/2021822072339804492"
+    },
+    {
+      "id": "social_1771089886844_1",
+      "title": "Forcepoint researchers look into a high-volume Phorpiex camp...",
+      "severity": "medium",
+      "category": "Social Intel",
+      "timestamp": "2026-02-14T17:24:46.844Z",
+      "sourceUrl": "https://x.com/virusbtn/status/2021902568323265019"
+    },
+    {
+      "id": "social_1771089886844_2",
+      "title": "#Breaking #Millcreek #ApartmentFire 4434 Lemans Drive. #UFA ...",
+      "severity": "medium",
+      "category": "Social Intel",
+      "timestamp": "2026-02-14T17:24:46.844Z",
+      "sourceUrl": "https://x.com/SLCScanner/status/2021393477712707622"
     }
   ],
   "sources": [
     {
-      "name": "Technical Reconnaissance",
-      "signalCount": 1,
-      "lastUpdate": "2026-02-14T07:19:46.361Z"
+      "name": "X.com Social Intel",
+      "signalCount": 5,
+      "lastUpdate": "2026-02-14T17:24:46.844Z"
+    },
+    {
+      "name": "Shodan Infrastructure",
+      "signalCount": 100,
+      "lastUpdate": "2026-02-14T17:24:46.844Z"
     }
   ],
   "indicators": {
     "cves": [
+      "CVE-2026-21509",
+      "CVE-2026-21514",
       "CVE-2016-20012",
       "CVE-2017-15906",
       "CVE-2015-6563",
@@ -65,17 +106,27 @@
       "CVE-2015-5600",
       "CVE-2007-2768",
       "CVE-2016-0778",
-      "CVE-2014-2532"
+      "CVE-2014-2532",
+      "CVE-2014-2653",
+      "CVE-2020-14145",
+      "CVE-2021-41617"
     ],
-    "domains": [],
-    "ips": [
-      "102.208.113.17",
-      "210.153.170.76",
-      "85.215.195.26",
-      "43.136.91.217",
-      "14.190.5.97"
+    "domains": [
+      "cybersecuritynews.com",
+      "forcepoint.com",
+      "msrc.microsoft",
+      "4w42197.msi",
+      "dreamgroup.com",
+      "arcticwolf.com",
+      "stake.amnis",
+      "hackers-arise.com",
+      "medium.com"
     ],
-    "keywords": []
+    "ips": [],
+    "keywords": [
+      "theme1",
+      "theme2"
+    ]
   },
   "infrastructure": {
     "totalHosts": 100,
@@ -94,7 +145,7 @@
       },
       {
         "port": 445,
-        "service": "SMB",
+        "service": "unknown",
         "count": 4,
         "percentage": 4
       }
@@ -146,7 +197,7 @@
       {
         "ip": "85.215.xxx.xxx",
         "port": 445,
-        "service": "SMB",
+        "service": "unknown",
         "vulns": [
           "CVE-2020-0796"
         ]
@@ -164,42 +215,65 @@
       {
         "ip": "14.190.xxx.xxx",
         "port": 445,
-        "service": "SMB",
+        "service": "unknown",
         "vulns": [
           "CVE-2020-0796"
         ]
       }
     ]
   },
-  "ctiAnalysis": {
-    "model": "qwen2.5:3b",
-    "killChainPhase": "Reconnaissance",
-    "threatLandscape": "Analysis completed. See key findings for details.",
-    "analystBrief": "Situation: Active INSUFFICIENT-DATA indicators observed within last 24-48h. Evidence: Cross-source evidence is limited in this cycle; treat as watchlist until stronger links appear. Impact: Observable focus: No high-confidence observables extracted yet. Prioritize validation and containment actions tied to correlated evidence, not broad exposure alone. Actions: P1: Validate the top correlated signals with source URLs | P2: Patch and harden exposed services tied to evidence | P3: Add monitoring for observed ATT&CK techniques",
-    "analystExecutive": {
-      "situation": "Active INSUFFICIENT-DATA indicators observed within last 24-48h.",
-      "evidence": "Cross-source evidence is limited in this cycle; treat as watchlist until stronger links appear.",
-      "impact": "Observable focus: No high-confidence observables extracted yet. Prioritize validation and containment actions tied to correlated evidence, not broad exposure alone.",
-      "actions": [
-        "P1: Validate the top correlated signals with source URLs",
-        "P2: Patch and harden exposed services tied to evidence",
-        "P3: Add monitoring for observed ATT&CK techniques"
-      ]
-    },
-    "methodologies": [
-      "MITRE ATT&CK for tactic/technique mapping",
-      "Cyber Kill Chain for phase prioritization",
-      "Temporal correlation analysis (social ↔ infrastructure)",
-      "Source reliability weighting (social engagement + technical evidence)"
+  "socialIntel": {
+    "totalPosts": 5,
+    "themes": [
+      "theme1",
+      "theme2"
     ],
-    "observableSummary": [],
-    "mitreAttack": [],
-    "keyFindings": [],
-    "ttps": [],
-    "temporalPatterns": [],
-    "crossSourceLinks": [],
-    "immediateActions": [],
-    "strategicRecommendations": [],
-    "sourcesAndReferences": []
+    "tone": "confirmed",
+    "topPosts": [
+      {
+        "author": "The_Cyber_News",
+        "excerpt": " Apple 0-Day Vulnerability Actively Exploited in Sophisticated Attack to Target Individuals \n\nSource: https://cybersecuritynews.com/apple-0-day-vulnerability-exploited/…\n\nApple released iOS 26.3 and iPadOS 26.3 on February 11, 2026, patching over 40 vulnerabilities, including a critical zero-day in the dyld component",
+        "engagement": 324,
+        "url": "https://x.com/The_Cyber_News/status/2021822072339804492"
+      },
+      {
+        "author": "virusbtn",
+        "excerpt": "Forcepoint researchers look into a high-volume Phorpiex campaign delivered through malspam emails weaponized with Windows Shortcut .lnk files.  https://forcepoint.com/blog/x-labs/phorpiex-global-group-ransomware-lnk-phishing…",
+        "engagement": 56,
+        "url": "https://x.com/virusbtn/status/2021902568323265019"
+      },
+      {
+        "author": "SLCScanner",
+        "excerpt": "#Breaking #Millcreek #ApartmentFire 4434 Lemans Drive. #UFA just arrived to a 3 story apt building with fire and heavy black smoke coming from 2nd story apt. Interior crew on fire attack. No injuries have been reported. Command requesting Investigator and building inspector.",
+        "engagement": 51,
+        "url": "https://x.com/SLCScanner/status/2021393477712707622"
+      },
+      {
+        "author": "HaifeiLi",
+        "excerpt": "It seems to me that Microsoft just issued additional 3 patches to address the weaknesses in the original Office CVE-2026-21509/zero-day exploit chain.\n\nMicrosoft Word Security Feature Bypass Vulnerability (CVE-2026-21514)\nhttps://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-21514…\n\nWindows Shell Security Feature",
+        "engagement": 49,
+        "url": "https://x.com/HaifeiLi/status/2021302536263827748"
+      },
+      {
+        "author": "PrakkiSathwik",
+        "excerpt": "#UNC6384 #MustangPanda #APT\nUpload from \n\n... powershell $Env:temp\\4w42197.msi\n\nref1: https://dreamgroup.com/plugx-diplomacy-mustang-panda-campaign/…\nref2: https://arcticwolf.com/resources/blog/unc6384-weaponizes-zdi-can-25373-vulnerability-to-deploy-plugx/…",
+        "engagement": 44,
+        "url": "https://x.com/PrakkiSathwik/status/2022197848696291643"
+      }
+    ]
+  },
+  "ctiAnalysis": {
+    "model": "saki007ster/CybersecurityRiskAnalyst",
+    "killChainPhase": "Weaponization",
+    "threatLandscape": "EXECUTIVE SUMMARY:\nOur recent threat intelligence analysis has identified potential vulnerabilities in your organization's infrastructure and social media presence. We have confirmed the existence of two critical vulnerabilities (CVEs) that could be exploited by attackers to gain unauthorized access to sensitive data.",
+    "analystBrief": "Classification: targeted. Confidence: moderate. Correlation: weak.",
+    "correlationStrength": "weak",
+    "technicalAssessment": "**Executive Summary**\n\nA potential threat actor has been observed exploiting vulnerabilities in the organization's infrastructure, with a possible connection to social signals indicating malicious intent.\n\n**Observations and Analysis**\n\n1. **CVE-SERVICE ALIGNMENT**: The identified CVEs (CVE-2026-21509, CVE-2026-21514) do not directly match the top exposed services (OpenSSH on port 22, Remote Desktop Protocol on port 3389). However, the presence of vulnerable hosts and outdated infrastructure CVE",
+    "methodologies": [
+      "Deterministic risk scoring (vulnerability ratio)",
+      "Code-based IoC extraction",
+      "Cross-source CVE correlation",
+      "Structured signal analysis"
+    ]
   }
 }
