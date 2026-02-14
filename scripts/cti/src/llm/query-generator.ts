@@ -16,8 +16,8 @@ import * as path from 'path';
 import { XScrapedData, XPost } from '../types/index.js';
 
 const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
-// Usar modelo más capaz para análisis de CTI
-const QUERY_MODEL = process.env.OLLAMA_QUERY_MODEL || process.env.OLLAMA_MODEL || 'llama3.2:3b';
+// Use same model as CTI analysis by default; allow override
+const QUERY_MODEL = process.env.OLLAMA_QUERY_MODEL || process.env.OLLAMA_MODEL || 'qwen2.5:3b';
 
 export interface ShodanQuerySuggestion {
   query: string;
@@ -368,104 +368,25 @@ Only suggest 3-5 queries. Be specific and actionable.`;
   }
 
   /**
-   * Genera queries heurísticas basadas en indicadores extraídos
-   * Estas queries son específicas y contextuales, no genéricas
+   * Genera queries heurísticas MÍNIMAS basadas en indicadores explícitos.
+   * Objetivo: evitar mapeos manuales (falsos positivos) y preferir razonamiento del LLM.
    */
   private generateHeuristicQueries(indicators: QueryGeneratorResult['extractedIndicators']): ShodanQuerySuggestion[] {
     const queries: ShodanQuerySuggestion[] = [];
 
-    // Map of recent CVEs to affected products for contextual queries
-    const CVE_PRODUCT_MAP: Record<string, { query: string; product: string }> = {
-      'CVE-2025-26465': { query: 'product:openssh', product: 'OpenSSH' },
-      'CVE-2025-24200': { query: 'product:apple http.title:iphone', product: 'Apple iOS' },
-      'CVE-2025-0282': { query: 'product:ivanti', product: 'Ivanti Connect Secure' },
-      'CVE-2024-55591': { query: 'product:fortinet', product: 'FortiOS' },
-      'CVE-2024-47575': { query: 'product:fortimanager', product: 'FortiManager' },
-      'CVE-2024-21887': { query: 'product:ivanti', product: 'Ivanti Connect Secure' },
-      'CVE-2024-20353': { query: 'product:cisco', product: 'Cisco ASA' },
-      'CVE-2024-3400':  { query: 'product:"palo alto"', product: 'Palo Alto GlobalProtect' },
-      'CVE-2023-46805': { query: 'product:ivanti', product: 'Ivanti Connect Secure' },
-      'CVE-2020-0796':  { query: 'port:445 os:windows', product: 'Windows SMB (SMBGhost)' },
-    };
-
-    // Map of APT groups to infrastructure patterns they typically target/use
-    const APT_QUERY_MAP: Record<string, { query: string; description: string }> = {
-      'mustangpanda': { query: 'product:plugx port:443,8443', description: 'MustangPanda C2 infrastructure' },
-      'lazarus': { query: 'port:443,8443,8080', description: 'Lazarus Group common C2 ports' },
-      'apt28': { query: 'product:exchange port:443', description: 'APT28/Fancy Bear Exchange targeting' },
-      'apt29': { query: 'product:azure port:443', description: 'APT29/Cozy Bear cloud targeting' },
-      'sandworm': { query: 'product:mikrotik port:8291', description: 'Sandworm MikroTik targeting' },
-      'scattered spider': { query: 'product:okta port:443', description: 'Scattered Spider identity targeting' },
-      'fin7': { query: 'product:pos port:443', description: 'FIN7 Point of Sale targeting' },
-    };
-
-    // Map of ransomware families to initial access vectors
-    const RANSOMWARE_QUERY_MAP: Record<string, { query: string; description: string }> = {
-      'lockbit': { query: 'product:rdp port:3389 country:US', description: 'LockBit RDP targeting' },
-      'blackcat': { query: 'product:exchange port:443', description: 'BlackCat/ALPHV Exchange targeting' },
-      'alphv': { query: 'product:exchange port:443', description: 'ALPHV Exchange targeting' },
-      'clop': { query: 'product:moveit port:443', description: 'Clop MOVEit targeting' },
-      'play': { query: 'product:fortinet port:443', description: 'Play ransomware Fortinet targeting' },
-      'akira': { query: 'product:cisco vpn', description: 'Akira Cisco VPN targeting' },
-      'rhysida': { query: 'product:citrix port:443', description: 'Rhysida Citrix targeting' },
-      'dragonforce': { query: 'port:3389,445 os:windows', description: 'DragonForce Windows targeting' },
-    };
-
-    // Query based on CVEs - very specific
-    for (const cve of indicators.cves) {
-      const cveUpper = cve.toUpperCase();
-      const productInfo = CVE_PRODUCT_MAP[cveUpper];
-      if (productInfo) {
-        queries.push({
-          query: productInfo.query,
-          rationale: `${cveUpper} affects ${productInfo.product} - actively discussed in social intel`,
-          priority: 'high',
-          tags: ['cve', cveUpper.toLowerCase(), productInfo.product.toLowerCase()]
-        });
-      }
-    }
-
-    // Query based on APT groups mentioned
-    for (const actor of indicators.threatActors) {
-      const actorLower = actor.toLowerCase();
-      const aptInfo = APT_QUERY_MAP[actorLower];
-      if (aptInfo) {
-        queries.push({
-          query: aptInfo.query,
-          rationale: aptInfo.description,
-          priority: 'high',
-          tags: ['apt', actorLower]
-        });
-      }
-    }
-
-    // Query based on ransomware families
-    for (const malware of indicators.malwareFamilies) {
-      const malwareLower = malware.toLowerCase();
-      const ransomInfo = RANSOMWARE_QUERY_MAP[malwareLower];
-      if (ransomInfo) {
-        queries.push({
-          query: ransomInfo.query,
-          rationale: ransomInfo.description,
-          priority: 'high',
-          tags: ['ransomware', malwareLower]
-        });
-      }
-    }
-
-    // Query based on services mentioned - map to specific products
+    // Query basada en servicios mencionados explícitamente (evidencia social)
     if (indicators.services.length > 0) {
-      const servicePorts = indicators.services
+      const serviceTerms = indicators.services
         .map(s => SERVICE_TO_PORT[s])
         .filter(Boolean)
         .slice(0, 3);
 
-      if (servicePorts.length > 0) {
+      if (serviceTerms.length > 0) {
         queries.push({
-          query: servicePorts.join(' '),
-          rationale: `Services discussed in social intel: ${indicators.services.join(', ')}`,
-          priority: 'medium',
-          tags: ['services', 'social-intel']
+          query: serviceTerms.join(' '),
+          rationale: `Services explicitly discussed in social intel: ${indicators.services.join(', ')}`,
+          priority: 'high',
+          tags: ['services', 'explicit']
         });
       }
     }
@@ -480,26 +401,20 @@ Only suggest 3-5 queries. Be specific and actionable.`;
       });
     }
 
-    // Geographic query if countries mentioned
-    if (indicators.countries.length > 0) {
+    // Geographic constraint if mentioned (only as refinement)
+    if (indicators.countries.length > 0 && queries.length > 0) {
       const country = indicators.countries[0];
-      // Only add geographic constraint if we have other specific queries
-      if (queries.length > 0) {
-        const topQuery = queries[0];
-        queries.unshift({
-          query: `${topQuery.query} country:${country}`,
-          rationale: `${topQuery.rationale} - geographic focus: ${country}`,
-          priority: 'high',
-          tags: [...topQuery.tags, 'geographic', country.toLowerCase()]
-        });
-      }
+      queries[0] = {
+        ...queries[0],
+        query: `${queries[0].query} country:${country}`,
+        rationale: `${queries[0].rationale} - geographic focus mentioned: ${country}`,
+        tags: [...queries[0].tags, 'geographic', country.toLowerCase()]
+      };
     }
 
-    // If no specific indicators extracted, DON'T add generic queries
-    // Let Shodan fall back to its default only if absolutely nothing is available
-    if (queries.length === 0 && indicators.cves.length === 0 && indicators.threatActors.length === 0) {
-      // Return empty - better to have no data than generic irrelevant data
-      console.log('[QueryGen] No specific indicators to query - will use minimal fallback');
+    // If no explicit indicators extracted, return empty (avoid generic scans)
+    if (queries.length === 0) {
+      console.log('[QueryGen] No explicit indicators to query - returning empty (avoid generic scans)');
     }
 
     return queries;

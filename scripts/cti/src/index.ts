@@ -22,7 +22,7 @@ import DataProcessor from './processors/data-processor.js';
 import LLMAnalyzer from './llm/analyzer.js';
 import DashboardGenerator from './dashboard/generate-dashboard.js';
 import QueryGenerator from './llm/query-generator.js';
-import CTIAgentSystem from './llm/cti-agents-v2.js';
+import CTIAgentSystem from './llm/cti-agents.js';
 
 const OUTPUT_DIR = process.env.CTI_OUTPUT_DIR || './DATA/cti-output';
 const COMMANDS = ['scrape', 'process', 'analyze', 'agents', 'dashboard', 'query', 'smart', 'all'] as const;
@@ -95,11 +95,11 @@ async function runCTIAgents(): Promise<void> {
   const agents = new CTIAgentSystem();
   const analysis = await agents.analyze();
   console.log(`[CTI-Agents] ✓ Analysis complete`);
-  console.log(`  - IPs: ${analysis.extraction.ips.length}`);
-  console.log(`  - CVEs: ${analysis.extraction.cves.length}`);
+  console.log(`  - IPs: ${analysis.extraction.iocs.ips.length}`);
+  console.log(`  - CVEs: ${analysis.extraction.iocs.cves.length}`);
   console.log(`  - TTPs: ${analysis.extraction.ttps.length}`);
-  console.log(`  - Risk: ${analysis.analysis.riskLevel} (score: ${analysis.analysis.riskScore})`);
-  console.log(`  - Findings: ${analysis.analysis.keyFindings.length}`);
+  console.log(`  - Risk: ${analysis.analysis.riskAssessment.level} (score: ${analysis.analysis.riskAssessment.score})`);
+  console.log(`  - Findings: ${analysis.report.keyFindings.length}`);
 }
 
 async function runDashboard(): Promise<void> {

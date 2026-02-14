@@ -6,7 +6,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { ProcessedData, LLMAnalysisResult, ThreatSeverity, ThreatCategory, DataSource, EvidenceLink, CorrelationSignal, ShodanScrapedData, XScrapedData } from '../types/index.js';
-import { CTIAnalysis } from '../llm/cti-agents-v2.js';
+import { CTIAnalysis } from '../llm/cti-agents.js';
 
 // Frontend-optimized dashboard format with evidence and correlation
 export interface PublicDashboard {
@@ -190,7 +190,7 @@ export class DashboardGenerator {
     await this.saveDashboard(dashboard);
     console.log(`[Dashboard] Generated - Risk: ${dashboard.status.riskLevel}, Signals: ${dashboard.metrics.totalSignals}`);
     if (ctiAnalysis) {
-      console.log(`[Dashboard] CTI Analysis: ${ctiAnalysis.analysis.keyFindings.length} findings, ${ctiAnalysis.extraction.ttps.length} TTPs`);
+      console.log(`[Dashboard] CTI Analysis: ${ctiAnalysis.report.keyFindings.length} findings, ${ctiAnalysis.extraction.ttps.length} TTPs`);
     }
     
     return dashboard;
@@ -289,10 +289,11 @@ export class DashboardGenerator {
       : executive;
 
     // Use CTI analysis risk assessment if available, mapping CTI levels to dashboard levels
-    const finalRiskScore = ctiAnalysis?.analysis.riskScore ?? riskScore;
-    const ctiLevel = ctiAnalysis?.analysis.riskLevel;
-    const mappedLevel = ctiLevel 
-      ? { critical: 'critical', high: 'elevated', medium: 'moderate', low: 'low' }[ctiLevel] as 'critical' | 'elevated' | 'moderate' | 'low'
+    const ctiRiskScore = ctiAnalysis?.analysis?.riskAssessment?.score;
+    const ctiRiskLevel = ctiAnalysis?.analysis?.riskAssessment?.level;
+    const finalRiskScore = typeof ctiRiskScore === 'number' ? ctiRiskScore : riskScore;
+    const mappedLevel: ('critical' | 'elevated' | 'moderate' | 'low') | null = ctiRiskLevel
+      ? ({ critical: 'critical', high: 'elevated', medium: 'moderate', low: 'low' } as const)[ctiRiskLevel]
       : null;
     const finalRiskLevel = mappedLevel ?? riskLevel;
 
@@ -337,85 +338,29 @@ export class DashboardGenerator {
     const tacticMap = new Map<string, string[]>();
     for (const ttp of ctiAnalysis.extraction.ttps) {
       const techniques = tacticMap.get(ttp.tactic) || [];
-      techniques.push(`${ttp.id}: ${ttp.name}`);
+      techniques.push(`${ttp.techniqueId}: ${ttp.technique}`);
       tacticMap.set(ttp.tactic, techniques);
     }
 
-    // Build temporal patterns from correlation analysis
-    type TemporalPattern = {
-      pattern: string;
-      description: string;
-      timeframe: string;
-      confidence: number;
-      evidence: Array<{ source: string; excerpt: string; url: string }>;
-    };
-    const temporalPatterns: TemporalPattern[] = [];
-    if (ctiAnalysis.correlation) {
-      // Add main correlation narrative as pattern
-      if (ctiAnalysis.correlation.narrative) {
-        const socialEvidence = ctiAnalysis.extraction.socialPosts.slice(0, 2).map(post => ({
-          source: 'X.com',
-          excerpt: this.cleanLLMText(post.text),
-          url: post.url || `https://x.com/search?q=${encodeURIComponent(post.text.substring(0, 40))}`
-        }));
-        const infraEvidence = ctiAnalysis.extraction.ips.slice(0, 2).map(ip => ({
-          source: 'Shodan',
-          excerpt: `${ip.service} ${ip.value}:${ip.port}`,
-          url: ip.url
-        }));
+    const temporalPatterns = (ctiAnalysis.correlation?.temporalPatterns || []).map(p => ({
+      pattern: this.cleanLLMText(p.pattern),
+      description: this.cleanLLMText(p.description),
+      timeframe: this.cleanLLMText(p.timeframe),
+      confidence: p.confidence,
+      evidence: (p.evidence || []).map(e => ({
+        source: this.cleanLLMText(e.source),
+        excerpt: this.cleanLLMText(e.excerpt),
+        url: e.url
+      }))
+    }));
 
-        temporalPatterns.push({
-          pattern: `${ctiAnalysis.correlation.pattern.toUpperCase()} correlation detected`,
-          description: this.cleanLLMText(ctiAnalysis.correlation.narrative),
-          timeframe: ctiAnalysis.correlation.timeWindow,
-          confidence: ctiAnalysis.correlation.confidence / 100,
-          evidence: [...socialEvidence, ...infraEvidence]
-        });
-      }
-      
-      // Add emerging threats as patterns
-      for (const threat of ctiAnalysis.correlation.emergingThreats || []) {
-        temporalPatterns.push({
-          pattern: 'Emerging Threat',
-          description: this.cleanLLMText(threat),
-          timeframe: 'Active',
-          confidence: 0.7,
-          evidence: []
-        });
-      }
-    }
-
-    // Build cross-source links from correlation
-    type CrossSourceLink = {
-      infraSignal: string;
-      socialSignal: string;
-      relationship: string;
-      timeDelta: string;
-      significance: string;
-    };
-    const crossSourceLinks: CrossSourceLink[] = [];
-    if (ctiAnalysis.correlation?.keyCorrelations) {
-      for (const corr of ctiAnalysis.correlation.keyCorrelations) {
-        crossSourceLinks.push({
-          infraSignal: this.cleanLLMText(corr.infraEvent),
-          socialSignal: this.cleanLLMText(corr.socialEvent),
-          relationship: ctiAnalysis.correlation.pattern,
-          timeDelta: this.cleanLLMText(corr.timeDelta),
-          significance: this.cleanLLMText(corr.significance)
-        });
-      }
-    }
-    
-    // Fallback if no correlations found
-    if (crossSourceLinks.length === 0 && ctiAnalysis.extraction.socialPosts.length > 0) {
-      crossSourceLinks.push(...ctiAnalysis.extraction.socialPosts.slice(0, 3).map(p => ({
-        infraSignal: ctiAnalysis.extraction.ips[0]?.service || 'Network exposure',
-        socialSignal: `${p.author}: ${p.text.substring(0, 50)}...`,
-        relationship: 'Concurrent activity',
-        timeDelta: 'Within analysis window',
-        significance: 'Temporal proximity detected'
-      })));
-    }
+    const crossSourceLinks = (ctiAnalysis.correlation?.crossSourceLinks || []).map(l => ({
+      infraSignal: this.cleanLLMText(l.infraSignal),
+      socialSignal: this.cleanLLMText(l.socialSignal),
+      relationship: this.cleanLLMText(l.relationship),
+      timeDelta: this.cleanLLMText(l.timeDelta),
+      significance: this.cleanLLMText(l.significance)
+    }));
 
     const methodologies = [
       'MITRE ATT&CK for tactic/technique mapping',
@@ -424,8 +369,8 @@ export class DashboardGenerator {
       'Source reliability weighting (social engagement + technical evidence)'
     ];
 
-    const observableSummary = this.buildObservableSummary(ctiAnalysis);
-    const analystExecutive = this.buildAnalystJrExecutive(ctiAnalysis, crossSourceLinks, observableSummary);
+    const observableSummary = this.buildObservableSummaryFromMultiAgent(ctiAnalysis);
+    const analystExecutive = this.buildAnalystJrExecutiveFromMultiAgent(ctiAnalysis, crossSourceLinks, observableSummary);
     const analystBrief = [
       `Situation: ${analystExecutive.situation}`,
       `Evidence: ${analystExecutive.evidence}`,
@@ -433,7 +378,7 @@ export class DashboardGenerator {
       `Actions: ${analystExecutive.actions.join(' | ')}`
     ].join(' ');
 
-    const cleanThreatLandscape = this.cleanLLMText(ctiAnalysis.analysis.summary || '');
+    const cleanThreatLandscape = this.cleanLLMText(ctiAnalysis.report.situationSummary || ctiAnalysis.analysis.threatLandscape || '');
 
     // Transform v2 structure to dashboard format
     return {
@@ -449,100 +394,100 @@ export class DashboardGenerator {
         techniques,
         mitigations: ['Implement network segmentation', 'Enable logging and monitoring']
       })),
-      keyFindings: ctiAnalysis.analysis.keyFindings.map((f, i) => ({
-        finding: this.cleanLLMText(f),
-        severity: i === 0 ? 'high' : 'medium',
-        evidence: 'Based on collected intelligence data',
-        recommendation: this.cleanLLMText(ctiAnalysis.analysis.recommendations[i] || 'Review and assess risk')
+      keyFindings: (ctiAnalysis.report.keyFindings || []).map((f) => ({
+        finding: this.cleanLLMText(f.finding),
+        severity: this.cleanLLMText(f.severity || 'medium'),
+        evidence: this.cleanLLMText(f.evidence || ''),
+        recommendation: this.cleanLLMText(f.recommendation || '')
       })),
-      ttps: ctiAnalysis.extraction.ttps.map(t => ({
-        technique: t.name,
-        techniqueId: t.id,
-        tactic: t.tactic,
+      ttps: (ctiAnalysis.extraction.ttps || []).map(t => ({
+        technique: this.cleanLLMText(t.technique),
+        techniqueId: this.cleanLLMText(t.techniqueId),
+        tactic: this.cleanLLMText(t.tactic),
         evidence: this.cleanLLMText(t.evidence),
-        confidence: 0.8
+        confidence: t.confidence
       })),
       temporalPatterns,
       crossSourceLinks,
-      immediateActions: ctiAnalysis.analysis.recommendations.slice(0, 3),
-      strategicRecommendations: ctiAnalysis.analysis.recommendations.slice(3),
-      sourcesAndReferences: [
-        ...ctiAnalysis.extraction.socialPosts.slice(0, 4).map(post => ({
-          source: 'X.com',
-          url: post.url || `https://x.com/search?q=${encodeURIComponent(post.text.substring(0, 40))}`,
-          relevance: `${post.author} (${post.engagement} engagement)`
-        })),
-        ...ctiAnalysis.extraction.ips.slice(0, 3).map(ip => ({
-          source: 'Shodan',
-          url: ip.url,
-          relevance: `${ip.service} on port ${ip.port}`
-        })),
-        ...ctiAnalysis.extraction.cves.slice(0, 3).map(cve => ({
-          source: 'NVD',
-          url: cve.url,
-          relevance: `${cve.id} (${cve.severity})`
-        }))
-      ]
+      immediateActions: (ctiAnalysis.report.immediateActions || []).map(a => this.cleanLLMText(a)).slice(0, 3),
+      strategicRecommendations: (ctiAnalysis.report.strategicRecommendations || []).map(a => this.cleanLLMText(a)).slice(0, 5),
+      sourcesAndReferences: this.buildSourcesFromMultiAgent(ctiAnalysis)
     };
   }
 
-  private buildObservableSummary(ctiAnalysis: CTIAnalysis): string[] {
+  private buildObservableSummaryFromMultiAgent(ctiAnalysis: CTIAnalysis): string[] {
     const observables: string[] = [];
 
-    const topCves = ctiAnalysis.extraction.cves.slice(0, 4).map(c => c.id);
-    if (topCves.length > 0) {
-      observables.push(`CVEs in current cycle: ${topCves.join(', ')}`);
-    }
+    const topCves = (ctiAnalysis.extraction.iocs.cves || []).slice(0, 4).map(c => c.id);
+    if (topCves.length > 0) observables.push(`CVEs in current cycle: ${topCves.join(', ')}`);
 
-    const infraCandidates = ctiAnalysis.extraction.ips
-      .filter(i => i.port !== 22 || /smb|rdp|exchange|forti|vpn|citrix|http|https/i.test(i.service))
-      .slice(0, 4);
-    const topInfra = (infraCandidates.length > 0 ? infraCandidates : ctiAnalysis.extraction.ips.slice(0, 4))
-      .map(i => `${i.service} (${i.value}:${i.port})`);
-    if (topInfra.length > 0) {
-      observables.push(`Infrastructure observables: ${topInfra.join(' | ')}`);
-    }
+    const topIps = (ctiAnalysis.extraction.iocs.ips || [])
+      .slice(0, 4)
+      .map(ip => `${ip.value} (conf: ${Math.round(ip.confidence * 100)}%)`);
+    if (topIps.length > 0) observables.push(`IP observables: ${topIps.join(' | ')}`);
 
-    const topSocialSignals = ctiAnalysis.extraction.socialPosts.slice(0, 3).map(p => {
-      const compact = this.cleanLLMText(p.text).replace(/\s+/g, ' ').substring(0, 70);
-      return `${p.author}: ${compact}${compact.length >= 70 ? '...' : ''}`;
-    });
-    if (topSocialSignals.length > 0) {
-      observables.push(`Social observables: ${topSocialSignals.join(' || ')}`);
-    }
+    const actors = (ctiAnalysis.extraction.threatActors || []).slice(0, 3).map(a => a.name);
+    if (actors.length > 0) observables.push(`Named actors (from evidence): ${actors.join(', ')}`);
+
+    const malware = (ctiAnalysis.extraction.malwareFamilies || []).slice(0, 3).map(m => m.name);
+    if (malware.length > 0) observables.push(`Malware families (from evidence): ${malware.join(', ')}`);
 
     return observables;
   }
 
-  private buildAnalystJrExecutive(
+  private buildAnalystJrExecutiveFromMultiAgent(
     ctiAnalysis: CTIAnalysis,
     crossSourceLinks: Array<{ infraSignal: string; socialSignal: string; relationship: string; timeDelta: string; significance: string }>,
     observableSummary: string[]
   ): { situation: string; evidence: string; impact: string; actions: string[] } {
-    const pattern = ctiAnalysis.correlation?.pattern || 'isolated';
-    const window = ctiAnalysis.correlation?.timeWindow || '24-48 hours';
     const topCorrelation = crossSourceLinks[0];
+    const timeframe = ctiAnalysis.correlation?.temporalPatterns?.[0]?.timeframe || 'last 24-48h';
+    const pattern = (topCorrelation?.relationship || ctiAnalysis.correlation?.campaignIndicators?.detected ? 'campaign' : 'insufficient-data');
     const mainObservable = observableSummary[0] || 'No high-confidence observables extracted yet';
 
     const evidence = topCorrelation
       ? `Social: ${this.cleanLLMText(topCorrelation.socialSignal).substring(0, 110)} | Infra: ${this.cleanLLMText(topCorrelation.infraSignal).substring(0, 110)} | Delta: ${this.cleanLLMText(topCorrelation.timeDelta)}`
-      : 'Correlation evidence is limited in this cycle; monitor next run for stronger link density.';
+      : 'Cross-source evidence is limited in this cycle; treat as watchlist until stronger links appear.';
 
     const actions = [
-      ctiAnalysis.analysis.recommendations[0] || 'P1: Validate exposed systems tied to current correlated signal.',
-      ctiAnalysis.analysis.recommendations[1] || 'P2: Patch CVEs referenced in both social and infrastructure evidence.',
-      ctiAnalysis.analysis.recommendations[2] || 'P3: Add detections for mapped TTPs and monitor 24-48h drift.'
-    ].map((a, idx) => {
+      ...(ctiAnalysis.report.immediateActions || []).slice(0, 3),
+      ...(ctiAnalysis.report.strategicRecommendations || []).slice(0, 1)
+    ].filter(Boolean).slice(0, 3).map((a, idx) => {
       const clean = this.cleanLLMText(a);
       return clean.match(/^P\d:/i) ? clean : `P${idx + 1}: ${clean}`;
     });
 
     return {
-      situation: `Active ${pattern.toUpperCase()} threat behavior observed with temporal window ${window}.`,
+      situation: `Active ${String(pattern).toUpperCase()} indicators observed within ${this.cleanLLMText(timeframe)}.`,
       evidence,
-      impact: `Observable focus: ${mainObservable}. This indicates potential ongoing exploitation pressure in the current cycle.`,
-      actions
+      impact: `Observable focus: ${mainObservable}. Prioritize validation and containment actions tied to correlated evidence, not broad exposure alone.`,
+      actions: actions.length > 0 ? actions : ['P1: Validate the top correlated signals with source URLs', 'P2: Patch and harden exposed services tied to evidence', 'P3: Add monitoring for observed ATT&CK techniques']
     };
+  }
+
+  private buildSourcesFromMultiAgent(ctiAnalysis: CTIAnalysis): Array<{ source: string; url: string; relevance: string }> {
+    const sources: Array<{ source: string; url: string; relevance: string }> = [];
+
+    for (const ref of ctiAnalysis.report.sourcesAndReferences || []) {
+      if (ref.url) {
+        sources.push({
+          source: this.cleanLLMText(ref.source),
+          url: ref.url,
+          relevance: this.cleanLLMText(ref.relevance)
+        });
+      }
+    }
+
+    // Add NVD links for extracted CVEs (if not already present)
+    const existingNvd = new Set(sources.filter(s => s.source.toLowerCase() === 'nvd').map(s => s.url));
+    for (const cve of ctiAnalysis.extraction.iocs.cves || []) {
+      const url = `https://nvd.nist.gov/vuln/detail/${cve.id}`;
+      if (!existingNvd.has(url)) {
+        sources.push({ source: 'NVD', url, relevance: `${cve.id} (${this.cleanLLMText(cve.severity)})` });
+      }
+    }
+
+    return sources.slice(0, 14);
   }
 
   /**
@@ -568,12 +513,16 @@ export class DashboardGenerator {
     executive: PublicDashboard['executive'], 
     ctiAnalysis: CTIAnalysis
   ): PublicDashboard['executive'] {
-    const cleanFindings = ctiAnalysis.analysis.keyFindings.map(f => this.cleanLLMText(f));
-    const cleanRecs = ctiAnalysis.analysis.recommendations.map(r => this.cleanLLMText(r));
+    const cleanFindings = (ctiAnalysis.report.keyFindings || []).map(f => this.cleanLLMText(f.finding));
+    const cleanRecs = [
+      ...(ctiAnalysis.report.immediateActions || []),
+      ...(ctiAnalysis.report.strategicRecommendations || [])
+    ].map(r => this.cleanLLMText(r));
+    const level = ctiAnalysis.analysis.riskAssessment.level;
     
     return {
-      headline: `Threat Level: ${ctiAnalysis.analysis.riskLevel.toUpperCase()}`,
-      summary: this.cleanLLMText(ctiAnalysis.analysis.summary || executive.summary),
+      headline: `Threat Level: ${level.toUpperCase()}`,
+      summary: this.cleanLLMText(ctiAnalysis.report.situationSummary || ctiAnalysis.analysis.threatLandscape || executive.summary),
       keyFindings: cleanFindings.length > 0 ? cleanFindings : executive.keyFindings,
       recommendedActions: cleanRecs.length > 0 ? cleanRecs.slice(0, 5) : executive.recommendedActions
     };

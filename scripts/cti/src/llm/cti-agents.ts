@@ -29,8 +29,8 @@ const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
 const CTI_MODEL = process.env.OLLAMA_MODEL || 'qwen2.5:3b';
 // Longer timeout for CPU inference (10 minutes)
 const REQUEST_TIMEOUT = parseInt(process.env.CTI_REQUEST_TIMEOUT || '600000', 10);
-// Max context size in characters (to avoid overwhelming the model)
-const MAX_CONTEXT_SIZE = 8000;
+// Max context size in characters (target ~20K for GitHub Actions runners)
+const MAX_CONTEXT_SIZE = 20000;
 
 // MITRE ATT&CK Tactics for mapping
 const MITRE_TACTICS = [
