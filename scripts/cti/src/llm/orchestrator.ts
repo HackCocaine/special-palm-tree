@@ -22,7 +22,9 @@ import { XScrapedData, XPost, ShodanScrapedData, ShodanHost } from '../types/ind
 const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
 const STRATEGIC_MODEL = process.env.OLLAMA_MODEL_STRATEGIC || 'mistral:7b-instruct-q4_0';
 const TECHNICAL_MODEL = process.env.OLLAMA_MODEL_TECHNICAL || 'saki007ster/CybersecurityRiskAnalyst';
-const REQUEST_TIMEOUT = parseInt(process.env.CTI_REQUEST_TIMEOUT || '300000', 10);
+// 10 minutes timeout for CPU inference in GitHub Actions
+const REQUEST_TIMEOUT = parseInt(process.env.CTI_REQUEST_TIMEOUT || '600000', 10);
+const MAX_RETRIES = parseInt(process.env.CTI_MAX_RETRIES || '2', 10);
 
 // Token budget (~20k context strategy)
 const MAX_X_SUMMARY_TOKENS = 3000;
@@ -428,11 +430,14 @@ Return ONLY valid JSON with this exact structure (no markdown, no explanation):
     return lines.join('\n');
   }
 
-  private async callOllama(model: string, prompt: string): Promise<string> {
+  private async callOllama(model: string, prompt: string, retryCount = 0): Promise<string> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
     try {
+      console.log(`    [Ollama] Calling ${model} (attempt ${retryCount + 1}/${MAX_RETRIES + 1})...`);
+      const startTime = Date.now();
+      
       const res = await fetch(`${OLLAMA_HOST}/api/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -449,15 +454,34 @@ Return ONLY valid JSON with this exact structure (no markdown, no explanation):
         })
       });
 
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+
       if (!res.ok) {
         throw new Error(`Ollama HTTP ${res.status}`);
       }
 
       const data = await res.json() as { response: string };
+      console.log(`    [Ollama] Response received in ${elapsed}s`);
       return data.response || '';
+    } catch (error) {
+      clearTimeout(timeout);
+      
+      // Retry on timeout or network errors
+      if (retryCount < MAX_RETRIES) {
+        const isTimeout = error instanceof Error && error.name === 'AbortError';
+        const waitTime = Math.pow(2, retryCount) * 5000; // Exponential backoff: 5s, 10s
+        console.log(`    [Ollama] ${isTimeout ? 'Timeout' : 'Error'}, retrying in ${waitTime/1000}s...`);
+        await this.sleep(waitTime);
+        return this.callOllama(model, prompt, retryCount + 1);
+      }
+      throw error;
     } finally {
       clearTimeout(timeout);
     }
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   private async loadJson<T>(filename: string): Promise<T | null> {
