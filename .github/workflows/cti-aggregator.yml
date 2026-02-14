@@ -64,9 +64,7 @@ jobs:
           echo "Attempting to import specialist model from Hugging Face GGUF..."
           mkdir -p ./DATA/models
           curl -fL "${{ env.OLLAMA_MODEL_PRIMARY_GGUF_URL }}" -o ./DATA/models/unsloth.Q4_K_M.gguf
-          cat > ./DATA/models/Modelfile << 'EOF'
-FROM ./DATA/models/unsloth.Q4_K_M.gguf
-EOF
+          printf 'FROM ./DATA/models/unsloth.Q4_K_M.gguf\n' > ./DATA/models/Modelfile
           ollama create "${{ env.OLLAMA_MODEL_PRIMARY }}" -f ./DATA/models/Modelfile
 
           echo "OLLAMA_MODEL=${{ env.OLLAMA_MODEL_PRIMARY }}" >> "$GITHUB_ENV"
