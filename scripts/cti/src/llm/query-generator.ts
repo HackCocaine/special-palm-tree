@@ -170,16 +170,10 @@ export class QueryGenerator {
     
     console.log(`[QueryGen] Analyzing ${xData.posts.length} posts for query generation`);
 
-    let rawAnalysis = '';
-    let llmQueries: ShodanQuerySuggestion[] = [];
-
-    try {
-      rawAnalysis = await this.callOllama(prompt);
-      llmQueries = this.parseLLMResponse(rawAnalysis);
-    } catch (err) {
-      console.log('[QueryGen] LLM failed, using heuristic query generation');
-      rawAnalysis = 'LLM unavailable - using heuristics';
-    }
+    // STRICT: If Ollama/model is unavailable, abort the pipeline.
+    // (No fallback-to-heuristics for LLM connectivity failures.)
+    const rawAnalysis = await this.callOllama(prompt);
+    const llmQueries = this.parseLLMResponse(rawAnalysis);
 
     // Combinar queries del LLM con queries heurísticas basadas en indicadores
     const heuristicQueries = this.generateHeuristicQueries(indicators);
