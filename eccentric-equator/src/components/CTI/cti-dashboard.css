@@ -2122,3 +2122,30 @@
   border: 1px solid rgba(107, 114, 128, 0.4);
   color: #a0a0a0;
 }
+
+/* Refresh Button */
+.cti-refresh-btn {
+  background: rgba(88, 166, 255, 0.1);
+  border: 1px solid rgba(88, 166, 255, 0.3);
+  color: #58a6ff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cti-refresh-btn:hover {
+  background: rgba(88, 166, 255, 0.2);
+  border-color: rgba(88, 166, 255, 0.5);
+}
+
+.cti-refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+

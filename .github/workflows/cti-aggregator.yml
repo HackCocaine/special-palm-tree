@@ -13,6 +13,11 @@ on:
         required: true
         default: true
         type: boolean
+      flush_cache:
+        description: 'Borrar cache y forzar recoleccion fresca'
+        required: true
+        default: false
+        type: boolean
   schedule:
     # Daily CTI refresh at 06:15 UTC
     - cron: '15 6 * * *'
@@ -91,8 +96,17 @@ jobs:
           echo ""
           echo "=== Models ready for CTI pipeline ==="
 
+      - name: Clear Cache (if flush requested)
+        if: ${{ inputs.flush_cache }}
+        run: |
+          echo "=== FLUSHING CACHE ==="
+          rm -rf ${{ env.CTI_CACHE_DIR }}/* || true
+          rm -f ${{ env.CTI_OUTPUT_DIR }}/x-data.json || true
+          rm -f ${{ env.CTI_OUTPUT_DIR }}/shodan-data.json || true
+          echo "✓ Cache cleared"
+
       - name: Restore CTI Cache
-        if: ${{ inputs.use_cache }}
+        if: ${{ inputs.use_cache && !inputs.flush_cache }}
         uses: actions/cache@v4
         with:
           path: ${{ env.CTI_CACHE_DIR }}
@@ -146,10 +160,19 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
 
+      - name: Clear Cloudflare Cache
+        if: ${{ success() }}
+        run: |
+          echo "=== CLEARING CLOUDFLARE CACHE ==="
+          curl -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_ZONE_ID }}/purge_cache" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}' || echo "Cache purge skipped (no credentials)"
+
       - name: Commit Dashboard Update
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
           git add ./eccentric-equator/public/data/cti-dashboard.json || true
-          git diff --staged --quiet || git commit -m "chore: update CTI intelligence dashboard"
+          git diff --staged --quiet || git commit -m "chore: update CTI intelligence dashboard [cache-busted]"
           git push || true

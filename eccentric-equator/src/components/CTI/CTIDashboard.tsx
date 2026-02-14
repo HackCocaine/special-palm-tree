@@ -275,25 +275,36 @@ const CTIDashboard: React.FC = () => {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     loadDashboard();
   }, []);
 
-  const loadDashboard = async () => {
+  const loadDashboard = async (isManualRefresh = false) => {
+    if (isManualRefresh) {
+      setIsRefreshing(true);
+    }
     try {
-      const response = await fetch('/data/cti-dashboard.json');
+      const cacheBuster = `?_cb=${Date.now()}`;
+      const response = await fetch(`/data/cti-dashboard.json${cacheBuster}`);
       if (!response.ok) {
         throw new Error('Dashboard data not available');
       }
       const dashboardData = await response.json();
       setData(dashboardData);
+      setError(null);
     } catch (err) {
       setError('Intelligence data currently unavailable');
       console.error('Failed to load CTI dashboard:', err);
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
+  };
+
+  const handleRefresh = () => {
+    loadDashboard(true);
   };
 
   if (loading) {
@@ -362,7 +373,11 @@ const CTIDashboard: React.FC = () => {
         )}
       </main>
       
-      <Footer generatedAt={data.meta.generatedAt} />
+      <Footer 
+        generatedAt={data.meta.generatedAt} 
+        onRefresh={handleRefresh}
+        isRefreshing={isRefreshing}
+      />
     </div>
   );
 };
@@ -1405,7 +1420,11 @@ const CTIAnalysisPanel: React.FC<{ analysis: NonNullable<DashboardData['ctiAnaly
   );
 };
 
-const Footer: React.FC<{ generatedAt?: string }> = ({ generatedAt }) => (
+const Footer: React.FC<{ generatedAt?: string; onRefresh?: () => void; isRefreshing?: boolean }> = ({ 
+  generatedAt, 
+  onRefresh, 
+  isRefreshing 
+}) => (
   <footer className="cti-footer">
     <div className="cti-footer-content">
       <p className="cti-footer-disclaimer">
@@ -1420,6 +1439,16 @@ const Footer: React.FC<{ generatedAt?: string }> = ({ generatedAt }) => (
               timeStyle: 'short' 
             })}
           </span>
+        )}
+        {onRefresh && (
+          <button 
+            className="cti-refresh-btn" 
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            title="Refresh data"
+          >
+            {isRefreshing ? '⟳' : '↻'} Refresh
+          </button>
         )}
         <span className="cti-footer-brand">Powered by Hackfluency Intelligence</span>
       </div>
