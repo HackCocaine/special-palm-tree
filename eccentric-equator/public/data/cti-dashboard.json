@@ -1,27 +1,24 @@
 {
   "meta": {
     "version": "2.0.0",
-    "generatedAt": "2026-02-13T23:49:32.374Z",
-    "validUntil": "2026-02-14T05:49:32.374Z"
+    "generatedAt": "2026-02-14T00:31:03.005Z",
+    "validUntil": "2026-02-14T06:31:03.005Z"
   },
   "status": {
     "riskLevel": "critical",
-    "riskScore": 80,
+    "riskScore": 90,
     "trend": "decreasing",
     "confidenceLevel": 85
   },
   "executive": {
     "headline": "Threat Level: CRITICAL",
-    "summary": "The current threat landscape indicates a sophisticated cyberattack campaign involving multiple actors, including ransomware groups like Qilin hacking group and MustangPanda APT. The infrastructure exposure data suggests ongoing exploitation of known vulnerabilities by attackers, with recent social media discussions aligning closely with the observed vulnerabilities.",
+    "summary": "The current threat landscape involves a ransomware attack targeting Anabuki Kosan Inc., with discussions surrounding vulnerabilities, exploit kits, and phishing tactics. Infrastructure exposure data indicates multiple hosts with known vulnerabilities, suggesting ongoing exploitation activities.",
     "keyFindings": [
-      "Critical Threats**: Multiple CVEs are being actively exploited, indicating a high level of threat activity.",
-      "Infrastructure Vulnerabilities**: High levels of exposed ports (particularly 445 and 22) suggest ongoing exploitation campaigns targeting these services.",
-      "Social Media Activity**: Discussions about ransomware and exploit kits are prevalent, correlating with the observed infrastructure vulnerabilities."
+      "2026-1731 was recently disclosed but not yet patched in some systems."
     ],
     "recommendedActions": [
-      "Implement Immediate Vulnerability Management**: Conduct a thorough vulnerability assessment and patch management for all exposed ports, especially 445 and 22.",
-      "Enhance Security Controls**: Implement additional security controls such as network segmentation and intrusion detection systems (IDS) to mitigate the risk of exploitation.",
-      "Monitor Social Media Activity**: Continuously monitor social media platforms for new exploit kits or ransomware campaigns, and take immediate action upon detecting any suspicious activity."
+      "Patch Known Vulnerabilities:* Immediately patch systems with known vulnerabilities (CVE-2026-1731 and others) to prevent exploitation.",
+      "Enhance Security Posture:* Increase"
     ]
   },
   "metrics": {
@@ -50,56 +47,56 @@
   },
   "timeline": [
     {
-      "id": "threat_mlljc1hp_s4yzrh",
+      "id": "threat_mllku5ay_2d5yb1",
       "title": "Vulnerable Infrastructure Detected (29 hosts)",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-13T21:31:06.180Z"
     },
     {
-      "id": "threat_mlljc1hs_hdwqd9",
+      "id": "threat_mllku5b2_ydcuj8",
       "title": "Threat: CVE-2026-21509",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-10T19:17:33.000Z"
     },
     {
-      "id": "threat_mlljc1hs_6wfxlt",
+      "id": "threat_mllku5b2_7ps8ia",
       "title": "Apple 0-Day Vulnerability Actively Exploited Sophisticated...",
       "severity": "critical",
       "category": "Vulnerability",
       "timestamp": "2026-02-12T05:42:00.000Z"
     },
     {
-      "id": "threat_mlljc1hs_kpx02j",
+      "id": "threat_mllku5b1_ga0899",
       "title": "Forcepoint researchers look into high-volume Phorpiex...",
       "severity": "high",
       "category": "APT",
       "timestamp": "2026-02-12T11:01:52.000Z"
     },
     {
-      "id": "threat_mlljc1ht_arae72",
+      "id": "threat_mllku5b2_d9xwxh",
       "title": "Threat: CVE-2026-1731",
       "severity": "medium",
       "category": "Vulnerability",
       "timestamp": "2026-02-10T17:19:25.000Z"
     },
     {
-      "id": "threat_mlljc1ht_1kanpz",
+      "id": "threat_mllku5b3_48irk3",
       "title": "Threat: CVE-2025-68947",
       "severity": "medium",
       "category": "Ransomware",
       "timestamp": "2026-02-10T14:42:11.000Z"
     },
     {
-      "id": "threat_mlljc1hs_vsgxm2",
+      "id": "threat_mllku5b1_33b9rm",
       "title": "According S2W, DragonForce operates ransomware cartel...",
       "severity": "medium",
       "category": "Ransomware",
       "timestamp": "2026-02-12T09:29:33.000Z"
     },
     {
-      "id": "threat_mlljc1hr_zcako3",
+      "id": "threat_mllku5b1_6ain45",
       "title": "#UNC6384 #MustangPanda #APTUpload from powershell $Env:temp\\4w42197.msiref1:...",
       "severity": "low",
       "category": "APT",
@@ -110,12 +107,12 @@
     {
       "name": "Technical Reconnaissance",
       "signalCount": 1,
-      "lastUpdate": "2026-02-13T23:49:32.374Z"
+      "lastUpdate": "2026-02-14T00:31:03.005Z"
     },
     {
       "name": "Social Intelligence (X)",
       "signalCount": 11,
-      "lastUpdate": "2026-02-13T23:49:32.374Z"
+      "lastUpdate": "2026-02-14T00:31:03.005Z"
     }
   ],
   "indicators": {
@@ -290,8 +287,8 @@
   "ctiAnalysis": {
     "model": "qwen2.5:3b",
     "killChainPhase": "Exploitation",
-    "threatLandscape": "The current threat landscape indicates a sophisticated cyberattack campaign involving multiple actors, including ransomware groups like Qilin hacking group and MustangPanda APT. The infrastructure exposure data suggests ongoing exploitation of known vulnerabilities by attackers, with recent social media discussions aligning closely with the observed vulnerabilities.",
-    "analystBrief": "CTI Analyst JR Summary: Current social context indicates active threat discussion with INFRA-FIRST behavior across sources within 24-48 hours. Primary correlation: social signal \"**: \"Apple 0-Day Vulnerability Actively Exploited in Sophisticated Attack to Tar\" linked to infrastructure \"**: Host 98.142.218.43:445 exposed, with CVE-2026-1731 (42h ago)\" (**: 42 hours). Observable focus: CVEs in current cycle: CVE-2008-3844, CVE-2019-16905, CVE-2016-20012, CVE-2021-36368. Assessment confidence is driven by temporal alignment + source evidence, not isolated port exposure.",
+    "threatLandscape": "The current threat landscape involves a ransomware attack targeting Anabuki Kosan Inc., with discussions surrounding vulnerabilities, exploit kits, and phishing tactics. Infrastructure exposure data indicates multiple hosts with known vulnerabilities, suggesting ongoing exploitation activities.",
+    "analystBrief": "CTI Analyst JR Summary: Current social context indicates active threat discussion with INFRA-FIRST behavior across sources within 24-48 hours. Primary correlation: social signal \"@H4ckmanac's post about the Qilin hacking group claiming responsibility for the \" linked to infrastructure \"Infrastructure findings showing a host with port 445 open and known vulnerabilit\" (85 hours.). Observable focus: CVEs in current cycle: CVE-2008-3844, CVE-2019-16905, CVE-2016-20012, CVE-2021-36368. Assessment confidence is driven by temporal alignment + source evidence, not isolated port exposure.",
     "methodologies": [
       "MITRE ATT&CK for tactic/technique mapping",
       "Cyber Kill Chain for phase prioritization",
@@ -368,22 +365,10 @@
     ],
     "keyFindings": [
       {
-        "finding": "*Critical Threats**: Multiple CVEs are being actively exploited, indicating a high level of threat activity.",
+        "finding": "2026-1731 was recently disclosed but not yet patched in some systems.",
         "severity": "high",
         "evidence": "Based on collected intelligence data",
-        "recommendation": "*Implement Immediate Vulnerability Management**: Conduct a thorough vulnerability assessment and patch management for all exposed ports, especially 445 and 22."
-      },
-      {
-        "finding": "*Infrastructure Vulnerabilities**: High levels of exposed ports (particularly 445 and 22) suggest ongoing exploitation campaigns targeting these services.",
-        "severity": "medium",
-        "evidence": "Based on collected intelligence data",
-        "recommendation": "*Enhance Security Controls**: Implement additional security controls such as network segmentation and intrusion detection systems (IDS) to mitigate the risk of exploitation."
-      },
-      {
-        "finding": "*Social Media Activity**: Discussions about ransomware and exploit kits are prevalent, correlating with the observed infrastructure vulnerabilities.",
-        "severity": "medium",
-        "evidence": "Based on collected intelligence data",
-        "recommendation": "*Monitor Social Media Activity**: Continuously monitor social media platforms for new exploit kits or ransomware campaigns, and take immediate action upon detecting any suspicious activity."
+        "recommendation": "Patch Known Vulnerabilities:* Immediately patch systems with known vulnerabilities (CVE-2026-1731 and others) to prevent exploitation."
       }
     ],
     "ttps": [
@@ -440,37 +425,42 @@
     "temporalPatterns": [
       {
         "pattern": "INFRA-FIRST correlation detected",
-        "description": "#### Relationship Between Social Media Discussions and Infrastructure Findings:\n- **Time Window**: The time window between social media discussions and infrastructure findings is generally within 24 hours. This suggests that social media discussions often precede or coincide with the discovery of related vulnerabilities in the infrastructure.\n- **CVE Matching**: There are several CVEs being discussed on social media platforms (such as CVE-2026-1731, CVE-2025-26465) that match known exposed vulnerabilities in the infrastructure. For example, the exploit for CVE-2026-1731 is out and has been actively exploited.\n- **Causal vs Coincidental**: The discussions about ransomware and exploit kits often precede or coincide with the discovery of related vulnerabilities. This indicates a causal relationship rather than mere coincidence.\n\n####",
+        "description": "The analysis reveals a strong temporal correlation between social media discussions and infrastructure exposure. The following points highlight the relationship:\n\n- Social Discussions Preceding Infrastructure Exposure: Most of the critical social events (e.g., @H4ckmanac, @virusbtn) occurred within 24 hours before or after the corresponding infrastructure findings.\n- Time Window Between Events: The time window between related events is typically around 18 to 72 hours. For example, the Qilin hacking group's claim about the Anabuki Kosan attack was discussed on @H4ckmanac within 85 hours of the infrastructure finding (98.142.218.43:445).\n- CVEs and Vulnerabilities: Multiple social media posts discuss vulnerabilities like CVE-2026-1731, which is also found in the infrastructure findings.\n- Causal vs. Coincidental Events: The majority of events are causally related; for instance, discussions about ransomware attacks often precede or coincide with infrastructure findings indicating active exploitation.",
         "timeframe": "24-48 hours",
         "confidence": 0.75,
         "evidence": [
           {
             "source": "X.com",
-            "excerpt": "@H4ckmanac: Cyberattack Update\n\nJapan - Anabuki Kosan Inc.\n\nQilin hacking group claims respo...",
-            "url": ""
+            "excerpt": "Apple 0-Day Vulnerability Actively Exploited in Sophisticated Attack to Target Individuals \n\nSource: https://cybersecuritynews.com/apple-0-day-vulnerability-exploited/…\n\nApple released iOS 26.3 and i",
+            "url": "https://x.com/The_Cyber_News/status/2021822072339804492"
           },
           {
             "source": "X.com",
-            "excerpt": "@TheDFIRReport:  DFIR Labs | BlueSky Ransomware Lab\n\nDive into a real investigation where a SQL ...",
-            "url": ""
+            "excerpt": "The exploit for CVE-2026-1731 is out.\n\nThe APT of CVE-2026-1281 missed a major target . Props to watchTowr for the blog on it. The moment I read it, my instinct said there had to be a variant in remot",
+            "url": "https://x.com/rootxharsh/status/2021272807980880294"
           },
           {
-            "source": "X.com",
-            "excerpt": "@TheHackersNews:  Ransomware Persists — But Encryption Is No Longer the Main Signal of Attack!\n\nP...",
-            "url": ""
+            "source": "Shodan",
+            "excerpt": "OpenSSH 198.20.133.130:22",
+            "url": "https://www.shodan.io/host/198.20.133.130"
+          },
+          {
+            "source": "Shodan",
+            "excerpt": "OpenSSH 72.167.204.70:22",
+            "url": "https://www.shodan.io/host/72.167.204.70"
           }
         ]
       },
       {
         "pattern": "Emerging Threat",
-        "description": "*Ransomware Campaigns**: Continued discussions about ransomware (e.g., Reynolds ransomware) suggest ongoing campaigns targeting multiple organizations.",
+        "description": "Ransomware Campaigns Exploiting New Vulnerabilities:* The recent disclosure of CVE-2026-1731 highlights a potential new ransomware campaign targeting systems not yet patched.",
         "timeframe": "Active",
         "confidence": 0.7,
         "evidence": []
       },
       {
         "pattern": "Emerging Threat",
-        "description": "*APT Activity**: The MustangPanda APT group is continuing its operations, as evidenced by recent social media posts discussing their activities.",
+        "description": "APT Group Activity:* The Qilin hacking group's involvement in the Anabuki Kosan attack suggests ongoing APT activity, possibly indicating other targets or campaigns.",
         "timeframe": "Active",
         "confidence": 0.7,
         "evidence": []
@@ -478,17 +468,16 @@
     ],
     "crossSourceLinks": [
       {
-        "infraSignal": "**: Host 98.142.218.43:445 exposed, with CVE-2026-1731 (42h ago)",
-        "socialSignal": "**: \"Apple 0-Day Vulnerability Actively Exploited in Sophisticated Attack to Target Individuals\" (42h ago)",
+        "infraSignal": "Infrastructure findings showing a host with port 445 open and known vulnerabilities (98.142.218.43:445).",
+        "socialSignal": "@H4ckmanac's post about the Qilin hacking group claiming responsibility for the Anabuki Kosan attack.",
         "relationship": "infra-first",
-        "timeDelta": "**: 42 hours",
-        "significance": "**: The exploit for CVE-2026-1731 is out and has been actively exploited, aligning with the social media discussion. This indicates that attackers are leveraging this vulnerability to target individuals."
+        "timeDelta": "85 hours.",
+        "significance": "The social discussion about the Qilin hacking group's claim directly correlates with the infrastructure findings, indicating that this attack is ongoing and active."
       }
     ],
     "immediateActions": [
-      "*Implement Immediate Vulnerability Management**: Conduct a thorough vulnerability assessment and patch management for all exposed ports, especially 445 and 22.",
-      "*Enhance Security Controls**: Implement additional security controls such as network segmentation and intrusion detection systems (IDS) to mitigate the risk of exploitation.",
-      "*Monitor Social Media Activity**: Continuously monitor social media platforms for new exploit kits or ransomware campaigns, and take immediate action upon detecting any suspicious activity."
+      "*Patch Known Vulnerabilities:** Immediately patch systems with known vulnerabilities (CVE-2026-1731 and others) to prevent exploitation.",
+      "*Enhance Security Posture:** Increase"
     ],
     "strategicRecommendations": [],
     "sourcesAndReferences": [
